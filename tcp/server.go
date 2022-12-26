@@ -13,8 +13,6 @@ import (
 )
 
 type Server struct {
-    gnet.BuiltinEventEngine
-
     *Tcp
 }
 
@@ -33,40 +31,4 @@ func (s *Server) Run() error {
         gnet.WithReuseAddr(true),
         gnet.WithLogger(s.logger),
     )
-}
-
-func (s *Server) OnBoot(e gnet.Engine) (action gnet.Action) {
-    s.logger.Infof("[ADAPTER] TCP服务端已启动: %s", s.address)
-
-    if s.Hooks.Boot != nil {
-        s.Hooks.Boot()
-    }
-    return gnet.None
-}
-
-func (s *Server) OnClose(gnet.Conn, error) (action gnet.Action) {
-    s.logger.Info("[ADAPTER] 已断开连接")
-    return
-}
-
-func (s *Server) OnTraffic(c gnet.Conn) (action gnet.Action) {
-    var (
-        b   []byte
-        err error
-    )
-
-    for {
-        b, err = s.codec.Decode(c)
-        if err == codec.IncompletePacket {
-            break
-        }
-        if err != nil {
-            s.logger.Errorf("[ADAPTER] 消息读取失败, err: %v", err)
-            return
-        }
-
-        s.receiver(b)
-    }
-
-    return gnet.None
 }

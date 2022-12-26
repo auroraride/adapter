@@ -26,6 +26,8 @@ type Tcp struct {
     receiver model.BytesCallback
 
     Hooks Hook
+
+    closeCh chan bool
 }
 
 func NewTcp(addr string, l logger.StdLogger, c codec.Codec, receiver model.BytesCallback) *Tcp {
@@ -35,4 +37,48 @@ func NewTcp(addr string, l logger.StdLogger, c codec.Codec, receiver model.Bytes
         codec:    c,
         receiver: receiver,
     }
+}
+
+func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
+    t.logger.Infof("[ADAPTER] TCP服务端已启动: %s", t.address)
+
+    if t.Hooks.Boot != nil {
+        t.Hooks.Boot()
+    }
+    return gnet.None
+}
+
+func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
+    t.logger.Infof("[ADAPTER] 已断开连接: %v", c.RemoteAddr())
+    if t.closeCh != nil {
+        t.closeCh <- true
+    }
+    return
+}
+
+func (t *Tcp) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
+    t.logger.Infof("[ADAPTER] 已开始连接: %v", c.RemoteAddr())
+    return
+}
+
+func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
+    var (
+        b   []byte
+        err error
+    )
+
+    for {
+        b, err = t.codec.Decode(c)
+        if err == codec.IncompletePacket {
+            break
+        }
+        if err != nil {
+            t.logger.Errorf("[ADAPTER] 消息读取失败, err: %v", err)
+            return
+        }
+
+        t.receiver(b)
+    }
+
+    return gnet.None
 }

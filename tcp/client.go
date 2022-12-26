@@ -6,87 +6,102 @@
 package tcp
 
 import (
+    "errors"
+    "fmt"
     "github.com/auroraride/adapter/codec"
     "github.com/auroraride/adapter/logger"
-    jsoniter "github.com/json-iterator/go"
-    "net"
+    "github.com/auroraride/adapter/model"
+    "github.com/panjf2000/gnet/v2"
     "time"
 )
 
 type Client struct {
-    net.Conn
     *Tcp
 
-    Sender    chan any
-    reconnect chan bool
-    readStop  chan bool
-    writeStop chan bool
+    Conn   *Conn
+    Sender chan *model.CabinetSyncRequest
+    stop   chan bool
 }
 
 func NewClient(addr string, l logger.StdLogger, c codec.Codec) *Client {
-    return &Client{
-        Sender:    make(chan any),
-        reconnect: make(chan bool),
-        readStop:  make(chan bool),
-        writeStop: make(chan bool),
-        Tcp:       NewTcp(addr, l, c, nil),
+    cli := &Client{
+        Tcp:    NewTcp(addr, l, c, nil),
+        Sender: make(chan *model.CabinetSyncRequest),
+        stop:   make(chan bool),
     }
-}
-
-func (c *Client) Send(data any) (err error) {
-    b, _ := jsoniter.Marshal(data)
-    _, err = c.Write(c.codec.Encode(b))
-    return
+    cli.Tcp.closeCh = make(chan bool)
+    return cli
 }
 
 func (c *Client) Run() {
-
     for {
-        select {
-        case <-c.reconnect:
-            c.writeStop <- true
-            c.readStop <- true
-            c.logger.Errorf("[ADAPTER] TCP (%s) 连接失败, 3s后重试连接...", c.address)
-            time.Sleep(3 * time.Second)
-            c.dial()
-        }
+        err := c.dial()
+        c.logger.Errorf("[ADAPTER] TCP (%s) 连接失败: %v, 5s后重试连接...", c.address, err)
+        time.Sleep(5 * time.Second)
     }
 }
 
-func (c *Client) dial() {
-    conn, err := net.Dial("tcp", c.address)
+func (c *Client) dial() (err error) {
+    var (
+        cli  *gnet.Client
+        conn gnet.Conn
+    )
+
+    cli, err = gnet.NewClient(
+        c,
+        gnet.WithLogger(c.logger),
+        gnet.WithReuseAddr(true),
+    )
     if err != nil {
-        c.logger.Errorf("[ADAPTER] TCP (%s) 连接错误: %v", c.address, err)
+        return
+    }
+    err = cli.Start()
+    if err != nil {
         return
     }
 
-    defer conn.Close()
+    defer cli.Stop()
+
+    conn, err = cli.Dial("tcp", c.address)
+    if err != nil {
+        return
+    }
+
+    c.Conn = &Conn{
+        Conn:  conn,
+        codec: c.Tcp.codec,
+    }
 
     if c.Hooks.Connect != nil {
         c.Hooks.Connect()
     }
 
-    c.Conn = conn
+    go c.readPump()
 
-    go c.readBump()
-    go c.writeBump()
-}
-
-func (c *Client) readBump() {
     for {
-
+        select {
+        case data := <-c.Sender:
+            err = c.Conn.Send(data)
+            if err != nil {
+                c.logger.Errorf("[ADAPTER] 消息发送失败 (%#v): %v", data, err)
+            }
+        case <-c.closeCh:
+            c.stop <- true
+            err = errors.New("未知原因断开连接")
+            return
+        }
     }
 }
 
-func (c *Client) writeBump() {
+func (c *Client) readPump() {
     for {
         select {
-        case <-c.writeStop:
+        case <-c.stop:
             return
-        case data := <-c.Sender:
-            err := c.Send(data)
-            if err != nil {
-                c.logger.Errorf("[ADAPTER] 消息发送失败 (%#v): %v", data, err)
+        default:
+            _, err := c.codec.Decode(c.Conn)
+            if err != nil && err != codec.IncompletePacket {
+                fmt.Println(err)
             }
         }
     }
