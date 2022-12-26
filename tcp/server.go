@@ -13,37 +13,40 @@ import (
 )
 
 type Server struct {
-    address  string
-    receiver model.BytesCallback
+    gnet.BuiltinEventEngine
 
     *Tcp
-    gnet.BuiltinEventEngine
 }
 
 func NewServer(addr string, l logger.StdLogger, c codec.Codec, r model.BytesCallback) *Server {
-    return &Server{
-        address:  addr,
-        receiver: r,
-        Tcp: &Tcp{
-            logger: l,
-            codec:  c,
-        },
+    s := &Server{
+        Tcp: NewTcp(addr, l, c, r),
     }
+    return s
 }
 
-func (s *Server) Run() {
-    s.logger.Fatal(gnet.Run(
+func (s *Server) Run() error {
+    return gnet.Run(
         s,
         s.address,
         gnet.WithMulticore(true),
         gnet.WithReuseAddr(true),
         gnet.WithLogger(s.logger),
-    ))
+    )
 }
 
-func (s *Server) OnBoot(_ gnet.Engine) (action gnet.Action) {
-    s.logger.Infof("[ADAPTER] TCP服务器已启动 %s", s.address)
+func (s *Server) OnBoot(e gnet.Engine) (action gnet.Action) {
+    s.logger.Infof("[ADAPTER] TCP服务端已启动: %s", s.address)
+
+    if s.Hooks.Boot != nil {
+        s.Hooks.Boot()
+    }
     return gnet.None
+}
+
+func (s *Server) OnClose(gnet.Conn, error) (action gnet.Action) {
+    s.logger.Info("[ADAPTER] 已断开连接")
+    return
 }
 
 func (s *Server) OnTraffic(c gnet.Conn) (action gnet.Action) {
