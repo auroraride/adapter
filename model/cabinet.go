@@ -5,6 +5,17 @@
 
 package model
 
+type CabinetStatus string
+
+// CabinetStatus values.
+const (
+    StatusInitializing CabinetStatus = "initializing"
+    StatusIdle         CabinetStatus = "idle"
+    StatusBusy         CabinetStatus = "busy"
+    StatusExchange     CabinetStatus = "exchange"
+    StatusAbnormal     CabinetStatus = "abnormal"
+)
+
 // Cabinet is the model entity for the Cabinet schema.
 type Cabinet struct {
     ID uint64 `json:"id,omitempty"`
@@ -15,7 +26,7 @@ type Cabinet struct {
     // 电柜编号
     Serial string `json:"serial,omitempty"`
     // 状态
-    Status string `json:"status,omitempty"`
+    Status CabinetStatus `json:"status,omitempty"`
     // 电柜是否启用
     Enable bool `json:"enable,omitempty"`
     // 经度
