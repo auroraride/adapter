@@ -7,7 +7,6 @@ package tcp
 
 import (
     "errors"
-    "fmt"
     "github.com/auroraride/adapter/codec"
     "github.com/auroraride/adapter/logger"
     "github.com/auroraride/adapter/model"
@@ -101,7 +100,8 @@ func (c *Client) readPump() {
         default:
             _, err := c.codec.Decode(c.Conn)
             if err != nil && err != codec.IncompletePacket {
-                fmt.Println(err)
+                c.logger.Errorf("[ADAPTER] 消息读取失败: %v", err)
+                c.closeCh <- true
             }
         }
     }
