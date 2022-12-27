@@ -7,7 +7,7 @@ package tcp
 
 import (
     "github.com/auroraride/adapter/codec"
-    jsoniter "github.com/json-iterator/go"
+    "github.com/goccy/go-json"
     "github.com/panjf2000/gnet/v2"
 )
 
@@ -18,7 +18,7 @@ type Conn struct {
 }
 
 func (c *Conn) Send(data any) (err error) {
-    b, _ := jsoniter.Marshal(data)
+    b, _ := json.Marshal(data)
     _, err = c.Write(c.codec.Encode(b))
     return
 }
