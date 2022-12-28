@@ -65,3 +65,7 @@ type ExchangeRequest struct {
     UUID    string        `json:"uuid" query:"uuid" validate:"required"`
     Expires time.Duration `json:"expires" query:"expires" validate:"required"`
 }
+
+type ExchangeResponse struct {
+    StartAt time.Time `json:"startAt"`
+}
