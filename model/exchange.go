@@ -10,7 +10,7 @@ import (
     "time"
 )
 
-type ExchangeRequest struct {
+type ExchangeUsableRequest struct {
     Serial string        `json:"serial" query:"serial" validate:"required"` // 电柜编号
     MinSoc float64       `json:"minSoc" query:"minSoc" validate:"required"` // 换电最小电量
     Lock   time.Duration `json:"lock" query:"lock" validate:"required"`     // 扫码锁定时间
@@ -59,4 +59,9 @@ func (s ExchangeStep) String() string {
         return "第4步, 取出电池关仓"
     }
     return "-"
+}
+
+type ExchangeRequest struct {
+    UUID    string        `json:"uuid" query:"uuid" validate:"required"`
+    Expires time.Duration `json:"expires" query:"expires" validate:"required"`
 }
