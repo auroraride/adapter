@@ -8,10 +8,6 @@ package model
 // Bin is the model entity for the Bin schema.
 type Bin struct {
     ID uint64 `json:"id,omitempty"`
-    // 唯一标识
-    UUID string `json:"uuid,omitempty"`
-    // CabinetID holds the value of the "cabinet_id" field.
-    CabinetID uint64 `json:"cabinet_id,omitempty"`
     // 品牌
     Brand string `json:"brand,omitempty"`
     // 电柜设备序列号

@@ -7,11 +7,13 @@ package model
 
 import (
     "database/sql/driver"
+    "time"
 )
 
 type ExchangeRequest struct {
-    Serial string  `json:"serial" query:"serial" validate:"required"` // 电柜编号
-    MinSoc float64 `json:"minSoc" query:"minSoc" validate:"required"` // 换电最小电量
+    Serial string        `json:"serial" query:"serial" validate:"required"` // 电柜编号
+    MinSoc float64       `json:"minSoc" query:"minSoc" validate:"required"` // 换电最小电量
+    Lock   time.Duration `json:"lock" query:"lock" validate:"required"`     // 扫码锁定时间
 }
 
 type ExchangeUsableResponse struct {
