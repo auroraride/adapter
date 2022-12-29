@@ -37,3 +37,31 @@ type Bin struct {
     // 仓位备注
     Remark *string `json:"remark,omitempty"`
 }
+
+type BinInfo struct {
+    Ordinal       int     `json:"ordinal,omitempty"`        // 仓位序号
+    BatterySN     string  `json:"batterySn,omitempty"`      // 电池编码
+    Voltage       float64 `json:"voltage,omitempty"`        // 电压
+    Current       float64 `json:"current,omitempty"`        // 电流
+    Soc           float64 `json:"soc,omitempty"`            // 电量
+    Soh           float64 `json:"soh,omitempty"`            // 健康
+    Health        bool    `json:"health,omitempty"`         // 健康
+    Enable        bool    `json:"enable,omitempty"`         // 启用
+    Open          bool    `json:"open,omitempty"`           // 开启
+    BatteryExists bool    `json:"battery_exists,omitempty"` // 电池在位
+}
+
+func (b *Bin) Info() *BinInfo {
+    return &BinInfo{
+        Ordinal:       b.Ordinal,
+        BatterySN:     b.BatterySn,
+        Voltage:       b.Voltage,
+        Current:       b.Current,
+        Soc:           b.Soc,
+        Soh:           b.Soh,
+        Health:        b.Health,
+        Enable:        b.Enable,
+        Open:          b.Open,
+        BatteryExists: b.BatteryExists,
+    }
+}

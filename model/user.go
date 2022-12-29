@@ -17,9 +17,9 @@ type UserType string
 const (
     UserTypeUnknown  UserType = "unknown"  // 未知
     UserTypeCabinet  UserType = "cabinet"  // 电柜
-    UserTypeManager  UserType = "manager"  // 后台操作
-    UserTypeEmployee UserType = "employee" // 员工操作
-    UserTypeRider    UserType = "rider"    // 骑手操作
+    UserTypeManager  UserType = "manager"  // 后台
+    UserTypeEmployee UserType = "employee" // 员工
+    UserTypeRider    UserType = "rider"    // 骑手
 )
 
 type User struct {
@@ -43,4 +43,8 @@ func (t *UserType) Scan(src interface{}) error {
 
 func (t UserType) Value() (driver.Value, error) {
     return t, nil
+}
+
+func (u *User) String() string {
+    return u.Type.String() + " - " + u.ID
 }
