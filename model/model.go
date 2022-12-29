@@ -30,9 +30,3 @@ type (
     VoidFunc      func()
     BytesCallback func(b []byte)
 )
-
-type CabinetSyncRequest struct {
-    Serial  string   `json:"serial"`
-    Cabinet *Cabinet `json:"cabinet,omitempty"`
-    Bins    []*Bin   `json:"bins,omitempty"`
-}
