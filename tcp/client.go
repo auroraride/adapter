@@ -9,7 +9,6 @@ import (
     "errors"
     "github.com/auroraride/adapter/codec"
     "github.com/auroraride/adapter/logger"
-    "github.com/auroraride/adapter/model"
     "github.com/panjf2000/gnet/v2"
     "time"
 )
@@ -18,14 +17,14 @@ type Client struct {
     *Tcp
 
     Conn   *Conn
-    Sender chan *model.CabinetSyncRequest
+    Sender chan any
     stop   chan bool
 }
 
 func NewClient(addr string, l logger.StdLogger, c codec.Codec) *Client {
     cli := &Client{
         Tcp:    NewTcp(addr, l, c, nil),
-        Sender: make(chan *model.CabinetSyncRequest),
+        Sender: make(chan any),
         stop:   make(chan bool),
     }
     cli.Tcp.closeCh = make(chan bool)
