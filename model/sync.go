@@ -16,6 +16,7 @@ type DataStuff interface {
 }
 
 type CabinetSyncData struct {
+    Full    bool     `json:"full"`
     Serial  string   `json:"serial"`
     Cabinet *Cabinet `json:"cabinet,omitempty"`
     Bins    []*Bin   `json:"bins,omitempty"`
