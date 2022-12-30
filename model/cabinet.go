@@ -5,6 +5,12 @@
 
 package model
 
+type Brand string
+
+const (
+    BrandKaixin Brand = "KAIXIN"
+)
+
 type CabinetStatus string
 
 // CabinetStatus values.

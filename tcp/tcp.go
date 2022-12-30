@@ -14,7 +14,9 @@ import (
 
 type Hook struct {
     Boot    model.VoidFunc
+    Start   model.VoidFunc
     Connect model.VoidFunc
+    Close   model.VoidFunc
 }
 
 type Tcp struct {
@@ -40,11 +42,12 @@ func NewTcp(addr string, l logger.StdLogger, c codec.Codec, receiver model.Bytes
 }
 
 func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
-    t.logger.Infof("[ADAPTER] TCP服务端已启动: %s", t.address)
+    t.logger.Infof("[ADAPTER] TCP启动: %s", t.address)
 
     if t.Hooks.Boot != nil {
         t.Hooks.Boot()
     }
+
     return gnet.None
 }
 

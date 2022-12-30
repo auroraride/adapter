@@ -18,14 +18,12 @@ type Client struct {
 
     Conn   *Conn
     Sender chan any
-    stop   chan bool
 }
 
 func NewClient(addr string, l logger.StdLogger, c codec.Codec) *Client {
     cli := &Client{
         Tcp:    NewTcp(addr, l, c, nil),
         Sender: make(chan any),
-        stop:   make(chan bool),
     }
     cli.Tcp.closeCh = make(chan bool)
     return cli
@@ -40,6 +38,10 @@ func (c *Client) Run() {
 }
 
 func (c *Client) dial() (err error) {
+    if c.Hooks.Start != nil {
+        c.Hooks.Start()
+    }
+
     var (
         cli  *gnet.Client
         conn gnet.Conn
@@ -71,10 +73,8 @@ func (c *Client) dial() (err error) {
     }
 
     if c.Hooks.Connect != nil {
-        c.Hooks.Connect()
+        go c.Hooks.Connect()
     }
-
-    go c.readPump()
 
     for {
         select {
@@ -84,20 +84,15 @@ func (c *Client) dial() (err error) {
                 c.logger.Errorf("[ADAPTER] 消息发送失败 (%#v): %v", data, err)
             }
         case <-c.closeCh:
-            c.stop <- true
-            err = errors.New("未知原因断开连接")
-            return
-        }
-    }
-}
-
-func (c *Client) readPump() {
-    for {
-        select {
-        case <-c.stop:
+            if err == nil {
+                err = errors.New("未知原因断开连接")
+            }
+            if c.Hooks.Close != nil {
+                go c.Hooks.Close()
+            }
             return
         default:
-            _, err := c.codec.Decode(c.Conn)
+            _, err = c.codec.Decode(c.Conn)
             if err != nil && err != codec.IncompletePacket {
                 c.logger.Errorf("[ADAPTER] 消息读取失败: %v", err)
                 c.closeCh <- true
