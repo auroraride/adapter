@@ -24,17 +24,17 @@ const (
 
 // Cabinet is the model entity for the Cabinet schema.
 type Cabinet struct {
-    ID uint64 `json:"id,omitempty"`
+    ID uint64 `json:"id"`
     // 是否在线
-    Online bool `json:"online,omitempty"`
+    Online bool `json:"online"`
     // 品牌
-    Brand string `json:"brand,omitempty"`
+    Brand string `json:"brand"`
     // 电柜编号
-    Serial string `json:"serial,omitempty"`
+    Serial string `json:"serial"`
     // 状态
-    Status CabinetStatus `json:"status,omitempty"`
+    Status CabinetStatus `json:"status"`
     // 电柜是否启用
-    Enable bool `json:"enable,omitempty"`
+    Enable bool `json:"enable"`
     // 经度
     Lng *float64 `json:"lng,omitempty"`
     // 纬度

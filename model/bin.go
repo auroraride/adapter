@@ -7,48 +7,48 @@ package model
 
 // Bin is the model entity for the Bin schema.
 type Bin struct {
-    ID uint64 `json:"id,omitempty"`
+    ID uint64 `json:"id"`
     // 品牌
-    Brand string `json:"brand,omitempty"`
+    Brand string `json:"brand"`
     // 电柜设备序列号
-    Serial string `json:"serial,omitempty"`
+    Serial string `json:"serial"`
     // 仓位名称(N号仓)
-    Name string `json:"name,omitempty"`
+    Name string `json:"name"`
     // 仓位序号(从1开始)
-    Ordinal int `json:"ordinal,omitempty"`
+    Ordinal int `json:"ordinal"`
     // 仓门是否开启
-    Open bool `json:"open,omitempty"`
+    Open bool `json:"open"`
     // 仓位是否启用
-    Enable bool `json:"enable,omitempty"`
+    Enable bool `json:"enable"`
     // 仓位是否健康
-    Health bool `json:"health,omitempty"`
+    Health bool `json:"health"`
     // 是否有电池
-    BatteryExists bool `json:"battery_exists,omitempty"`
+    BatteryExists bool `json:"battery_exists"`
     // 电池序列号
-    BatterySn string `json:"battery_sn,omitempty"`
+    BatterySn string `json:"battery_sn"`
     // 当前电压
-    Voltage float64 `json:"voltage,omitempty"`
+    Voltage float64 `json:"voltage"`
     // 当前电流
-    Current float64 `json:"current,omitempty"`
+    Current float64 `json:"current"`
     // 电池电量
-    Soc float64 `json:"soc,omitempty"`
+    Soc float64 `json:"soc"`
     // 电池健康程度
-    Soh float64 `json:"soh,omitempty"`
+    Soh float64 `json:"soh"`
     // 仓位备注
     Remark *string `json:"remark,omitempty"`
 }
 
 type BinInfo struct {
-    Ordinal       int     `json:"ordinal,omitempty"`        // 仓位序号
-    BatterySN     string  `json:"batterySn,omitempty"`      // 电池编码
-    Voltage       float64 `json:"voltage,omitempty"`        // 电压
-    Current       float64 `json:"current,omitempty"`        // 电流
-    Soc           float64 `json:"soc,omitempty"`            // 电量
-    Soh           float64 `json:"soh,omitempty"`            // 健康
-    Health        bool    `json:"health,omitempty"`         // 健康
-    Enable        bool    `json:"enable,omitempty"`         // 启用
-    Open          bool    `json:"open,omitempty"`           // 开启
-    BatteryExists bool    `json:"battery_exists,omitempty"` // 电池在位
+    Ordinal       int     `json:"ordinal"`        // 仓位序号
+    BatterySN     string  `json:"batterySn"`      // 电池编码
+    Voltage       float64 `json:"voltage"`        // 电压
+    Current       float64 `json:"current"`        // 电流
+    Soc           float64 `json:"soc"`            // 电量
+    Soh           float64 `json:"soh"`            // 健康
+    Health        bool    `json:"health"`         // 健康
+    Enable        bool    `json:"enable"`         // 启用
+    Open          bool    `json:"open"`           // 开启
+    BatteryExists bool    `json:"battery_exists"` // 电池在位
 }
 
 func (b *Bin) Info() *BinInfo {

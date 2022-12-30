@@ -5,14 +5,32 @@
 
 package model
 
-import "fmt"
+import (
+    "database/sql/driver"
+    "fmt"
+)
 
 type OperateType string
 
+func (s *OperateType) Scan(src interface{}) error {
+    switch v := src.(type) {
+    case nil:
+        return nil
+    case string:
+        *s = OperateType(v)
+    }
+    return nil
+}
+
+func (s OperateType) Value() (driver.Value, error) {
+    return s, nil
+}
+
 const (
+    OperateTypeUnknown    OperateType = "unknown"
     OperateTypeBinOpen    OperateType = "binOpen"    // 仓位开门
-    OperateTypeBinDisable             = "binDisable" // 仓位禁用
-    OperateTypeBinEnable              = "binEnable"  // 仓位启用
+    OperateTypeBinDisable OperateType = "binDisable" // 仓位禁用
+    OperateTypeBinEnable  OperateType = "binEnable"  // 仓位启用
 )
 
 type OperateRequest struct {

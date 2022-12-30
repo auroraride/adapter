@@ -129,9 +129,9 @@ var ExchangeStepConfigures = []ExchangeStepConfigure{
 }
 
 type ExchangeUsableRequest struct {
-    Serial string        `json:"serial" validate:"required"` // 电柜编号
-    Minsoc float64       `json:"minsoc" validate:"required"` // 换电最小电量
-    Lock   time.Duration `json:"lock" validate:"required"`   // 扫码锁定时间
+    Serial string  `json:"serial" validate:"required"` // 电柜编号
+    Minsoc float64 `json:"minsoc" validate:"required"` // 换电最小电量
+    Lock   int64   `json:"lock" validate:"required"`   // 扫码锁定时间
 }
 
 type ExchangeUsableResponse struct {
@@ -142,10 +142,10 @@ type ExchangeUsableResponse struct {
 }
 
 type ExchangeRequest struct {
-    UUID    string        `json:"uuid" validate:"required"`
-    Expires time.Duration `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
-    TimeOut time.Duration `json:"timeOut" validate:"required"` // 换电步骤超时(s), 例如: 120s
-    Minsoc  float64       `json:"minsoc" validate:"required"`  // 换电最小电量
+    UUID    string  `json:"uuid" validate:"required"`
+    Expires int64   `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
+    TimeOut int64   `json:"timeOut" validate:"required"` // 换电步骤超时(s), 例如: 120s
+    Minsoc  float64 `json:"minsoc" validate:"required"`  // 换电最小电量
 }
 
 type ExchangeStepResult struct {
