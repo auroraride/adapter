@@ -8,8 +8,9 @@ package errors
 import "errors"
 
 var (
+    NotFound            = errors.New("无效请求")
     BadRequest          = errors.New("请求参数错误")
-    InternalServerError = errors.New("服务器未知错误")
+    InternalServerError = errors.New("未知错误")
 
     UserRequired = errors.New("需要用户信息")
 
@@ -21,7 +22,8 @@ var (
     CabinetBrandRequired      = errors.New("电柜型号不存在")
     CabinetBinOrdinalRequired = errors.New("仓位序号不存在")
     CabinetNotFound           = errors.New("电柜未找到")
-    CabinetOffline            = errors.New("电柜不在线")
+    CabinetBinNotFound        = errors.New("仓位未找到")
+    CabinetOffline            = errors.New("电柜离线")
     CabinetInitializing       = errors.New("电柜初始化中")
     CabinetAbnormal           = errors.New("电柜状态异常")
     CabinetClientNotFound     = errors.New("未找到在线电柜")
@@ -38,4 +40,6 @@ var (
     ExchangeTimeOut      = errors.New("换电超时")
     ExchangeBatteryLost  = errors.New("电池未放入")
     ExchangeBatteryExist = errors.New("电池未取走")
+
+    OperateTimeout = errors.New("仓位控制超时")
 )

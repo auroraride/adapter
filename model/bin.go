@@ -65,3 +65,9 @@ func (b *Bin) Info() *BinInfo {
         BatteryExists: b.BatteryExists,
     }
 }
+
+type BinOperateEnable struct {
+    Enable  *bool   `json:"enable" validate:"required"`  // 是否启用
+    Serial  *string `json:"serial" validate:"required"`  // 电柜编号
+    Ordinal *int    `json:"ordinal" validate:"required"` // 仓位序号
+}

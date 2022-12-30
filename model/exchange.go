@@ -143,7 +143,7 @@ type ExchangeUsableResponse struct {
 
 type ExchangeRequest struct {
     UUID    string        `json:"uuid" validate:"required"`
-    Expires time.Duration `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 10s
+    Expires time.Duration `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
     TimeOut time.Duration `json:"timeOut" validate:"required"` // 换电步骤超时(s), 例如: 120s
     Minsoc  float64       `json:"minsoc" validate:"required"`  // 换电最小电量
 }
@@ -158,6 +158,5 @@ type ExchangeStepResult struct {
 }
 
 type ExchangeResponse struct {
-    Error   string                `json:"error,omitempty"`   // 任务是否失败
     Results []*ExchangeStepResult `json:"results,omitempty"` // 步骤详情
 }
