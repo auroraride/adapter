@@ -5,7 +5,9 @@
 
 package adapter
 
-import "strconv"
+import (
+    "strconv"
+)
 
 type BatteryBrand string
 
@@ -20,6 +22,7 @@ var (
 )
 
 type Battery struct {
+    SN     string       `json:"sn"`     // 电池编号
     Brand  BatteryBrand `json:"brand"`  // 电池厂家
     Model  string       `json:"model"`  // 电池型号
     Year   int          `json:"year"`   // 生产年份
@@ -33,6 +36,7 @@ func ParseBatterySN(sn string) (bat *Battery) {
         Brand:  BatteryBrand(sn[0:2]),
         Model:  BatteryModelXC[sn[3:5]],
         Serial: sn[12:],
+        SN:     sn,
     }
 
     year, _ := strconv.ParseInt(sn[8:10], 10, 64)

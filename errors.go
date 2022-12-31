@@ -8,8 +8,8 @@ package adapter
 import "errors"
 
 var (
-    ErrorData                      = errors.New("数据类型错误")
-    ErrorNotFound                  = errors.New("无效请求")
+    ErrorData                      = errors.New("数据错误")
+    ErrorNotFound                  = errors.New("未找到资源")
     ErrorBadRequest                = errors.New("请求参数错误")
     ErrorInternalServer            = errors.New("未知错误")
     ErrorUserRequired              = errors.New("需要用户信息")
@@ -38,4 +38,5 @@ var (
     ErrorExchangeBatteryLost       = errors.New("电池未放入")
     ErrorExchangeBatteryExist      = errors.New("电池未取走")
     ErrorOperateTimeout            = errors.New("仓位控制超时")
+    ErrorBatteryPutin              = errors.New("放入电池编号不匹配")
 )

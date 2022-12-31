@@ -21,6 +21,7 @@ func TestParseBatterySN(t *testing.T) {
         Year:   2022,
         Month:  11,
         Serial: "0001",
+        SN:     sn,
     }
 
     t.Logf("bat: %#v", bat)

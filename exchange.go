@@ -149,9 +149,9 @@ type ExchangeRequest struct {
 }
 
 type ExchangeResponse struct {
-    Success       bool                   `json:"success"`                // 是否换电成功
-    AfterBattery  string                 `json:"afterBattery,omitempty"` // 换电之后电池编号
-    BeforeBattery string                 `json:"beforeBattery"`          // 换电之前电池编号
-    Results       []*ExchangeStepMessage `json:"results,omitempty"`      // 步骤详情
-    Error         string                 `json:"error,omitempty"`        // 错误消息
+    Success       bool                   `json:"success"`                 // 是否换电成功
+    PutoutBattery string                 `json:"putoutBattery,omitempty"` // 取走电池编号
+    PutinBattery  string                 `json:"putinBattery"`            // 放入电池编号
+    Results       []*ExchangeStepMessage `json:"results,omitempty"`       // 步骤详情
+    Error         string                 `json:"error,omitempty"`         // 错误消息
 }

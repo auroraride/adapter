@@ -32,7 +32,7 @@ func (m *CabinetMessage) UnmarshalBinary(data []byte) error {
 
 type BatteryMessage struct {
     *Battery
-    Serial string `json:"serial"` // 所属电柜
+    Cabinet string `json:"cabinet"` // 所属电柜
 }
 
 func (m *BatteryMessage) MarshalBinary() ([]byte, error) {
