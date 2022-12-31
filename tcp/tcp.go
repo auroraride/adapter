@@ -71,7 +71,7 @@ func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
 
     for {
         b, err = t.codec.Decode(c)
-        if err == adapter.IncompletePacket {
+        if err == adapter.ErrorIncompletePacket {
             break
         }
         if err != nil {

@@ -7,8 +7,6 @@ package adapter
 
 import (
     "database/sql/driver"
-    "github.com/goccy/go-json"
-    "time"
 )
 
 // ExchangeStep 换电步骤
@@ -144,35 +142,16 @@ type ExchangeUsableResponse struct {
 
 type ExchangeRequest struct {
     UUID    string  `json:"uuid" validate:"required"`
+    Battery string  `json:"battery" validate:"required"` // 当前电池编号, 若放入电池型号不匹配, 则中断换电流程
     Expires int64   `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
     TimeOut int64   `json:"timeOut" validate:"required"` // 换电步骤超时(s), 例如: 120s
     Minsoc  float64 `json:"minsoc" validate:"required"`  // 换电最小电量
 }
 
-type ExchangeStepResult struct {
-    UUID     string       `json:"uuid"`
-    StartAt  *time.Time   `json:"startAt"`           // 开始时间
-    StopAt   *time.Time   `json:"stopAt"`            // 结束时间
-    Success  bool         `json:"success"`           // 是否成功
-    Step     ExchangeStep `json:"step"`              // 步骤
-    Before   *BinInfo     `json:"before"`            // 操作前仓位信息
-    After    *BinInfo     `json:"after"`             // 操作后仓位信息
-    Duration float64      `json:"duration"`          // 耗时
-    Message  string       `json:"message,omitempty"` // 消息
-}
-
-func (r *ExchangeStepResult) MarshalBinary() ([]byte, error) {
-    return json.Marshal(r)
-}
-
-func (r *ExchangeStepResult) UnmarshalBinary(data []byte) error {
-    return json.Unmarshal(data, r)
-}
-
 type ExchangeResponse struct {
-    Success       bool                  `json:"success"`                // 是否换电成功
-    AfterBattery  string                `json:"afterBattery,omitempty"` // 换电之后电池编号
-    BeforeBattery string                `json:"beforeBattery"`          // 换电之前电池编号
-    Results       []*ExchangeStepResult `json:"results,omitempty"`      // 步骤详情
-    Error         string                `json:"error,omitempty"`        // 错误消息
+    Success       bool                   `json:"success"`                // 是否换电成功
+    AfterBattery  string                 `json:"afterBattery,omitempty"` // 换电之后电池编号
+    BeforeBattery string                 `json:"beforeBattery"`          // 换电之前电池编号
+    Results       []*ExchangeStepMessage `json:"results,omitempty"`      // 步骤详情
+    Error         string                 `json:"error,omitempty"`        // 错误消息
 }

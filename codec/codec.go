@@ -48,13 +48,13 @@ type HeaderLength struct{}
 func (codec *HeaderLength) Decode(c gnet.Conn) ([]byte, error) {
     buf, _ := c.Peek(bodySize)
     if len(buf) < bodySize {
-        return nil, adapter.IncompletePacket
+        return nil, adapter.ErrorIncompletePacket
     }
 
     bodyLen := binary.BigEndian.Uint32(buf[:bodySize])
     msgLen := bodySize + int(bodyLen)
     if c.InboundBuffered() < msgLen {
-        return nil, adapter.IncompletePacket
+        return nil, adapter.ErrorIncompletePacket
     }
     buf, _ = c.Peek(msgLen)
     _, _ = c.Discard(msgLen)

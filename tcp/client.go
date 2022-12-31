@@ -17,13 +17,13 @@ type Client struct {
     *Tcp
 
     Conn   *Conn
-    Sender chan any
+    Sender chan adapter.Messenger
 }
 
 func NewClient(addr string, l adapter.StdLogger, c codec.Codec) *Client {
     cli := &Client{
         Tcp:    NewTcp(addr, l, c, nil),
-        Sender: make(chan any),
+        Sender: make(chan adapter.Messenger),
     }
     cli.Tcp.closeCh = make(chan bool)
     return cli
@@ -93,7 +93,7 @@ func (c *Client) dial() (err error) {
             return
         default:
             _, err = c.codec.Decode(c.Conn)
-            if err != nil && err != adapter.IncompletePacket {
+            if err != nil && err != adapter.ErrorIncompletePacket {
                 c.logger.Errorf("[ADAPTER] 消息读取失败: %v", err)
                 c.closeCh <- true
             }

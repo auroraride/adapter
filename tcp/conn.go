@@ -6,8 +6,8 @@
 package tcp
 
 import (
+    "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
-    "github.com/goccy/go-json"
     "github.com/panjf2000/gnet/v2"
 )
 
@@ -17,8 +17,13 @@ type Conn struct {
     codec codec.Codec
 }
 
-func (c *Conn) Send(data any) (err error) {
-    b, _ := json.Marshal(data)
+func (c *Conn) Send(data adapter.Messenger) (err error) {
+    var b []byte
+    b, err = adapter.Pack(data)
+    if err != nil {
+        return
+    }
+
     _, err = c.Write(c.codec.Encode(b))
     return
 }
