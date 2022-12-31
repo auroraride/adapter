@@ -3,7 +3,7 @@
 // Created at 2022-12-28
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package model
+package adapter
 
 type Response struct {
     Code    int    `json:"code"`
@@ -14,5 +14,5 @@ type Response struct {
 type ResponseStuff[T any] struct {
     Code    int    `json:"code"`
     Message string `json:"message,omitempty"`
-    Data    *T     `json:"data,omitempty"`
+    Data    T      `json:"data,omitempty"`
 }

@@ -3,7 +3,7 @@
 // Created at 2022-12-30
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package model
+package adapter
 
 import (
     "database/sql/driver"

@@ -3,13 +3,7 @@
 // Created at 2022-12-26
 // Based on aurtcp by liasica, magicrolan@qq.com.
 
-package model
-
-type Brand string
-
-const (
-    BrandKaixin Brand = "KAIXIN"
-)
+package adapter
 
 type CabinetStatus string
 
@@ -28,7 +22,7 @@ type Cabinet struct {
     // 是否在线
     Online bool `json:"online"`
     // 品牌
-    Brand string `json:"brand"`
+    Brand Brand `json:"brand"`
     // 电柜编号
     Serial string `json:"serial"`
     // 状态

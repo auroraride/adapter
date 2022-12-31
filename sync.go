@@ -3,16 +3,19 @@
 // Created at 2022-12-29
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package model
+package adapter
 
 type DataType string
 
+// TODO 使用字头包封装类型
+
 const (
-    DataTypeCabinetSync DataType = "cabinet_sync"
+    DataTypeCabinetSync  DataType = "cabinet_sync"
+    DataTypeExchangeStep DataType = "exchange_step"
 )
 
 type DataStuff interface {
-    *CabinetSyncData
+    CabinetSyncData | ExchangeStepResult
 }
 
 type CabinetSyncData struct {
@@ -24,5 +27,5 @@ type CabinetSyncData struct {
 
 type Data[T DataStuff] struct {
     Type  DataType `json:"type"`
-    Value T        `json:"value"`
+    Value *T       `json:"value"`
 }

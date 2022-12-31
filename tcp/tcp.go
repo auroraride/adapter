@@ -6,17 +6,16 @@
 package tcp
 
 import (
+    "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
-    "github.com/auroraride/adapter/logger"
-    "github.com/auroraride/adapter/model"
     "github.com/panjf2000/gnet/v2"
 )
 
 type Hook struct {
-    Boot    model.VoidFunc
-    Start   model.VoidFunc
-    Connect model.VoidFunc
-    Close   model.VoidFunc
+    Boot    adapter.VoidFunc
+    Start   adapter.VoidFunc
+    Connect adapter.VoidFunc
+    Close   adapter.VoidFunc
 }
 
 type Tcp struct {
@@ -24,15 +23,15 @@ type Tcp struct {
 
     address  string
     codec    codec.Codec
-    logger   logger.StdLogger
-    receiver model.BytesCallback
+    logger   adapter.StdLogger
+    receiver adapter.BytesCallback
 
     Hooks Hook
 
     closeCh chan bool
 }
 
-func NewTcp(addr string, l logger.StdLogger, c codec.Codec, receiver model.BytesCallback) *Tcp {
+func NewTcp(addr string, l adapter.StdLogger, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
     return &Tcp{
         address:  addr,
         logger:   l,
@@ -72,7 +71,7 @@ func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
 
     for {
         b, err = t.codec.Decode(c)
-        if err == codec.IncompletePacket {
+        if err == adapter.IncompletePacket {
             break
         }
         if err != nil {
@@ -80,7 +79,7 @@ func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
             return
         }
 
-        t.receiver(b)
+        go t.receiver(b)
     }
 
     return gnet.None

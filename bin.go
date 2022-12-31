@@ -3,13 +3,13 @@
 // Created at 2022-12-26
 // Based on aurtcp by liasica, magicrolan@qq.com.
 
-package model
+package adapter
 
 // Bin is the model entity for the Bin schema.
 type Bin struct {
     ID uint64 `json:"id"`
     // 品牌
-    Brand string `json:"brand"`
+    Brand Brand `json:"brand"`
     // 电柜设备序列号
     Serial string `json:"serial"`
     // 仓位名称(N号仓)

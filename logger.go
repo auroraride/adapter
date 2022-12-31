@@ -3,7 +3,7 @@
 // Created at 2022-12-25
 // Based on bridge by liasica, magicrolan@qq.com.
 
-package logger
+package adapter
 
 type StdLogger interface {
     Debugf(format string, args ...interface{})

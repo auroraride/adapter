@@ -6,9 +6,8 @@
 package tcp
 
 import (
+    "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
-    "github.com/auroraride/adapter/logger"
-    "github.com/auroraride/adapter/model"
     "github.com/panjf2000/gnet/v2"
 )
 
@@ -16,7 +15,7 @@ type Server struct {
     *Tcp
 }
 
-func NewServer(addr string, l logger.StdLogger, c codec.Codec, r model.BytesCallback) *Server {
+func NewServer(addr string, l adapter.StdLogger, c codec.Codec, r adapter.BytesCallback) *Server {
     s := &Server{
         Tcp: NewTcp(addr, l, c, r),
     }

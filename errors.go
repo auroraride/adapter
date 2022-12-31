@@ -3,7 +3,7 @@
 // Created at 2022-12-29
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package errors
+package adapter
 
 import "errors"
 
@@ -36,6 +36,7 @@ var (
 
     ExchangeTaskNotExist = errors.New("换电任务不存在")
     ExchangeExpired      = errors.New("换电任务已过期")
+    ExchangeCannot       = errors.New("该仓位不满足换电条件")
     ExchangeFailed       = errors.New("换电失败")
     ExchangeTimeOut      = errors.New("换电超时")
     ExchangeBatteryLost  = errors.New("电池未放入")

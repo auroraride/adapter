@@ -7,8 +7,8 @@ package tcp
 
 import (
     "errors"
+    "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
-    "github.com/auroraride/adapter/logger"
     "github.com/panjf2000/gnet/v2"
     "time"
 )
@@ -20,7 +20,7 @@ type Client struct {
     Sender chan any
 }
 
-func NewClient(addr string, l logger.StdLogger, c codec.Codec) *Client {
+func NewClient(addr string, l adapter.StdLogger, c codec.Codec) *Client {
     cli := &Client{
         Tcp:    NewTcp(addr, l, c, nil),
         Sender: make(chan any),
@@ -93,7 +93,7 @@ func (c *Client) dial() (err error) {
             return
         default:
             _, err = c.codec.Decode(c.Conn)
-            if err != nil && err != codec.IncompletePacket {
+            if err != nil && err != adapter.IncompletePacket {
                 c.logger.Errorf("[ADAPTER] 消息读取失败: %v", err)
                 c.closeCh <- true
             }
