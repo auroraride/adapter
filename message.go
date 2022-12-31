@@ -7,7 +7,6 @@ package adapter
 
 import (
     "github.com/goccy/go-json"
-    "time"
 )
 
 type Messenger interface {
@@ -44,15 +43,8 @@ func (m *BatteryMessage) UnmarshalBinary(data []byte) error {
 }
 
 type ExchangeStepMessage struct {
-    UUID     string       `json:"uuid"`
-    StartAt  *time.Time   `json:"startAt"`           // 开始时间
-    StopAt   *time.Time   `json:"stopAt"`            // 结束时间
-    Success  bool         `json:"success"`           // 是否成功
-    Step     ExchangeStep `json:"step"`              // 步骤
-    Before   *BinInfo     `json:"before"`            // 操作前仓位信息
-    After    *BinInfo     `json:"after"`             // 操作后仓位信息
-    Duration float64      `json:"duration"`          // 耗时
-    Message  string       `json:"message,omitempty"` // 消息
+    *OperateResult
+    Step ExchangeStep `json:"step"` // 步骤
 }
 
 func (m *ExchangeStepMessage) MarshalBinary() ([]byte, error) {

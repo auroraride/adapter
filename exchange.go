@@ -58,72 +58,77 @@ var ExchangeSteps = []ExchangeStep{
     ExchangeStepFourth,
 }
 
-// DetectDoor 仓门检测
-type DetectDoor uint8
+// // DetectDoor 仓门检测
+// type DetectDoor uint8
+//
+// const (
+//     DetectDoorIgnore DetectDoor = iota // 忽略
+//     DetectDoorOpen                     // 开仓
+//     DetectDoorClose                    // 关仓
+// )
+//
+// func (d DetectDoor) String() string {
+//     switch d {
+//     default:
+//         return "忽略"
+//     case DetectDoorOpen:
+//         return "开仓"
+//     case DetectDoorClose:
+//         return "关仓"
+//     }
+// }
 
-const (
-    DetectDoorIgnore DetectDoor = iota // 忽略
-    DetectDoorOpen                     // 开仓
-    DetectDoorClose                    // 关仓
-)
-
-func (d DetectDoor) String() string {
-    switch d {
-    default:
-        return "忽略"
-    case DetectDoorOpen:
-        return "开仓"
-    case DetectDoorClose:
-        return "关仓"
-    }
-}
-
-// DetectBattery 检测电池
-type DetectBattery uint8
-
-const (
-    DetectBatteryIgnore DetectBattery = iota // 忽略
-    DetectBatteryPutin                       // 放入
-    DetectBatteryPutout                      // 取走
-)
-
-func (d DetectBattery) String() string {
-    switch d {
-    default:
-        return "忽略"
-    case DetectBatteryPutin:
-        return "放入"
-    case DetectBatteryPutout:
-        return "取走"
-    }
-}
+// // DetectBattery 检测电池
+// type DetectBattery uint8
+//
+// const (
+//     DetectBatteryIgnore DetectBattery = iota // 忽略
+//     DetectBatteryPutin                       // 放入
+//     DetectBatteryPutout                      // 取走
+// )
+//
+// func (d DetectBattery) String() string {
+//     switch d {
+//     default:
+//         return "忽略"
+//     case DetectBatteryPutin:
+//         return "放入"
+//     case DetectBatteryPutout:
+//         return "取走"
+//     }
+// }
 
 type ExchangeStepConfigure struct {
-    Step    ExchangeStep
-    Door    DetectDoor
-    Battery DetectBattery
+    Step ExchangeStep
+    // Door    DoorStatus
+    // Battery DetectBattery
+    Operate Operate
 }
 
 var ExchangeStepConfigures = []ExchangeStepConfigure{
     {
-        Step:    ExchangeStepFirst,
-        Battery: DetectBatteryIgnore,
-        Door:    DetectDoorOpen,
+        Step: ExchangeStepFirst,
+        // Battery: DetectBatteryIgnore,
+        // Door:    DoorStatusOpen,
+        Operate: OperateDoorOpen,
     },
     {
-        Step:    ExchangeStepSecond,
-        Battery: DetectBatteryPutin,
-        Door:    DetectDoorClose,
+        Step: ExchangeStepSecond,
+        // Battery: DetectBatteryPutin,
+        // Door:    DetectDoorClose,
+        Operate: OperatePutin,
     },
     {
-        Step:    ExchangeStepThird,
-        Battery: DetectBatteryIgnore,
-        Door:    DetectDoorOpen,
+        Step: ExchangeStepThird,
+        // Battery: DetectBatteryIgnore,
+        // Door:    DetectDoorOpen,
+        Operate: OperateDoorOpen,
     },
     {
-        Step:    ExchangeStepFourth,
-        Battery: DetectBatteryPutout,
-        Door:    DetectDoorClose,
+        Step: ExchangeStepFourth,
+        // Battery: DetectBatteryPutout,
+        // Door:    DetectDoorClose,
+        Operate: OperatePutout,
     },
 }
 

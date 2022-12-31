@@ -8,6 +8,17 @@ package adapter
 import (
     "database/sql/driver"
     "fmt"
+    "github.com/google/uuid"
+    "time"
+)
+
+const (
+    OperateUnknown    Operate = "unknown"
+    OperateDoorOpen   Operate = "door_open"   // 开仓
+    OperateBinDisable Operate = "bin_disable" // 仓位禁用
+    OperateBinEnable  Operate = "bin_enable"  // 仓位启用
+    OperatePutin      Operate = "putin"       // 检测电池放入
+    OperatePutout     Operate = "putout"      // 检测电池取出
 )
 
 type Operate string
@@ -26,50 +37,44 @@ func (s Operate) Value() (driver.Value, error) {
     return s, nil
 }
 
-const (
-    OperateUnknown    Operate = "unknown"
-    OperateBinDetect  Operate = "detect"      // 检测
-    OperateBinOpen    Operate = "bin_open"    // 开仓
-    OperateBinDisable Operate = "bin_disable" // 仓位禁用
-    OperateBinEnable  Operate = "bin_enable"  // 仓位启用
-)
-
+// OperateRequest 业务操作
 type OperateRequest struct {
-    Type    Operate `json:"type" validate:"required"`    // 控制类型
-    Serial  string  `json:"serial" validate:"required"`  // 待控制的电柜编号
-    Ordinal *int    `json:"ordinal" validate:"required"` // 待控制的仓位序号
+    Serial  string  `json:"serial" validate:"required"`  // 电柜编号
+    Operate Operate `json:"operate" validate:"required"` // 操作类别
+    Timeout int64   `json:"timeout" validate:"required"` // 超时时间(s)
+
+    UUID               uuid.UUID     `json:"UUID"`
+    Ordinal            *int          `json:"ordinal"`                      // 仓位序号 (操作电柜的时候为空, 操作仓位的时候必不为空)
+    Step               *ExchangeStep `json:"step,omitempty"`               // 换电步骤 (可为空)
+    VerifyPutinBattery string        `json:"verifyPutinBattery,omitempty"` // 需要校验的电池编号 (可为空, 需要校验放入电池编号的时候必须携带, 例如putin操作)
 }
 
-func (o *OperateRequest) String() string {
-    op := "-"
-    switch o.Type {
-    case OperateBinOpen:
-        op = "开仓"
-    case OperateBinDetect:
-        op = "仓位检测"
-    case OperateBinDisable:
-        op = "仓位禁用"
-    case OperateBinEnable:
-        op = "仓位启用"
+func (b OperateRequest) String() (str string) {
+    bat := " - "
+    if b.VerifyPutinBattery != "" {
+        bat = b.VerifyPutinBattery
     }
-    return fmt.Sprintf("[%s-%d] 操作 %s", o.Serial, o.Ordinal, op)
+
+    str = fmt.Sprintf(
+        "[UUID: %s, 电柜: %s, 仓位: %d, 操作: %s, 换电步骤: %s, 电池校验: %s]",
+        b.UUID.String(),
+        b.Serial,
+        b.Ordinal,
+        b.Operate,
+        b.Step.String(),
+        bat,
+    )
+
+    return
 }
 
-// BusinessOperate 业务操作
-type BusinessOperate string
-
-const (
-    BusinessOperatePutin  BusinessOperate = "putin"  // 电池放入
-    BusinessOperatePutout BusinessOperate = "putout" // 电池取出
-)
-
-// BusinessOperateRequest 业务操作请求
-type BusinessOperateRequest struct {
-    Serial  string          `json:"serial" validate:"required"`  // 电柜编号
-    Operate BusinessOperate `json:"operate" validate:"required"` // 操作
-    Battery string          `json:"battery,omitempty"`           // 电池编号
-    Verify  bool            `json:"verify"`                      // 是否校验电池
-}
-
-type BusinessOperateResponse struct {
+type OperateResult struct {
+    UUID     string     `json:"uuid"`
+    StartAt  *time.Time `json:"startAt"`           // 开始时间
+    StopAt   *time.Time `json:"stopAt"`            // 结束时间
+    Success  bool       `json:"success"`           // 是否成功
+    Before   *BinInfo   `json:"before"`            // 操作前仓位信息
+    After    *BinInfo   `json:"after"`             // 操作后仓位信息
+    Duration float64    `json:"duration"`          // 耗时
+    Message  string     `json:"message,omitempty"` // 消息
 }
