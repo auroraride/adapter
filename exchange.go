@@ -5,132 +5,80 @@
 
 package adapter
 
-import (
-    "database/sql/driver"
-)
+import "github.com/google/uuid"
 
-// ExchangeStep 换电步骤
-type ExchangeStep uint8
-
-const (
-    ExchangeStepFirst ExchangeStep = iota + 1
-    ExchangeStepSecond
-    ExchangeStepThird
-    ExchangeStepFourth
-)
-
-func (s ExchangeStep) Index() int {
-    return int(s) - 1
-}
-
-func (s *ExchangeStep) Scan(src interface{}) error {
-    switch v := src.(type) {
-    case nil:
-        return nil
-    case int64:
-        *s = ExchangeStep(v)
-    }
-    return nil
-}
-
-func (s ExchangeStep) Value() (driver.Value, error) {
-    return s, nil
-}
-
-func (s ExchangeStep) String() string {
-    switch s {
-    case ExchangeStepFirst:
-        return "第1步, 开启空电仓门"
-    case ExchangeStepSecond:
-        return "第2步, 放入电池关仓"
-    case ExchangeStepThird:
-        return "第3步, 开启满电仓门"
-    case ExchangeStepFourth:
-        return "第4步, 取出电池关仓"
-    }
-    return "-"
-}
-
-var ExchangeSteps = []ExchangeStep{
-    ExchangeStepFirst,
-    ExchangeStepSecond,
-    ExchangeStepThird,
-    ExchangeStepFourth,
-}
-
-// // DetectDoor 仓门检测
-// type DetectDoor uint8
+// // ExchangeStep 换电步骤
+// type ExchangeStep uint8
 //
 // const (
-//     DetectDoorIgnore DetectDoor = iota // 忽略
-//     DetectDoorOpen                     // 开仓
-//     DetectDoorClose                    // 关仓
+//     ExchangeStepFirst ExchangeStep = iota + 1
+//     ExchangeStepSecond
+//     ExchangeStepThird
+//     ExchangeStepFourth
 // )
 //
-// func (d DetectDoor) String() string {
-//     switch d {
-//     default:
-//         return "忽略"
-//     case DetectDoorOpen:
-//         return "开仓"
-//     case DetectDoorClose:
-//         return "关仓"
-//     }
+// func (s ExchangeStep) Index() int {
+//     return int(s) - 1
 // }
-
-// // DetectBattery 检测电池
-// type DetectBattery uint8
 //
-// const (
-//     DetectBatteryIgnore DetectBattery = iota // 忽略
-//     DetectBatteryPutin                       // 放入
-//     DetectBatteryPutout                      // 取走
-// )
-//
-// func (d DetectBattery) String() string {
-//     switch d {
-//     default:
-//         return "忽略"
-//     case DetectBatteryPutin:
-//         return "放入"
-//     case DetectBatteryPutout:
-//         return "取走"
+// func (s *ExchangeStep) Scan(src interface{}) error {
+//     switch v := src.(type) {
+//     case nil:
+//         return nil
+//     case int64:
+//         *s = ExchangeStep(v)
 //     }
+//     return nil
 // }
-
-type ExchangeStepConfigure struct {
-    Step ExchangeStep
-    // Door    DoorStatus
-    // Battery DetectBattery
-    Operate Operate
-}
-
-var ExchangeStepConfigures = []ExchangeStepConfigure{
-    {
-        Step: ExchangeStepFirst,
-        // Battery: DetectBatteryIgnore,
-        // Door:    DoorStatusOpen,
-        Operate: OperateDoorOpen,
-    },
-    {
-        Step: ExchangeStepSecond,
-        // Battery: DetectBatteryPutin,
-        // Door:    DetectDoorClose,
-        Operate: OperatePutin,
-    },
-    {
-        Step: ExchangeStepThird,
-        // Battery: DetectBatteryIgnore,
-        // Door:    DetectDoorOpen,
-        Operate: OperateDoorOpen,
-    },
-    {
-        Step: ExchangeStepFourth,
-        // Battery: DetectBatteryPutout,
-        // Door:    DetectDoorClose,
-        Operate: OperatePutout,
-    },
-}
+//
+// func (s ExchangeStep) Value() (driver.Value, error) {
+//     return s, nil
+// }
+//
+// func (s ExchangeStep) String() string {
+//     switch s {
+//     case ExchangeStepFirst:
+//         return "第1步, 开启空电仓门"
+//     case ExchangeStepSecond:
+//         return "第2步, 放入电池关仓"
+//     case ExchangeStepThird:
+//         return "第3步, 开启满电仓门"
+//     case ExchangeStepFourth:
+//         return "第4步, 取出电池关仓"
+//     }
+//     return "-"
+// }
+//
+// var ExchangeSteps = []ExchangeStep{
+//     ExchangeStepFirst,
+//     ExchangeStepSecond,
+//     ExchangeStepThird,
+//     ExchangeStepFourth,
+// }
+//
+// type ExchangeStepConfigure struct {
+//     Step    ExchangeStep
+//     Operate Operate
+// }
+//
+// var ExchangeStepConfigures = []ExchangeStepConfigure{
+//     // {
+//     //     Step:    ExchangeStepFirst,
+//     //     Operate: OperateDoorOpen,
+//     // },
+//     // {
+//     //     Step:    ExchangeStepSecond,
+//     //     Operate: OperatePutin,
+//     // },
+//     // {
+//     //     Step:    ExchangeStepThird,
+//     //     Operate: OperateDoorOpen,
+//     // },
+//     // {
+//     //     Step:    ExchangeStepFourth,
+//     //     Operate: OperatePutout,
+//     // },
+// }
 
 type ExchangeUsableRequest struct {
     Serial string  `json:"serial" validate:"required"` // 电柜编号
@@ -146,11 +94,11 @@ type ExchangeUsableResponse struct {
 }
 
 type ExchangeRequest struct {
-    UUID    string  `json:"uuid" validate:"required"`
-    Battery string  `json:"battery" validate:"required"` // 当前电池编号, 若放入电池型号不匹配, 则中断换电流程
-    Expires int64   `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
-    TimeOut int64   `json:"timeOut" validate:"required"` // 换电步骤超时(s), 例如: 120s
-    Minsoc  float64 `json:"minsoc" validate:"required"`  // 换电最小电量
+    UUID    uuid.UUID `json:"uuid" validate:"required"`
+    Battery string    `json:"battery" validate:"required"` // 当前电池编号, 若放入电池型号不匹配, 则中断换电流程
+    Expires int64     `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
+    Timeout int64     `json:"timeout" validate:"required"` // 换电步骤超时(s), 例如: 120s
+    Minsoc  float64   `json:"minsoc" validate:"required"`  // 换电最小电量
 }
 
 type ExchangeResponse struct {

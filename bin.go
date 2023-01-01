@@ -65,23 +65,3 @@ func (b *Bin) Info() *BinInfo {
         BatteryExists: b.BatteryExists,
     }
 }
-
-// DoorStatus 仓门状态
-type DoorStatus uint8
-
-const (
-    DoorStatusIgnore DoorStatus = iota // 忽略
-    DoorStatusOpen                     // 开仓
-    DoorStatusClose                    // 关仓
-)
-
-func (d DoorStatus) String() string {
-    switch d {
-    default:
-        return "忽略"
-    case DoorStatusOpen:
-        return "开仓"
-    case DoorStatusClose:
-        return "关仓"
-    }
-}

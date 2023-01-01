@@ -42,10 +42,7 @@ func (m *BatteryMessage) UnmarshalBinary(data []byte) error {
     return json.Unmarshal(data, m)
 }
 
-type ExchangeStepMessage struct {
-    *OperateResult
-    Step ExchangeStep `json:"step"` // 步骤
-}
+type ExchangeStepMessage OperateStepResult
 
 func (m *ExchangeStepMessage) MarshalBinary() ([]byte, error) {
     return json.Marshal(m)

@@ -15,7 +15,7 @@ func TestParser(t *testing.T) {
 
     msg := &BatteryMessage{
         Battery: ParseBatterySN(sn),
-        Serial:  "TEST",
+        Cabinet: "TEST",
     }
 
     b, err := Pack(msg)
