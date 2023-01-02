@@ -117,6 +117,7 @@ type BusinuessUsableRequest struct {
     Minsoc   float64  `json:"minsoc" validate:"required"` // 最小电量
     Business Business `json:"business" validate:"required"`
     Serial   string   `json:"serial" validate:"required"`
+    Model    string   `json:"model" validate:"required"` // 电池型号
 }
 
 type BusinessRequest struct {
@@ -125,6 +126,7 @@ type BusinessRequest struct {
     Serial   string    `json:"serial" validate:"required"`                                                         // 电柜编号
     Timeout  int64     `json:"timeout" validate:"required"`                                                        // 超时时间(s)
     Battery  string    `json:"verifyBattery,omitempty" validate:"required_if=Business pause Business unsubscribe"` // 需要校验的电池编号 (可为空, 需要校验放入电池编号的时候必须携带, 例如putin操作)
+    Model    string    `json:"model" validate:"required"`                                                          // 电池型号
 }
 
 func (req *BusinessRequest) String() string {

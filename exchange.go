@@ -11,6 +11,7 @@ type ExchangeUsableRequest struct {
     Serial string  `json:"serial" validate:"required"` // 电柜编号
     Minsoc float64 `json:"minsoc" validate:"required"` // 换电最小电量
     Lock   int64   `json:"lock" validate:"required"`   // 扫码锁定时间
+    Model  string  `json:"model" validate:"required"`  // 电池型号
 }
 
 type ExchangeRequest struct {

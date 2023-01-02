@@ -32,6 +32,10 @@ type Battery struct {
 
 // ParseBatterySN 解析电池编号
 func ParseBatterySN(sn string) (bat *Battery) {
+    if len(sn) < 16 {
+        return &Battery{}
+    }
+
     bat = &Battery{
         Brand:  BatteryBrand(sn[0:2]),
         Model:  BatteryModelXC[sn[3:5]],
