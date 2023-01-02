@@ -114,3 +114,9 @@ type OperateStepResult struct {
     Message   string     `json:"message,omitempty"`   // 消息
     BatterySN string     `json:"batterySn,omitempty"` // 在位电池编号
 }
+
+type OperateBinRequest struct {
+    Operate Operate `json:"operate" validate:"required"`
+    Ordinal *int    `json:"ordinal" validate:"required"`
+    Serial  string  `json:"serial" validate:"required"`
+}
