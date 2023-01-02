@@ -34,7 +34,6 @@ var (
 
     ErrorExchangeCannot       = errors.New("该仓位不满足换电条件")
     ErrorExchangeFailed       = errors.New("换电失败")
-    ErrorOperateTimeOut       = errors.New("换电超时")
     ErrorExchangeBatteryLost  = errors.New("电池未放入")
     ErrorExchangeBatteryExist = errors.New("电池未取走")
 
@@ -48,7 +47,7 @@ var (
     ErrorBinNotEnough       = errors.New("无足够数量的仓位")
     ErrorBinNotUsable       = errors.New("仓位不可用")
 
-    ErrorOperateTimeout = errors.New("仓位控制超时")
+    ErrorOperateTimeout = errors.New("操作超时")
     ErrorOperateNoStep  = errors.New("无后续操作")
     ErrorOperateCommand = errors.New("未知的操作指令")
 
