@@ -34,7 +34,7 @@ var (
 
     ErrorExchangeCannot       = errors.New("该仓位不满足换电条件")
     ErrorExchangeFailed       = errors.New("换电失败")
-    ErrorExchangeTimeOut      = errors.New("换电超时")
+    ErrorOperateTimeOut       = errors.New("换电超时")
     ErrorExchangeBatteryLost  = errors.New("电池未放入")
     ErrorExchangeBatteryExist = errors.New("电池未取走")
 
