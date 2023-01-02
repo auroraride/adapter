@@ -44,3 +44,11 @@ type Cabinet struct {
     // 总用电量
     Electricity *float64 `json:"electricity,omitempty"`
 }
+
+type CabinetBinUsableResponse struct {
+    Cabinet     *Cabinet `json:"cabinet"`
+    UUID        string   `json:"uuid,omitempty"`
+    Fully       *Bin     `json:"fully,omitempty"`       // 满电仓
+    Empty       *Bin     `json:"empty,omitempty"`       // 空电仓
+    BusinessBin *Bin     `json:"businessBin,omitempty"` // 业务仓位
+}

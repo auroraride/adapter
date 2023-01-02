@@ -8,10 +8,12 @@ package adapter
 import (
     "database/sql/driver"
     "fmt"
+    "github.com/google/uuid"
     "io"
     "strconv"
 )
 
+// Business 全部业务类型
 type Business string
 
 const (
@@ -22,6 +24,37 @@ const (
     BusinessContinue    Business = "continue"    // 取消寄存
     BusinessUnsubscribe Business = "unsubscribe" // 退订
 )
+
+var (
+    RiderBusiness = []Business{BusinessActive, BusinessPause, BusinessContinue, BusinessUnsubscribe}
+)
+
+func (b Business) Text() string {
+    switch b {
+    case BusinessOperate:
+        return "操作"
+    case BusinessExchange:
+        return "换电"
+    case BusinessActive:
+        return "激活"
+    case BusinessPause:
+        return "寄存"
+    case BusinessContinue:
+        return "取消寄存"
+    case BusinessUnsubscribe:
+        return "退订"
+    }
+    return " - "
+}
+
+// BatteryNeed 业务是否需要电池
+func (b Business) BatteryNeed() bool {
+    switch b {
+    case BusinessPause, BusinessUnsubscribe:
+        return true
+    }
+    return false
+}
 
 func (b Business) String() string {
     return string(b)
@@ -77,4 +110,33 @@ func (b *Business) UnmarshalGQL(val interface{}) error {
         return fmt.Errorf("%s is not a valid Business", str)
     }
     return nil
+}
+
+// BusinuessUsableRequest 获取业务仓位请求
+type BusinuessUsableRequest struct {
+    Minsoc   float64  `json:"minsoc" validate:"required"` // 最小电量
+    Business Business `json:"business" validate:"required"`
+    Serial   string   `json:"serial" validate:"required"`
+}
+
+type BusinessRequest struct {
+    UUID     uuid.UUID `json:"uuid" validate:"required"`
+    Business Business  `json:"business" validate:"required"`                                                       // 业务类别
+    Serial   string    `json:"serial" validate:"required"`                                                         // 电柜编号
+    Timeout  int64     `json:"timeout" validate:"required"`                                                        // 超时时间(s)
+    Battery  string    `json:"verifyBattery,omitempty" validate:"required_if=Business pause Business unsubscribe"` // 需要校验的电池编号 (可为空, 需要校验放入电池编号的时候必须携带, 例如putin操作)
+}
+
+func (req *BusinessRequest) String() string {
+    return fmt.Sprintf(
+        "[电柜: %s, 业务: %s, 电池校验: %s]",
+        req.Serial,
+        req.Business,
+        Or(req.Battery == "", " - ", req.Battery),
+    )
+}
+
+type BusinessResponse struct {
+    Error   string               `json:"error,omitempty"`
+    Results []*OperateStepResult `json:"results"`
 }

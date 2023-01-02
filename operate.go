@@ -7,8 +7,6 @@ package adapter
 
 import (
     "database/sql/driver"
-    "fmt"
-    "github.com/google/uuid"
     "time"
 )
 
@@ -57,7 +55,8 @@ func (o DetectDoor) Text() string {
 }
 
 const (
-    OperateUnknown    Operate = "unknown"
+    OperateUnknown    Operate = "unknown"     // 未知
+    OperateDetect     Operate = "detect"      // 检测
     OperateDoorOpen   Operate = "door_open"   // 开仓
     OperateBinDisable Operate = "bin_disable" // 仓位禁用
     OperateBinEnable  Operate = "bin_enable"  // 仓位启用
@@ -99,26 +98,6 @@ func (o *Operate) Scan(src interface{}) error {
 
 func (o Operate) Value() (driver.Value, error) {
     return o, nil
-}
-
-type OperateRequest struct {
-    Business      Business   `json:"business" validate:"required"` // 业务类别
-    Serial        string     `json:"serial" validate:"required"`   // 电柜编号
-    Operate       Operate    `json:"operate" validate:"required"`  // 操作类别
-    Timeout       int64      `json:"timeout" validate:"required"`  // 超时时间(s)
-    UUID          *uuid.UUID `json:"UUID"`
-    Ordinal       *int       `json:"ordinal"`       // 仓位序号 (操作电柜的时候为空, 操作仓位的时候必不为空)
-    VerifyBattery string     `json:"verifyBattery"` // 需要校验的电池编号 (可为空, 需要校验放入电池编号的时候必须携带, 例如putin操作)
-}
-
-func (req *OperateRequest) String() string {
-    return fmt.Sprintf(
-        "[电柜: %s, 仓位: %d, 操作: %s, 电池校验: %s]",
-        req.Serial,
-        req.Ordinal,
-        req.Operate,
-        Or(req.VerifyBattery == "", " - ", req.VerifyBattery),
-    )
 }
 
 type OperateStepResult struct {
