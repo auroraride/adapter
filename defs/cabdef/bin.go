@@ -3,7 +3,7 @@
 // Created at 2022-12-26
 // Based on aurtcp by liasica, magicrolan@qq.com.
 
-package adapter
+package cabdef
 
 // Bin is the model entity for the Bin schema.
 type Bin struct {

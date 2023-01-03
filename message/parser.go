@@ -3,10 +3,12 @@
 // Created at 2022-12-31
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package adapter
+package message
 
 import (
     "encoding/binary"
+    "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/defs/cabdef"
     "github.com/goccy/go-json"
 )
 
@@ -17,25 +19,25 @@ const (
 type DataType uint32
 
 const (
-    TypeCabinet DataType = 1 + iota
-    TypeBattery
-    TypeExchangeStep
+    TypeCabkitSync         DataType = 1 + iota // 电柜同步消息
+    TypeCabkitBattery                          // 电柜电池同步消息
+    TypeCabkitExchangeStep                     // 电柜换电任务消息
 )
 
 func Unpack(b []byte) (t DataType, data any, err error) {
     if len(b) < typeSize {
-        err = ErrorIncompletePacket
+        err = adapter.ErrorIncompletePacket
         return
     }
 
     t = DataType(binary.BigEndian.Uint32(b[:typeSize]))
     switch t {
-    case TypeCabinet:
-        data = new(CabinetMessage)
-    case TypeBattery:
-        data = new(BatteryMessage)
-    case TypeExchangeStep:
-        data = new(ExchangeStepMessage)
+    case TypeCabkitSync:
+        data = new(cabdef.CabinetMessage)
+    case TypeCabkitBattery:
+        data = new(cabdef.BatteryMessage)
+    case TypeCabkitExchangeStep:
+        data = new(cabdef.ExchangeStepMessage)
     }
 
     err = json.Unmarshal(b[typeSize:], data)
@@ -46,14 +48,14 @@ func Pack(m Messenger) (b []byte, err error) {
     var t DataType
     switch m.(type) {
     default:
-        err = ErrorData
+        err = adapter.ErrorData
         return
-    case *CabinetMessage:
-        t = TypeCabinet
-    case *BatteryMessage:
-        t = TypeBattery
-    case *ExchangeStepMessage:
-        t = TypeExchangeStep
+    case *cabdef.CabinetMessage:
+        t = TypeCabkitSync
+    case *cabdef.BatteryMessage:
+        t = TypeCabkitBattery
+    case *cabdef.ExchangeStepMessage:
+        t = TypeCabkitExchangeStep
     }
 
     var message []byte

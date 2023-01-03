@@ -3,16 +3,12 @@
 // Created at 2022-12-31
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package adapter
+package cabdef
 
 import (
+    "github.com/auroraride/adapter"
     "github.com/goccy/go-json"
 )
-
-type Messenger interface {
-    MarshalBinary() ([]byte, error)
-    UnmarshalBinary(data []byte) error
-}
 
 type CabinetMessage struct {
     Full    bool     `json:"full"`
@@ -30,7 +26,7 @@ func (m *CabinetMessage) UnmarshalBinary(data []byte) error {
 }
 
 type BatteryMessage struct {
-    *Battery
+    *adapter.Battery
     Cabinet string `json:"cabinet"` // 所属电柜
 }
 
@@ -42,7 +38,7 @@ func (m *BatteryMessage) UnmarshalBinary(data []byte) error {
     return json.Unmarshal(data, m)
 }
 
-type ExchangeStepMessage OperateStepResult
+type ExchangeStepMessage BusinessStepResult
 
 func (m *ExchangeStepMessage) MarshalBinary() ([]byte, error) {
     return json.Marshal(m)

@@ -3,7 +3,7 @@
 // Created at 2022-12-26
 // Based on aurtcp by liasica, magicrolan@qq.com.
 
-package adapter
+package cabdef
 
 type CabinetStatus string
 
@@ -43,12 +43,4 @@ type Cabinet struct {
     Temperature *float64 `json:"temperature,omitempty"`
     // 总用电量
     Electricity *float64 `json:"electricity,omitempty"`
-}
-
-type CabinetBinUsableResponse struct {
-    Cabinet     *Cabinet `json:"cabinet"`
-    UUID        string   `json:"uuid,omitempty"`
-    Fully       *Bin     `json:"fully,omitempty"`       // 满电仓
-    Empty       *Bin     `json:"empty,omitempty"`       // 空电仓
-    BusinessBin *Bin     `json:"businessBin,omitempty"` // 业务仓位
 }

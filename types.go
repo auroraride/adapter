@@ -5,11 +5,6 @@
 
 package adapter
 
-const (
-    BinIDKey     = "bin-%d"
-    CabinetIDKey = "cabinet-%d"
-)
-
 type PointInt *int
 
 type Bool bool

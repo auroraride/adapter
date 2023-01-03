@@ -3,7 +3,7 @@
 // Created at 2022-12-31
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package adapter
+package cabdef
 
 import "database/sql/driver"
 

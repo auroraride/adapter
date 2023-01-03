@@ -1,6 +1,6 @@
 // Copyright (C) liasica. 2023-present.
 //
-// Created at 2023-01-01
+// Created at 2023-01-03
 // Based on adapter by liasica, magicrolan@qq.com.
 
 package adapter
@@ -8,7 +8,6 @@ package adapter
 import (
     "database/sql/driver"
     "fmt"
-    "github.com/google/uuid"
     "io"
     "strconv"
 )
@@ -110,35 +109,4 @@ func (b *Business) UnmarshalGQL(val interface{}) error {
         return fmt.Errorf("%s is not a valid Business", str)
     }
     return nil
-}
-
-// BusinuessUsableRequest 获取业务仓位请求
-type BusinuessUsableRequest struct {
-    Minsoc   float64  `json:"minsoc" validate:"required"` // 最小电量
-    Business Business `json:"business" validate:"required"`
-    Serial   string   `json:"serial" validate:"required"`
-    Model    string   `json:"model" validate:"required"` // 电池型号
-}
-
-type BusinessRequest struct {
-    UUID     uuid.UUID `json:"uuid" validate:"required"`
-    Business Business  `json:"business" validate:"required"`                                                       // 业务类别
-    Serial   string    `json:"serial" validate:"required"`                                                         // 电柜编号
-    Timeout  int64     `json:"timeout" validate:"required"`                                                        // 超时时间(s)
-    Battery  string    `json:"verifyBattery,omitempty" validate:"required_if=Business pause Business unsubscribe"` // 需要校验的电池编号 (可为空, 需要校验放入电池编号的时候必须携带, 例如putin操作)
-    Model    string    `json:"model" validate:"required"`                                                          // 电池型号
-}
-
-func (req *BusinessRequest) String() string {
-    return fmt.Sprintf(
-        "[电柜: %s, 业务: %s, 电池校验: %s]",
-        req.Serial,
-        req.Business,
-        Or(req.Battery == "", " - ", req.Battery),
-    )
-}
-
-type BusinessResponse struct {
-    Error   string               `json:"error,omitempty"`
-    Results []*OperateStepResult `json:"results"`
 }

@@ -3,11 +3,10 @@
 // Created at 2022-12-30
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package adapter
+package cabdef
 
 import (
     "database/sql/driver"
-    "time"
 )
 
 // DetectBattery 电池检测
@@ -98,25 +97,4 @@ func (o *Operate) Scan(src interface{}) error {
 
 func (o Operate) Value() (driver.Value, error) {
     return o, nil
-}
-
-type OperateStepResult struct {
-    UUID      string     `json:"uuid"`
-    Operate   Operate    `json:"operate"`
-    Step      int        `json:"step"`                // 操作步骤
-    Business  Business   `json:"business"`            // 业务类型
-    StartAt   *time.Time `json:"startAt"`             // 开始时间
-    StopAt    *time.Time `json:"stopAt"`              // 结束时间
-    Success   bool       `json:"success"`             // 是否成功
-    Before    *BinInfo   `json:"before"`              // 操作前仓位信息
-    After     *BinInfo   `json:"after"`               // 操作后仓位信息
-    Duration  float64    `json:"duration,omitempty"`  // 耗时
-    Message   string     `json:"message,omitempty"`   // 消息
-    BatterySN string     `json:"batterySn,omitempty"` // 在位电池编号
-}
-
-type OperateBinRequest struct {
-    Operate Operate `json:"operate" validate:"required"`
-    Ordinal *int    `json:"ordinal" validate:"required"`
-    Serial  string  `json:"serial" validate:"required"`
 }

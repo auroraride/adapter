@@ -3,9 +3,11 @@
 // Created at 2022-12-31
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package adapter
+package message
 
 import (
+    "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/defs/cabdef"
     "reflect"
     "testing"
 )
@@ -13,8 +15,8 @@ import (
 func TestParser(t *testing.T) {
     sn := "XCB0862022110001"
 
-    msg := &BatteryMessage{
-        Battery: ParseBatterySN(sn),
+    msg := &cabdef.BatteryMessage{
+        Battery: adapter.ParseBatterySN(sn),
         Cabinet: "TEST",
     }
 
@@ -30,7 +32,7 @@ func TestParser(t *testing.T) {
         t.Fail()
     }
 
-    if typ != TypeBattery {
+    if typ != TypeCabkitBattery {
         t.Fail()
     }
 

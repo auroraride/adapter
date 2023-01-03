@@ -9,6 +9,7 @@ import (
     "errors"
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
+    "github.com/auroraride/adapter/message"
     "github.com/panjf2000/gnet/v2"
     "time"
 )
@@ -17,13 +18,13 @@ type Client struct {
     *Tcp
 
     Conn   *Conn
-    Sender chan adapter.Messenger
+    Sender chan message.Messenger
 }
 
 func NewClient(addr string, l adapter.StdLogger, c codec.Codec) *Client {
     cli := &Client{
         Tcp:    NewTcp(addr, l, c, nil),
-        Sender: make(chan adapter.Messenger),
+        Sender: make(chan message.Messenger),
     }
     cli.Tcp.closeCh = make(chan bool)
     return cli

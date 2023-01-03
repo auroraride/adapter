@@ -6,8 +6,8 @@
 package tcp
 
 import (
-    "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
+    "github.com/auroraride/adapter/message"
     "github.com/panjf2000/gnet/v2"
 )
 
@@ -17,9 +17,9 @@ type Conn struct {
     codec codec.Codec
 }
 
-func (c *Conn) Send(data adapter.Messenger) (err error) {
+func (c *Conn) Send(data message.Messenger) (err error) {
     var b []byte
-    b, err = adapter.Pack(data)
+    b, err = message.Pack(data)
     if err != nil {
         return
     }
