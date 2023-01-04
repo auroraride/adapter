@@ -7,7 +7,7 @@ package cabdef
 
 import (
     "github.com/auroraride/adapter"
-    "github.com/goccy/go-json"
+    jsoniter "github.com/json-iterator/go"
 )
 
 type CabinetMessage struct {
@@ -18,11 +18,11 @@ type CabinetMessage struct {
 }
 
 func (m *CabinetMessage) MarshalBinary() ([]byte, error) {
-    return json.Marshal(m)
+    return jsoniter.Marshal(m)
 }
 
 func (m *CabinetMessage) UnmarshalBinary(data []byte) error {
-    return json.Unmarshal(data, m)
+    return jsoniter.Unmarshal(data, m)
 }
 
 type BatteryMessage struct {
@@ -31,19 +31,19 @@ type BatteryMessage struct {
 }
 
 func (m *BatteryMessage) MarshalBinary() ([]byte, error) {
-    return json.Marshal(m)
+    return jsoniter.Marshal(m)
 }
 
 func (m *BatteryMessage) UnmarshalBinary(data []byte) error {
-    return json.Unmarshal(data, m)
+    return jsoniter.Unmarshal(data, m)
 }
 
 type ExchangeStepMessage BusinessStepResult
 
 func (m *ExchangeStepMessage) MarshalBinary() ([]byte, error) {
-    return json.Marshal(m)
+    return jsoniter.Marshal(m)
 }
 
 func (m *ExchangeStepMessage) UnmarshalBinary(data []byte) error {
-    return json.Unmarshal(data, m)
+    return jsoniter.Unmarshal(data, m)
 }

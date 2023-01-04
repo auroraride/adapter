@@ -7,7 +7,7 @@ package pqm
 
 import (
     "github.com/auroraride/adapter"
-    "github.com/goccy/go-json"
+    jsoniter "github.com/json-iterator/go"
     "github.com/lib/pq"
     "sync"
     "time"
@@ -38,7 +38,7 @@ type Message[T any] struct {
 
 func ParseMessage[T any](b []byte) (message *Message[T], err error) {
     message = new(Message[T])
-    err = json.Unmarshal(b, message)
+    err = jsoniter.Unmarshal(b, message)
     if err != nil {
         return
     }
@@ -125,8 +125,8 @@ func (m *Monitor[T]) Listen() {
 
             // fmt.Println("[EVENTS] 收到数据库变动 channel [", n.Channel, "] :")
             // var prettyJSON bytes.Buffer
-            // _ = json.Indent(&prettyJSON, []byte(n.Extra), "", "  ")
-            // fmt.Println(string(prettyJSON.Bytes()))
+            // _ = jsoniter.Indent(&prettyJSON, []byte(n.Extra), "", "  ")
+            // fmt.Println(string(prettyjsoniter.Bytes()))
             // m.logger.Infof("[MONITOR] [%s] 收到数据库变动: \n%s", m.channel, n.Extra)
             // fmt.Printf("[MONITOR] [%s] 收到数据库变动: %s\n", m.channel, n.Extra)
 

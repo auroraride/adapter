@@ -9,7 +9,7 @@ import (
     "encoding/binary"
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/defs/cabdef"
-    "github.com/goccy/go-json"
+    jsoniter "github.com/json-iterator/go"
 )
 
 const (
@@ -40,7 +40,7 @@ func Unpack(b []byte) (t DataType, data any, err error) {
         data = new(cabdef.ExchangeStepMessage)
     }
 
-    err = json.Unmarshal(b[typeSize:], data)
+    err = jsoniter.Unmarshal(b[typeSize:], data)
     return
 }
 
