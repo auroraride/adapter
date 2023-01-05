@@ -17,6 +17,7 @@ var (
     ErrorIncompletePacket    = errors.New("incomplete packet") // 数据包不完整
     ErrorParamValidateFailed = errors.New("数据校验失败")
 
+    ErrorCabinetBrand          = errors.New("电柜品牌错误")
     ErrorCabinetSerialRequired = errors.New("电柜序号不存在")
     ErrorCabinetBrandRequired  = errors.New("电柜型号不存在")
     ErrorCabinetNotFound       = errors.New("电柜未找到")
