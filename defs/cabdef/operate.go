@@ -53,6 +53,27 @@ func (o DetectDoor) Text() string {
     }
 }
 
+type DetectBin uint8
+
+const (
+    DetectBinIgnore  DetectBin = iota // 忽略
+    DetectBinEnable                   // 启用
+    DetectBinDisable                  // 禁用
+)
+
+func (o DetectBin) Text() string {
+    switch o {
+    default:
+        return " - "
+    case DetectBinIgnore:
+        return "忽略"
+    case DetectBinEnable:
+        return "启用"
+    case DetectBinDisable:
+        return "禁用"
+    }
+}
+
 const (
     OperateUnknown    Operate = "unknown"     // 未知
     OperateDetect     Operate = "detect"      // 检测
