@@ -39,11 +39,11 @@ func (req *BusinessRequest) String() string {
 }
 
 type BusinessResponse struct {
-    Error   string                `json:"error,omitempty"`
-    Results []*BusinessStepResult `json:"results"`
+    Error   string              `json:"error,omitempty"`
+    Results []*BinOperateResult `json:"results"`
 }
 
-type BusinessStepResult struct {
+type BinOperateResult struct {
     UUID      string           `json:"uuid"`
     Operate   Operate          `json:"operate"`
     Step      int              `json:"step"`                // 操作步骤
@@ -93,4 +93,5 @@ type OperateBinRequest struct {
     Operate Operate `json:"operate" validate:"required"`
     Ordinal *int    `json:"ordinal" validate:"required"`
     Serial  string  `json:"serial" validate:"required"`
+    Remark  string  `json:"remark" validate:"required"`
 }

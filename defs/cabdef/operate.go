@@ -59,6 +59,7 @@ const (
     DetectBinIgnore  DetectBin = iota // 忽略
     DetectBinEnable                   // 启用
     DetectBinDisable                  // 禁用
+    DetectBinUsable                   // 业务可用
 )
 
 func (o DetectBin) Text() string {
@@ -71,6 +72,8 @@ func (o DetectBin) Text() string {
         return "启用"
     case DetectBinDisable:
         return "禁用"
+    case DetectBinUsable:
+        return "业务可用"
     }
 }
 

@@ -38,7 +38,7 @@ func (m *BatteryMessage) UnmarshalBinary(data []byte) error {
     return jsoniter.Unmarshal(data, m)
 }
 
-type ExchangeStepMessage BusinessStepResult
+type ExchangeStepMessage BinOperateResult
 
 func (m *ExchangeStepMessage) MarshalBinary() ([]byte, error) {
     return jsoniter.Marshal(m)
