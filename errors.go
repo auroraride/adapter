@@ -37,8 +37,6 @@ var (
     ErrorExchangeBatteryLost  = errors.New("电池未放入")
     ErrorExchangeBatteryExist = errors.New("电池未取走")
 
-    ErrorBatteryPutin = errors.New("放入电池编号不匹配")
-
     ErrorBinOpened          = errors.New("仓门已是开启状态")
     ErrorBinDisabled        = errors.New("仓位已是禁用状态")
     ErrorBinEnabled         = errors.New("仓位已是启用状态")
@@ -54,5 +52,7 @@ var (
     ErrorBusiness       = errors.New("业务类型错误")
     ErrorBusinessUnable = errors.New("无法办理该业务")
 
+    ErrorBatteryPutin     = errors.New("放入电池编号不匹配")
     ErrorBatteryNotEnough = errors.New("电池数量不足")
+    ErrorBatterySN        = errors.New("电池编码错误")
 )

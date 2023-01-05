@@ -27,7 +27,7 @@ func (m *CabinetMessage) UnmarshalBinary(data []byte) error {
 
 type BatteryMessage struct {
     *adapter.Battery
-    Cabinet string `json:"cabinet"` // 所属电柜
+    Cabinet string `json:"cabinet,omitempty"` // 所属电柜, 可能为空
 }
 
 func (m *BatteryMessage) MarshalBinary() ([]byte, error) {
