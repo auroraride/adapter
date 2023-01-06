@@ -9,6 +9,7 @@ import (
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
     "github.com/panjf2000/gnet/v2"
+    "github.com/sirupsen/logrus"
 )
 
 type Hook struct {
@@ -23,7 +24,7 @@ type Tcp struct {
 
     address  string
     codec    codec.Codec
-    logger   adapter.StdLogger
+    logger   logrus.FieldLogger
     receiver adapter.BytesCallback
 
     Hooks Hook
@@ -31,7 +32,7 @@ type Tcp struct {
     closeCh chan bool
 }
 
-func NewTcp(addr string, l adapter.StdLogger, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
+func NewTcp(addr string, l logrus.FieldLogger, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
     return &Tcp{
         address:  addr,
         logger:   l,

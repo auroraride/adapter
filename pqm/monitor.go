@@ -6,9 +6,9 @@
 package pqm
 
 import (
-    "github.com/auroraride/adapter"
     jsoniter "github.com/json-iterator/go"
     "github.com/lib/pq"
+    "github.com/sirupsen/logrus"
     "sync"
     "time"
 )
@@ -57,14 +57,14 @@ type Monitor[T Channelizer] struct {
     channel string
 
     // 日志记录器
-    logger adapter.StdLogger
+    logger logrus.FieldLogger
 
     // 监听器
     // 数据格式为: chan *Message[T] -> key
     listeners sync.Map
 }
 
-func NewMonitor[T Channelizer](dsn string, logger adapter.StdLogger, t T, receiver Callback[T]) *Monitor[T] {
+func NewMonitor[T Channelizer](dsn string, logger logrus.FieldLogger, t T, receiver Callback[T]) *Monitor[T] {
     return &Monitor[T]{
         channel:  t.GetTableName(),
         dsn:      dsn,

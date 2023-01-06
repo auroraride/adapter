@@ -6,11 +6,11 @@
 package snag
 
 import (
-    "github.com/auroraride/adapter"
+    "github.com/sirupsen/logrus"
     "runtime/debug"
 )
 
-func WithPanic(cb func(), logger adapter.StdLogger) {
+func WithPanic(cb func(), logger logrus.FieldLogger) {
 
     defer func() {
         if v := recover(); v != nil {

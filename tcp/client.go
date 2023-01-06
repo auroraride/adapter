@@ -11,6 +11,7 @@ import (
     "github.com/auroraride/adapter/codec"
     "github.com/auroraride/adapter/message"
     "github.com/panjf2000/gnet/v2"
+    "github.com/sirupsen/logrus"
     "time"
 )
 
@@ -21,7 +22,7 @@ type Client struct {
     Sender chan message.Messenger
 }
 
-func NewClient(addr string, l adapter.StdLogger, c codec.Codec) *Client {
+func NewClient(addr string, l logrus.FieldLogger, c codec.Codec) *Client {
     cli := &Client{
         Tcp:    NewTcp(addr, l, c, nil),
         Sender: make(chan message.Messenger),

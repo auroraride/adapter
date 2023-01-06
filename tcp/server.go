@@ -9,13 +9,14 @@ import (
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
     "github.com/panjf2000/gnet/v2"
+    "github.com/sirupsen/logrus"
 )
 
 type Server struct {
     *Tcp
 }
 
-func NewServer(addr string, l adapter.StdLogger, c codec.Codec, r adapter.BytesCallback) *Server {
+func NewServer(addr string, l logrus.FieldLogger, c codec.Codec, r adapter.BytesCallback) *Server {
     s := &Server{
         Tcp: NewTcp(addr, l, c, r),
     }

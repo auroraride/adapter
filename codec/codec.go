@@ -13,11 +13,6 @@ import (
     "github.com/panjf2000/gnet/v2"
 )
 
-var (
-    newline = []byte{'\n'}
-    space   = []byte{' '}
-)
-
 const (
     bodySize = 4
 )
@@ -39,7 +34,7 @@ func (codec *Newline) Decode(c gnet.Conn) (b []byte, err error) {
 }
 
 func (codec *Newline) Encode(message []byte) []byte {
-    return append(message, newline...)
+    return append(message, adapter.Newline...)
 }
 
 // HeaderLength 以头部4字节定义
@@ -59,7 +54,7 @@ func (codec *HeaderLength) Decode(c gnet.Conn) ([]byte, error) {
     buf, _ = c.Peek(msgLen)
     _, _ = c.Discard(msgLen)
 
-    return bytes.TrimSpace(bytes.Replace(buf[bodySize:msgLen], newline, nil, -1)), nil
+    return bytes.TrimSpace(bytes.Replace(buf[bodySize:msgLen], adapter.Newline, nil, -1)), nil
 }
 
 func (codec *HeaderLength) Encode(message []byte) []byte {
