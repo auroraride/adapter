@@ -61,16 +61,29 @@ type Monitor[T Channelizer] struct {
 
     // 监听器
     // 数据格式为: chan *Message[T] -> key
-    listeners sync.Map
+    listeners *sync.Map
 }
 
 func NewMonitor[T Channelizer](dsn string, logger logrus.FieldLogger, t T, receiver Callback[T]) *Monitor[T] {
     return &Monitor[T]{
-        channel:  t.GetTableName(),
-        dsn:      dsn,
-        receiver: receiver,
-        logger:   logger,
+        channel:   t.GetTableName(),
+        dsn:       dsn,
+        receiver:  receiver,
+        logger:    logger,
+        listeners: &sync.Map{},
     }
+}
+
+func (m *Monitor[T]) GetListeners() *sync.Map {
+    return m.listeners
+}
+
+func (m *Monitor[T]) GetListenerCount() (n int) {
+    m.listeners.Range(func(_, _ any) bool {
+        n += 1
+        return true
+    })
+    return
 }
 
 func (m *Monitor[T]) RemoveListener(ch chan T) {
