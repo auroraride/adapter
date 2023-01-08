@@ -25,8 +25,6 @@ func (r *Response[T]) VerifyResponse() error {
     return errors.New(r.Message)
 }
 
-type ResponseCallback func(*resty.Response)
-
 func CreateRequest(user *User) *resty.Request {
     client := resty.New()
     json := jsoniter.ConfigCompatibleWithStandardLibrary
@@ -41,11 +39,11 @@ func CreateRequest(user *User) *resty.Request {
 }
 
 func Post[T any](url string, user *User, playload any, params ...any) (data T, err error) {
-    var cb ResponseCallback
+    var cb func(*resty.Response)
 
     for _, param := range params {
         switch v := param.(type) {
-        case ResponseCallback:
+        case func(*resty.Response):
             cb = v
         }
     }

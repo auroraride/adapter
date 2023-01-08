@@ -58,4 +58,5 @@ var (
     ErrorBatteryPutin     = errors.New("放入电池编号不匹配")
     ErrorBatteryNotEnough = errors.New("电池数量不足")
     ErrorBatterySN        = errors.New("电池编码错误")
+    ErrorBatteryNotFound  = errors.New("未找到当前绑定的电池信息")
 )
