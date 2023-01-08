@@ -46,10 +46,10 @@ func (b Business) Text() string {
     return " - "
 }
 
-// BatteryNeed 业务是否需要电池
+// BatteryNeed 业务是否需要原本电池
 func (b Business) BatteryNeed() bool {
     switch b {
-    case BusinessPause, BusinessUnsubscribe:
+    case BusinessPause, BusinessUnsubscribe, BusinessExchange:
         return true
     }
     return false
