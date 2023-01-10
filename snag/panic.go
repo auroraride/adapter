@@ -10,7 +10,7 @@ import (
     "runtime/debug"
 )
 
-func WithPanic(cb func(), logger logrus.FieldLogger) {
+func WithRecover(cb func(), logger logrus.FieldLogger) {
 
     defer func() {
         if v := recover(); v != nil {
