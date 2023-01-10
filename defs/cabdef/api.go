@@ -95,3 +95,8 @@ type OperateBinRequest struct {
     Serial  string  `json:"serial" validate:"required"`
     Remark  string  `json:"remark" validate:"required"`
 }
+
+type BinInfoRequest struct {
+    Serial  string `json:"serial" validate:"required"`  // 电柜编号
+    Ordinal *int   `json:"ordinal" validate:"required"` // 仓位序号
+}
