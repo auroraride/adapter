@@ -6,6 +6,7 @@ import (
     "os"
     "path/filepath"
     "reflect"
+    "strconv"
     "strings"
     "sync"
 
@@ -165,10 +166,11 @@ func GetLogLevel(level string) []logrus.Level {
 
 // LogFormat specialize for go-cqhttp
 type LogFormat struct {
-    EnableColor bool
-    SaveJson    bool
-    Console     bool
-    Caller      bool
+    EnableColor    bool
+    SaveJson       bool
+    Console        bool
+    Caller         bool
+    CallerSplitter func(string) string
 }
 
 // Format implements logrus.Formatter
@@ -200,7 +202,9 @@ func (f LogFormat) Format(entry *logrus.Entry) (out []byte, err error) {
     buf.WriteString(l)
     if entry.HasCaller() && f.Caller {
         buf.WriteString(lp)
-        buf.WriteString(fmt.Sprintf("%s:%d", entry.Caller.File, entry.Caller.Line))
+        buf.WriteString(entry.Caller.File)
+        buf.WriteString(":")
+        buf.WriteString(strconv.Itoa(entry.Caller.Line))
     }
     buf.WriteString(mp)
     buf.WriteString(entry.Message)
