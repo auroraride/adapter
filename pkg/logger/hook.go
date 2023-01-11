@@ -201,8 +201,12 @@ func (f LogFormat) Format(entry *logrus.Entry) (out []byte, err error) {
     buf.WriteString(lp)
     buf.WriteString(l)
     if entry.HasCaller() && f.Caller {
+        cf := entry.Caller.File
+        if f.CallerSplitter != nil {
+            cf = f.CallerSplitter(entry.Caller.File)
+        }
         buf.WriteString(lp)
-        buf.WriteString(entry.Caller.File)
+        buf.WriteString(cf)
         buf.WriteString(":")
         buf.WriteString(strconv.Itoa(entry.Caller.Line))
     }

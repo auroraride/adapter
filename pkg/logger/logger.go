@@ -8,12 +8,13 @@ import (
 )
 
 type Config struct {
-    Color  bool
-    Level  string
-    Age    int
-    Json   bool
-    Caller bool
-    Path   string
+    Color          bool
+    Level          string
+    Age            int
+    Json           bool
+    Caller         bool
+    Path           string
+    CallerSplitter func(string) string
 }
 
 func LoadWithConfig(cfg Config) {
@@ -31,8 +32,8 @@ func LoadWithConfig(cfg Config) {
         panic(err)
     }
 
-    consoleFormatter := LogFormat{EnableColor: cfg.Color, Console: true, Caller: cfg.Caller}
-    fileFormatter := LogFormat{EnableColor: false, SaveJson: cfg.Json, Caller: cfg.Caller}
+    consoleFormatter := LogFormat{EnableColor: cfg.Color, Console: true, Caller: cfg.Caller, CallerSplitter: cfg.CallerSplitter}
+    fileFormatter := LogFormat{EnableColor: false, SaveJson: cfg.Json, Caller: cfg.Caller, CallerSplitter: cfg.CallerSplitter}
     log.AddHook(NewLocalHook(w, consoleFormatter, fileFormatter, GetLogLevel(cfg.Level)...))
     log.SetReportCaller(true)
 }
