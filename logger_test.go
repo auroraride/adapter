@@ -1,6 +1,6 @@
 // Copyright (C) liasica. 2023-present.
 //
-// Created at 2023-01-11
+// Created at 2023-01-12
 // Based on adapter by liasica, magicrolan@qq.com.
 
 package adapter
@@ -10,7 +10,9 @@ import (
     "testing"
 )
 
-func TestLoki(t *testing.T) {
-    rf := loki.GetCaller()
-    t.Log(rf.File)
+func TestLogger(t *testing.T) {
+    loki.SetJob("testjob")
+    loki.Info("wait test go")
+
+    loki.Wait()
 }
