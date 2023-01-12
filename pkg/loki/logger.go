@@ -8,6 +8,7 @@ package loki
 import (
     "fmt"
     "github.com/valyala/fasthttp"
+    "os"
     "runtime"
     "strconv"
     "sync"
@@ -26,14 +27,15 @@ type Logger struct {
 }
 
 func New() *Logger {
-    runtime.Caller(0)
-    return &Logger{
+    logger := &Logger{
         job:          []byte("varjob"),
         url:          "http://localhost:3100/loki/api/v1/push",
         Formatter:    &DefaultFormatter{},
         reportCaller: true,
         WaitGroup:    &sync.WaitGroup{},
     }
+
+    return logger
 }
 
 var (
@@ -43,26 +45,17 @@ var (
     bodyRight    = []byte(`" ] ] }]}`)
 )
 
-func (logger *Logger) send(job, msg []byte) {
-    buf := NewBuffer()
-    req := fasthttp.AcquireRequest()
+func (logger *Logger) send(body []byte) {
+    logger.WaitGroup.Add(1)
+    defer logger.WaitGroup.Done()
 
-    defer PutBuffer(buf)
+    req := fasthttp.AcquireRequest()
     defer fasthttp.ReleaseRequest(req)
 
     req.SetRequestURI(logger.url)
     req.Header.SetContentType("application/json")
     req.Header.SetMethod("POST")
-
-    buf.Write(bodyLeft)
-    buf.Write(job)
-    buf.Write(bodyMid)
-    buf.WriteString(strconv.FormatInt(time.Now().UnixNano(), 10))
-    buf.Write(bodyMidSplit)
-    buf.Write(msg)
-    buf.Write(bodyRight)
-
-    req.SetBody(append([]byte(nil), buf.Bytes()...))
+    req.SetBody(body)
 
     resp := fasthttp.AcquireResponse()
     defer fasthttp.ReleaseResponse(resp)
@@ -71,8 +64,8 @@ func (logger *Logger) send(job, msg []byte) {
 }
 
 func (logger *Logger) Log(job []byte, level Level, args ...any) {
-    logger.WaitGroup.Add(1)
-    defer logger.WaitGroup.Done()
+    buf := NewBuffer()
+    defer PutBuffer(buf)
 
     if len(job) == 0 {
         return
@@ -82,62 +75,74 @@ func (logger *Logger) Log(job []byte, level Level, args ...any) {
         logger.Caller = getCaller()
     }
 
-    msg := fmt.Sprint(args...)
+    str := fmt.Sprint(args...)
 
-    b := logger.Formatter.Format(level, msg, logger)
-    if len(b) > 0 {
-        logger.send(job, b)
+    msg := logger.Formatter.Format(level, str, logger)
+
+    if len(msg) > 0 {
+        buf.Write(bodyLeft)
+        buf.Write(job)
+        buf.Write(bodyMid)
+        buf.WriteString(strconv.FormatInt(time.Now().UnixNano(), 10))
+        buf.Write(bodyMidSplit)
+        buf.Write(msg)
+        buf.Write(bodyRight)
+        go logger.send(append([]byte(nil), buf.Bytes()...))
+    }
+
+    if level == FatalLevel {
+        os.Exit(1)
     }
 }
 
 func (logger *Logger) Logf(job []byte, level Level, format string, args ...any) {
-    go logger.Log(job, level, fmt.Sprintf(format, args))
+    logger.Log(job, level, fmt.Sprintf(format, args...))
 }
 
 func (logger *Logger) Trace(args ...any) {
-    go logger.Log(logger.job, TraceLevel, args...)
+    logger.Log(logger.job, TraceLevel, args...)
 }
 
 func (logger *Logger) Debug(args ...any) {
-    go logger.Log(logger.job, DebugLevel, args...)
+    logger.Log(logger.job, DebugLevel, args...)
 }
 
 func (logger *Logger) Info(args ...any) {
-    go logger.Log(logger.job, InfoLevel, args...)
+    logger.Log(logger.job, InfoLevel, args...)
 }
 
 func (logger *Logger) Warn(args ...any) {
-    go logger.Log(logger.job, WarnLevel, args...)
+    logger.Log(logger.job, WarnLevel, args...)
 }
 
 func (logger *Logger) Error(args ...any) {
-    go logger.Log(logger.job, ErrorLevel, args...)
+    logger.Log(logger.job, ErrorLevel, args...)
 }
 
 func (logger *Logger) Fatal(args ...any) {
-    go logger.Log(logger.job, FatalLevel, args...)
+    logger.Log(logger.job, FatalLevel, args...)
 }
 
 func (logger *Logger) Tracef(format string, args ...any) {
-    go logger.Logf(logger.job, TraceLevel, format, args...)
+    logger.Logf(logger.job, TraceLevel, format, args...)
 }
 
 func (logger *Logger) Debugf(format string, args ...any) {
-    go logger.Logf(logger.job, DebugLevel, format, args...)
+    logger.Logf(logger.job, DebugLevel, format, args...)
 }
 
 func (logger *Logger) Warnf(format string, args ...any) {
-    go logger.Logf(logger.job, WarnLevel, format, args...)
+    logger.Logf(logger.job, WarnLevel, format, args...)
 }
 
 func (logger *Logger) Infof(format string, args ...any) {
-    go logger.Logf(logger.job, InfoLevel, format, args...)
+    logger.Logf(logger.job, InfoLevel, format, args...)
 }
 
 func (logger *Logger) Errorf(format string, args ...any) {
-    go logger.Logf(logger.job, ErrorLevel, format, args)
+    logger.Logf(logger.job, ErrorLevel, format, args...)
 }
 
 func (logger *Logger) Fatalf(format string, args ...any) {
-    go logger.Logf(logger.job, FatalLevel, format, args)
+    logger.Logf(logger.job, FatalLevel, format, args...)
 }

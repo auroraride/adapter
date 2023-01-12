@@ -6,11 +6,11 @@
 package snag
 
 import (
-    "github.com/sirupsen/logrus"
+    "github.com/auroraride/adapter"
     "runtime/debug"
 )
 
-func WithRecover(cb func(), logger logrus.FieldLogger) {
+func WithRecover(cb func(), logger adapter.Logger) {
 
     defer func() {
         if v := recover(); v != nil {

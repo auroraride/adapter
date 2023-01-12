@@ -25,6 +25,10 @@ func SetReportCaller(report bool) {
     std.reportCaller = report
 }
 
+func SetCallerSplitter(splitter func(s string) string) {
+    std.CallerSplitter = splitter
+}
+
 func SetFormatter(f Formatter) {
     std.Formatter = f
 }
@@ -34,49 +38,49 @@ func Wait() {
 }
 
 func Trace(args ...any) {
-    std.Log(std.job, TraceLevel, args...)
+    std.Trace(args...)
 }
 
 func Debug(args ...any) {
-    std.Log(std.job, DebugLevel, args...)
+    std.Debug(args...)
 }
 
 func Info(args ...any) {
-    std.Log(std.job, InfoLevel, args...)
+    std.Info(args...)
 }
 
 func Warn(args ...any) {
-    std.Log(std.job, WarnLevel, args...)
+    std.Warn(args...)
 }
 
 func Error(args ...any) {
-    std.Log(std.job, ErrorLevel, args...)
+    std.Error(args...)
 }
 
 func Fatal(args ...any) {
-    std.Log(std.job, FatalLevel, args...)
+    std.Fatal(args...)
 }
 
 func Tracef(format string, args ...any) {
-    std.Logf(std.job, TraceLevel, format, args...)
+    std.Tracef(format, args...)
 }
 
 func Debugf(format string, args ...any) {
-    std.Logf(std.job, DebugLevel, format, args...)
+    std.Debugf(format, args...)
 }
 
 func Warnf(format string, args ...any) {
-    std.Logf(std.job, WarnLevel, format, args...)
+    std.Warnf(format, args...)
 }
 
 func Infof(format string, args ...any) {
-    std.Logf(std.job, InfoLevel, format, args...)
+    std.Infof(format, args...)
 }
 
 func Errorf(format string, args ...any) {
-    std.Logf(std.job, ErrorLevel, format, args...)
+    std.Errorf(format, args...)
 }
 
 func Fatalf(format string, args ...any) {
-    std.Logf(std.job, FatalLevel, format, args...)
+    std.Fatalf(format, args...)
 }
