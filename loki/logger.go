@@ -7,6 +7,7 @@ package loki
 
 import (
     "fmt"
+    "github.com/auroraride/adapter/async"
     "github.com/valyala/fasthttp"
     "os"
     "runtime"
@@ -46,7 +47,6 @@ var (
 )
 
 func (logger *Logger) send(body []byte) {
-    logger.WaitGroup.Add(1)
     defer logger.WaitGroup.Done()
 
     req := fasthttp.AcquireRequest()
@@ -64,9 +64,6 @@ func (logger *Logger) send(body []byte) {
 }
 
 func (logger *Logger) Log(job []byte, level Level, args ...any) {
-    buf := NewBuffer()
-    defer PutBuffer(buf)
-
     if len(job) == 0 {
         return
     }
@@ -80,14 +77,20 @@ func (logger *Logger) Log(job []byte, level Level, args ...any) {
     msg := logger.Formatter.Format(level, str, logger)
 
     if len(msg) > 0 {
-        buf.Write(bodyLeft)
-        buf.Write(job)
-        buf.Write(bodyMid)
-        buf.WriteString(strconv.FormatInt(time.Now().UnixNano(), 10))
-        buf.Write(bodyMidSplit)
-        buf.Write(msg)
-        buf.Write(bodyRight)
-        go logger.send(append([]byte(nil), buf.Bytes()...))
+        logger.WaitGroup.Add(1)
+        go async.WithTask(func() {
+            buf := NewBuffer()
+            defer PutBuffer(buf)
+
+            buf.Write(bodyLeft)
+            buf.Write(job)
+            buf.Write(bodyMid)
+            buf.WriteString(strconv.FormatInt(time.Now().UnixNano(), 10))
+            buf.Write(bodyMidSplit)
+            buf.Write(msg)
+            buf.Write(bodyRight)
+            logger.send(append([]byte(nil), buf.Bytes()...))
+        })
     }
 
     if level == FatalLevel {

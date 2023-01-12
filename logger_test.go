@@ -6,7 +6,7 @@
 package adapter
 
 import (
-    "github.com/auroraride/adapter/pkg/loki"
+    "github.com/auroraride/adapter/loki"
     "testing"
 )
 

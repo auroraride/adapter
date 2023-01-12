@@ -23,9 +23,7 @@ func WithTask(cb func()) {
     // 添加异步任务
     tasks.Store(uid, 1)
     // 退出移除异步任务
-    defer func() {
-        tasks.Delete(uid)
-    }()
+    defer tasks.Delete(uid)
 
     cb()
 }

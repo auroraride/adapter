@@ -126,7 +126,7 @@ func getCaller() *runtime.Frame {
         // dynamic get the package name and the minimum caller depth
         for i := 0; i < maximumCallerDepth; i++ {
             funcName := runtime.FuncForPC(pcs[i]).Name()
-            if strings.Contains(funcName, "GetCaller") {
+            if strings.Contains(funcName, "getCaller") {
                 lokiPackage = getPackageName(funcName)
                 minimumCallerDepth = i
                 break
