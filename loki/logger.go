@@ -17,9 +17,10 @@ import (
 )
 
 type Logger struct {
-    job          []byte
+    job          string
     url          string
     reportCaller bool
+    sender       chan []byte
 
     Caller         *runtime.Frame
     CallerSplitter func(string) string
@@ -29,22 +30,29 @@ type Logger struct {
 
 func New() *Logger {
     logger := &Logger{
-        job:          []byte("varjob"),
+        job:          "varjob",
         url:          "http://localhost:3100/loki/api/v1/push",
         Formatter:    &DefaultFormatter{},
         reportCaller: true,
         WaitGroup:    &sync.WaitGroup{},
+        sender:       make(chan []byte),
     }
+
+    go logger.run()
 
     return logger
 }
 
-var (
-    bodyLeft     = []byte(`{"streams": [{ "stream": { "job": "`)
-    bodyMid      = []byte(`" }, "values": [ [ "`)
-    bodyMidSplit = []byte(`", "`)
-    bodyRight    = []byte(`" ] ] }]}`)
-)
+func (logger *Logger) run() {
+    for {
+        select {
+        case b := <-logger.sender:
+            go async.WithTask(func() {
+                logger.send(b)
+            })
+        }
+    }
+}
 
 func (logger *Logger) send(body []byte) {
     defer logger.WaitGroup.Done()
@@ -63,8 +71,8 @@ func (logger *Logger) send(body []byte) {
     _ = fasthttp.Do(req, resp)
 }
 
-func (logger *Logger) Log(job []byte, level Level, args ...any) {
-    if len(job) == 0 {
+func (logger *Logger) Log(job string, level Level, args ...any) {
+    if job == "" {
         return
     }
 
@@ -78,19 +86,20 @@ func (logger *Logger) Log(job []byte, level Level, args ...any) {
 
     if len(msg) > 0 {
         logger.WaitGroup.Add(1)
-        go async.WithTask(func() {
-            buf := NewBuffer()
-            defer PutBuffer(buf)
 
-            buf.Write(bodyLeft)
-            buf.Write(job)
-            buf.Write(bodyMid)
-            buf.WriteString(strconv.FormatInt(time.Now().UnixNano(), 10))
-            buf.Write(bodyMidSplit)
-            buf.Write(msg)
-            buf.Write(bodyRight)
-            logger.send(append([]byte(nil), buf.Bytes()...))
-        })
+        entry := NewEntry()
+        defer ReleaseEntry(entry)
+
+        entry.Streams = []EntryStream{
+            {
+                Stream: EntryJob{Job: job},
+                Values: [][]string{
+                    {strconv.FormatInt(time.Now().UnixNano(), 10), string(msg)},
+                },
+            },
+        }
+
+        logger.sender <- entry.Bytes()
     }
 
     if level == FatalLevel {
@@ -98,7 +107,7 @@ func (logger *Logger) Log(job []byte, level Level, args ...any) {
     }
 }
 
-func (logger *Logger) Logf(job []byte, level Level, format string, args ...any) {
+func (logger *Logger) Logf(job string, level Level, format string, args ...any) {
     logger.Log(job, level, fmt.Sprintf(format, args...))
 }
 

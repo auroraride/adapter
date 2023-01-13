@@ -18,7 +18,7 @@ func SetUrl(url string) {
 }
 
 func SetJob(job string) {
-    std.job = []byte(job)
+    std.job = job
 }
 
 func SetReportCaller(report bool) {

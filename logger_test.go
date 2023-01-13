@@ -13,7 +13,9 @@ import (
 func TestLogger(t *testing.T) {
     loki.SetJob("testjob")
 
-    loki.Infof("test: %v", "loki")
+    for i := 0; i < 3; i += 1 {
+        loki.Infof("test loki: %v", i)
+    }
 
     loki.Wait()
 }
