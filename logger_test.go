@@ -7,10 +7,15 @@ package adapter
 
 import (
     "github.com/auroraride/adapter/loki"
+    log "github.com/sirupsen/logrus"
     "testing"
 )
 
 func TestLogger(t *testing.T) {
+    log.Info("test")
+}
+
+func TestLoki(t *testing.T) {
     loki.SetJob("testjob")
 
     for i := 0; i < 3; i += 1 {
