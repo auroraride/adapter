@@ -5,6 +5,8 @@
 
 package cabdef
 
+import "github.com/auroraride/adapter"
+
 type CabinetStatus string
 
 // CabinetStatus values.
@@ -22,7 +24,7 @@ type Cabinet struct {
     // 是否在线
     Online bool `json:"online"`
     // 品牌
-    Brand Brand `json:"brand"`
+    Brand adapter.CabinetBrand `json:"brand"`
     // 电柜编号
     Serial string `json:"serial"`
     // 状态
