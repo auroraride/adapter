@@ -2,6 +2,7 @@ package logger
 
 import (
     "fmt"
+    "github.com/auroraride/adapter"
     "io"
     "os"
     "path/filepath"
@@ -177,8 +178,8 @@ type LogFormat struct {
 func (f LogFormat) Format(entry *logrus.Entry) (out []byte, err error) {
     t := entry.Time.Format("2006-01-02 15:04:05")
     l := strings.ToUpper(entry.Level.String())
-    buf := NewBuffer()
-    defer PutBuffer(buf)
+    buf := adapter.NewBuffer()
+    defer adapter.ReleaseBuffer(buf)
 
     if f.EnableColor {
         buf.WriteString(GetLogLevelColorCode(entry.Level))
