@@ -47,8 +47,9 @@ func Unpack(b []byte) (data []byte, err error) {
 
     // 获取数据长度
     datalen := binary.BigEndian.Uint16(b[17:19]) + 19
-
     data = b[19:datalen]
+
+    // 校验和
 
     sn := data[0:16]
     fmt.Println("电池包编码:", string(sn))
@@ -65,10 +66,8 @@ func Unpack(b []byte) (data []byte, err error) {
     hver4g := data[22:24]
     fmt.Println("4G硬件版本", binary.BigEndian.Uint16(hver4g))
 
-    // TODO 解析4G板SN
-    sn4g := data[24:28]
-
-    fmt.Printf("%x -> %d\n", sn4g, int(binary.BigEndian.Uint32(sn4g))+787986650000)
+    sn4g := uint(binary.BigEndian.Uint32(data[24:28])) + 787986650000
+    fmt.Println("4G板SN:", sn4g)
 
     iccd := data[28:48]
     fmt.Println("SIM卡ICCID:", string(iccd))
