@@ -7,7 +7,6 @@ package adapter
 
 import (
     "github.com/stretchr/testify/assert"
-    "hash/crc32"
     "testing"
 )
 
@@ -21,12 +20,4 @@ func TestBuffer(t *testing.T) {
     ReleaseBuffer(buf)
 
     assert.Zero(t, NewBuffer().Len())
-}
-
-func TestCheckSum(t *testing.T) {
-    data := []byte("hello world")
-    s1 := CheckSum(data)
-    s2 := CheckSum2(data)
-    s3 := crc32.ChecksumIEEE(data)
-    t.Logf("%x, %x, %x", s1, s2, s3)
 }

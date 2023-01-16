@@ -34,22 +34,35 @@ func (c Code) ByteEqual(b byte) bool {
 func Pack() {
 }
 
-func Unpack(b []byte) (data []byte, err error) {
+func Unpack(raw []byte) (data []byte, err error) {
     // 校验起始符和结束符
-    if !CodeStart.ByteEqual(b[0]) || !CodeStop.ByteEqual(b[len(b)-1]) {
+    if !CodeStart.ByteEqual(raw[0]) || !CodeStop.ByteEqual(raw[len(raw)-1]) {
         err = adapter.ErrorData
         return
     }
 
+    // 校验和
+    var calc uint16
+    for i := 1; i < len(raw)-3; i++ {
+        calc += uint16(raw[i])
+    }
+
+    // 功能码
+    code := raw[1]
+    fmt.Printf("功能码: %X\n", code)
+
     // 获取IMEI
-    imei := b[2:17]
+    imei := raw[2:17]
     fmt.Println("IMEI:", string(imei))
 
     // 获取数据长度
-    datalen := binary.BigEndian.Uint16(b[17:19]) + 19
-    data = b[19:datalen]
+    lenb := raw[17:19]
+    datalen := binary.BigEndian.Uint16(lenb) + 19
+    data = raw[19:datalen]
 
     // 校验和
+    sum := raw[datalen : datalen+2]
+    fmt.Println("校验和:", binary.BigEndian.Uint16(sum))
 
     sn := data[0:16]
     fmt.Println("电池包编码:", string(sn))
@@ -77,12 +90,6 @@ func Unpack(b []byte) (data []byte, err error) {
 
     num := binary.BigEndian.Uint16(data[50:52])
     fmt.Println("电池包串数:", num)
-    // 判断功能码
-    fc := b[1]
-    switch Code(fc) {
-    case CodeLoginRecv:
-
-    }
 
     return
 }
