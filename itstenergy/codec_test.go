@@ -20,8 +20,31 @@ func TestPack(t *testing.T) {
     data := b[3 : len(b)-3]
     alert := data[36:40]
     num := binary.BigEndian.Uint32(alert)
-    numb := fmt.Sprintf("%032b", num)
-    t.Log(b, data, alert, num, numb)
+
+    alertIndexes := []int{0, 1, 2, 3, 6, 7, 8, 11, 12, 13, 14, 15, 16}
+    alerts := map[int]string{
+        0:  "总压低",
+        1:  "总压高",
+        2:  "单体低",
+        3:  "单体高",
+        6:  "放电过流",
+        7:  "充电过流",
+        8:  "SOC低",
+        11: "充电高温",
+        12: "充电低温",
+        13: "放电高温",
+        14: "放电低温",
+        15: "短路",
+        16: "MOS高温",
+    }
+    for _, i := range alertIndexes {
+        fmt.Printf("index: %d, %s -> %t\n", i, alerts[i], num>>i&1 == 1)
+    }
+
+    // for i := num; i != 0; i >>= 1 {
+    //     bit := i & 1
+    //     fmt.Println(i, bit)
+    // }
 }
 
 func TestUnpack(t *testing.T) {
