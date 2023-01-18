@@ -143,14 +143,12 @@ func dumpBuffer(cfg *DumpConfig, c echo.Context, reqBody, resBody []byte) []byte
 func dump(handler DumpHandler) echo.MiddlewareFunc {
     return func(next echo.HandlerFunc) echo.HandlerFunc {
         return func(c echo.Context) (err error) {
-            // Request body
+            // Request
             var reqBody []byte
             if c.Request().Body != nil { // Read
                 reqBody, _ = io.ReadAll(c.Request().Body)
             }
-
-            // Reset request body
-            c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody))
+            c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody)) // Reset
 
             // Response
             resBody := new(bytes.Buffer)
@@ -158,14 +156,12 @@ func dump(handler DumpHandler) echo.MiddlewareFunc {
             writer := &DumpResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
             c.Response().Writer = writer
 
-            // Callback
-            c.Response().After(func() {
-                handler(c, reqBody, resBody.Bytes())
-            })
-
             if err = next(c); err != nil {
-                resBody.WriteString(err.Error())
+                c.Error(err)
             }
+
+            // Callback
+            handler(c, reqBody, resBody.Bytes())
 
             return
         }
