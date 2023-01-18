@@ -38,7 +38,7 @@ func CreateRequest(user *User) *resty.Request {
         })
 }
 
-func Post[T any](url string, user *User, playload any, params ...any) (data T, err error) {
+func Post[T any](url string, user *User, payload any, params ...any) (data T, err error) {
     var cb func(*resty.Response)
 
     for _, param := range params {
@@ -50,7 +50,7 @@ func Post[T any](url string, user *User, playload any, params ...any) (data T, e
 
     var r *resty.Response
     res := new(Response[T])
-    r, err = CreateRequest(user).SetBody(playload).SetResult(res).Post(url)
+    r, err = CreateRequest(user).SetBody(payload).SetResult(res).Post(url)
     if cb != nil {
         cb(r)
     }

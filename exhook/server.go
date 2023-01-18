@@ -7,34 +7,27 @@ package exhook
 
 import (
     "context"
+    "github.com/auroraride/adapter"
+    "google.golang.org/grpc"
+    "net"
 )
+
+type MessageReceived func(in *MessagePublishRequest) *Message
 
 // Server is used to implement emqx_exhook_v1.s *Server
 type Server struct {
     UnimplementedHookProviderServer
+
+    hooks             []Hook
+    logger            adapter.Logger
+    OnMessageReceived MessageReceived
 }
 
+// OnProviderLoaded 定义需要挂载的钩子列表
 func (s *Server) OnProviderLoaded(ctx context.Context, in *ProviderLoadedRequest) (*LoadedResponse, error) {
-    hooks := []*HookSpec{
-        {Name: "client.connect"},
-        {Name: "client.connack"},
-        {Name: "client.connected"},
-        {Name: "client.disconnected"},
-        {Name: "client.authenticate"},
-        {Name: "client.authorize"},
-        {Name: "client.subscribe"},
-        {Name: "client.unsubscribe"},
-        {Name: "session.created"},
-        {Name: "session.subscribed"},
-        {Name: "session.unsubscribed"},
-        {Name: "session.resumed"},
-        {Name: "session.discarded"},
-        {Name: "session.takenover"},
-        {Name: "session.terminated"},
-        {Name: "message.publish"},
-        {Name: "message.delivered"},
-        {Name: "message.acked"},
-        {Name: "message.dropped"},
+    var hooks []*HookSpec
+    for _, spec := range s.hooks {
+        hooks = append(hooks, &HookSpec{Name: spec.String()})
     }
     return &LoadedResponse{Hooks: hooks}, nil
 }
@@ -109,14 +102,20 @@ func (s *Server) OnSessionTerminated(ctx context.Context, in *SessionTerminatedR
 }
 
 func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest) (*ValuedResponse, error) {
-    in.Message.Payload = []byte("hardcode payload by exhook-svr-go :)")
-    reply := &ValuedResponse{}
-    reply.Type = ValuedResponse_STOP_AND_RETURN
-    reply.Value = &ValuedResponse_Message{Message: in.Message}
-    return reply, nil
+    s.logger.Infof("[EXHOOK] ↑ Peerhost: %s Topic: %s, Payload: %x", in.Message.Headers["peerhost"], in.Message.Topic, in.Message.Payload)
+
+    var msg *Message
+    if s.OnMessageReceived != nil {
+        msg = s.OnMessageReceived(in)
+    }
+    return &ValuedResponse{
+        Type:  ValuedResponse_STOP_AND_RETURN,
+        Value: &ValuedResponse_Message{Message: msg},
+    }, nil
 }
 
 func (s *Server) OnMessageDelivered(ctx context.Context, in *MessageDeliveredRequest) (*EmptySuccess, error) {
+    s.logger.Infof("[EXHOOK] ↓ Peerhost: %s ClientID: %s Topic: %s, Payload: %x", in.Clientinfo.Peerhost, in.Clientinfo.Clientid, in.Message.Topic, in.Message.Payload)
     return &EmptySuccess{}, nil
 }
 
@@ -126,4 +125,25 @@ func (s *Server) OnMessageDropped(ctx context.Context, in *MessageDroppedRequest
 
 func (s *Server) OnMessageAcked(ctx context.Context, in *MessageAckedRequest) (*EmptySuccess, error) {
     return &EmptySuccess{}, nil
+}
+
+func NewServer(logger adapter.Logger, hooks ...Hook) *Server {
+    if len(hooks) == 0 {
+        panic("钩子数量不能为空")
+    }
+    return &Server{
+        hooks:  hooks,
+        logger: logger,
+    }
+}
+
+func (s *Server) Run(address string) {
+    lis, err := net.Listen("tcp", address)
+    if err != nil {
+        s.logger.Fatal(err)
+    }
+
+    gs := grpc.NewServer()
+    RegisterHookProviderServer(gs, s)
+    s.logger.Fatal(gs.Serve(lis))
 }

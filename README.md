@@ -16,6 +16,7 @@
 
 - [emqx: 多语言 - 钩子扩展](https://www.emqx.io/docs/zh/v5.0/advanced/lang-exhook.html)
 - [emqx: MQTT Go 客户端库](https://www.emqx.io/docs/zh/v5.0/development/go.html)
+- [如何在 Golang 中使用 MQTT](https://www.emqx.com/zh/blog/how-to-use-mqtt-in-golang)
 
 ## 字节
 
