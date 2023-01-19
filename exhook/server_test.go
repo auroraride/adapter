@@ -19,18 +19,17 @@ func TestRun(t *testing.T) {
     )
 
     s := NewServer(log.StandardLogger(), HookMessagePublish, HookMessageDelivered)
-    s.OnMessageReceived = func(in *MessagePublishRequest) *Message {
+    s.OnMessageReceived = func(in *MessagePublishRequest) (reply *Message) {
         topic := bytes.Split([]byte(in.Message.Topic), splitter)
+        reply = in.Message
         if bytes.Equal(topic[2], a1) {
-            reply := in.Message
             topic[2] = a2
 
             reply.Payload = topic[1]
             reply.Topic = string(bytes.Join(topic, splitter))
-            return reply
         }
 
-        return nil
+        return
     }
 
     s.Run(":9801")

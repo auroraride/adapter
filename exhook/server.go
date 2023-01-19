@@ -107,6 +107,8 @@ func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest
     var msg *Message
     if s.OnMessageReceived != nil {
         msg = s.OnMessageReceived(in)
+    } else {
+        msg = in.Message
     }
     return &ValuedResponse{
         Type:  ValuedResponse_STOP_AND_RETURN,
