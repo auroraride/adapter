@@ -94,12 +94,12 @@ func (l *Logger) parseParams(params ...any) (args []any, fields []zap.Field) {
 }
 
 func (l *Logger) Infof(format string, params ...any) {
-    args, fields := l.parseParams(params)
+    args, fields := l.parseParams(params...)
     l.Logger.Info(fmt.Sprintf(format, args...), fields...)
 }
 
 func (l *Logger) Errorf(format string, params ...any) {
-    args, fields := l.parseParams(params)
+    args, fields := l.parseParams(params...)
     l.Logger.Error(fmt.Sprintf(format, args...), fields...)
 }
 
