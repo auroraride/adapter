@@ -8,6 +8,7 @@ package mq
 import (
     "github.com/auroraride/adapter"
     mqtt "github.com/eclipse/paho.mqtt.golang"
+    "go.uber.org/zap"
     "time"
 )
 
@@ -17,31 +18,45 @@ type Hub struct {
     Username string
     Password string
 
-    logger    adapter.Logger
+    logger    *zap.Logger
     client    mqtt.Client
     listeners map[string]chan []byte
+    logserv   zap.Field
 }
 
-func NewHub(server string, id string, username string, password string, logger adapter.Logger) *Hub {
+func NewHub(server string, id string, username string, password string, logger adapter.ZapLogger) *Hub {
     return &Hub{
         Server:   server,
         ClientID: id,
         Username: username,
         Password: password,
-        logger:   logger,
+        logger:   logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
+        logserv:  adapter.LoggerNamespace("MQTT"),
     }
 }
 
 func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
-    h.logger.Infof("[MQTT] ↑ Topic: %s, Payload: %x", msg.Topic(), msg.Payload())
+    h.logger.Info(
+        "收到消息 ↑",
+        h.logserv,
+        zap.String("topic", msg.Topic()),
+        zap.Binary("payload", msg.Payload()),
+    )
 }
 
 func (h *Hub) connectHandler(client mqtt.Client) {
-    h.logger.Infof("[MQTT] 已连接")
+    h.logger.Info(
+        "已连接",
+        h.logserv,
+    )
 }
 
 func (h *Hub) connectLostHandler(client mqtt.Client, err error) {
-    h.logger.Infof("[MQTT] 已断开连接: %v", err)
+    h.logger.Error(
+        "已断开连接",
+        zap.Error(err),
+        h.logserv,
+    )
 }
 
 func (h *Hub) Run() {

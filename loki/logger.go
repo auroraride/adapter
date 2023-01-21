@@ -7,6 +7,7 @@ package loki
 
 import (
     "fmt"
+    "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/async"
     "github.com/valyala/fasthttp"
     "os"
@@ -77,7 +78,7 @@ func (logger *Logger) Log(job string, level Level, args ...any) {
     }
 
     if logger.reportCaller {
-        logger.Caller = getCaller()
+        logger.Caller = adapter.GetCaller(1)
     }
 
     str := fmt.Sprint(args...)

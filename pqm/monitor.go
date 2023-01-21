@@ -9,6 +9,7 @@ import (
     "github.com/auroraride/adapter"
     jsoniter "github.com/json-iterator/go"
     "github.com/lib/pq"
+    "go.uber.org/zap"
     "sync"
     "time"
 )
@@ -57,19 +58,22 @@ type Monitor[T Channelizer] struct {
     channel string
 
     // 日志记录器
-    logger adapter.Logger
+    logger *zap.Logger
+
+    logserv zap.Field
 
     // 监听器
     // 数据格式为: chan *Message[T] -> key
     listeners *sync.Map
 }
 
-func NewMonitor[T Channelizer](dsn string, logger adapter.Logger, t T, receiver Callback[T]) *Monitor[T] {
+func NewMonitor[T Channelizer](dsn string, logger adapter.ZapLogger, t T, receiver Callback[T]) *Monitor[T] {
     return &Monitor[T]{
         channel:   t.GetTableName(),
         dsn:       dsn,
         receiver:  receiver,
-        logger:    logger,
+        logger:    logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
+        logserv:   adapter.LoggerNamespace("MONITOR"),
         listeners: &sync.Map{},
     }
 }
@@ -117,16 +121,30 @@ func (m *Monitor[T]) sendMessage(message *Message[T]) {
 func (m *Monitor[T]) Listen() {
     l := pq.NewListener(m.dsn, 10*time.Second, time.Minute, func(ev pq.ListenerEventType, err error) {
         if err != nil {
-            m.logger.Errorf("[MONITOR] [%s] 错误: %v", m.channel, err)
+            m.logger.Error(
+                "监听错误",
+                m.logserv,
+                zap.String("channel", m.channel),
+                zap.Error(err),
+            )
         }
     })
 
     err := l.Listen(m.channel)
     if err != nil {
-        m.logger.Errorf("[MONITOR] [%s] 监听失败: %v", m.channel, err)
+        m.logger.Error(
+            "监听失败",
+            m.logserv,
+            zap.String("channel", m.channel),
+            zap.Error(err),
+        )
     }
 
-    m.logger.Infof("[MONITOR] [%s] 开始监听...", m.channel)
+    m.logger.Error(
+        "开始监听...",
+        m.logserv,
+        zap.String("channel", m.channel),
+    )
 
     after := time.After(90 * time.Second)
     for {
@@ -147,7 +165,13 @@ func (m *Monitor[T]) Listen() {
             var message *Message[T]
             message, err = ParseMessage[T]([]byte(n.Extra))
             if err != nil {
-                m.logger.Errorf("[MONITOR] [%s] 消息解析失败: %v (%s)", m.channel, err, n.Extra)
+                m.logger.Error(
+                    "消息解析失败",
+                    m.logserv,
+                    zap.String("channel", m.channel),
+                    zap.Error(err),
+                    zap.String("extra", n.Extra),
+                )
                 continue
             }
 

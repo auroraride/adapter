@@ -5,25 +5,21 @@
 
 package tcp
 
-import (
-    "github.com/auroraride/adapter/codec"
-    "github.com/auroraride/adapter/message"
-    "github.com/panjf2000/gnet/v2"
-)
+//
+// type Conn struct {
+//     gnet.Conn
+//
+//     codec codec.Codec
+// }
 
-type Conn struct {
-    gnet.Conn
-
-    codec codec.Codec
-}
-
-func (c *Conn) Send(data message.Messenger) (err error) {
-    var b []byte
-    b, err = message.Pack(data)
-    if err != nil {
-        return
-    }
-
-    _, err = c.Write(c.codec.Encode(b))
-    return
-}
+// func (c *Conn) Send(data message.Messenger) (encoded []byte, err error) {
+//     var b []byte
+//     b, err = message.Pack(data)
+//     if err != nil {
+//         return
+//     }
+//
+//     encoded = c.codec.Encode(b)
+//     _, err = c.Write(encoded)
+//     return
+// }

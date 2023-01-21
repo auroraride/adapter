@@ -8,6 +8,7 @@ package exhook
 import (
     "context"
     "github.com/auroraride/adapter"
+    "go.uber.org/zap"
     "google.golang.org/grpc"
     "net"
 )
@@ -19,8 +20,9 @@ type Server struct {
     UnimplementedHookProviderServer
 
     hooks             []Hook
-    logger            adapter.Logger
+    logger            *zap.Logger
     OnMessageReceived MessageReceived
+    logserv           zap.Field
 }
 
 // OnProviderLoaded 定义需要挂载的钩子列表
@@ -102,7 +104,13 @@ func (s *Server) OnSessionTerminated(ctx context.Context, in *SessionTerminatedR
 }
 
 func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest) (*ValuedResponse, error) {
-    s.logger.Infof("[EXHOOK] ↑ Peerhost: %s Topic: %s, Payload: %x", in.Message.Headers["peerhost"], in.Message.Topic, in.Message.Payload)
+    s.logger.Info(
+        "收到消息 ↑",
+        s.logserv,
+        zap.String("peerhost", in.Message.Headers["peerhost"]),
+        zap.String("topic", in.Message.Topic),
+        zap.Binary("payload", in.Message.Payload),
+    )
 
     var msg *Message
     if s.OnMessageReceived != nil {
@@ -117,7 +125,13 @@ func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest
 }
 
 func (s *Server) OnMessageDelivered(ctx context.Context, in *MessageDeliveredRequest) (*EmptySuccess, error) {
-    s.logger.Infof("[EXHOOK] ↓ Peerhost: %s ClientID: %s Topic: %s, Payload: %x", in.Clientinfo.Peerhost, in.Clientinfo.Clientid, in.Message.Topic, in.Message.Payload)
+    s.logger.Info(
+        "发送消息 ↓",
+        s.logserv,
+        zap.String("clientid", in.Clientinfo.Clientid),
+        zap.String("topic", in.Message.Topic),
+        zap.Binary("payload", in.Message.Payload),
+    )
     return &EmptySuccess{}, nil
 }
 
@@ -129,23 +143,24 @@ func (s *Server) OnMessageAcked(ctx context.Context, in *MessageAckedRequest) (*
     return &EmptySuccess{}, nil
 }
 
-func NewServer(logger adapter.Logger, hooks ...Hook) *Server {
+func NewServer(logger adapter.ZapLogger, hooks ...Hook) *Server {
     if len(hooks) == 0 {
         panic("钩子数量不能为空")
     }
     return &Server{
-        hooks:  hooks,
-        logger: logger,
+        hooks:   hooks,
+        logger:  logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
+        logserv: adapter.LoggerNamespace("EXHOOK"),
     }
 }
 
 func (s *Server) Run(address string) {
     lis, err := net.Listen("tcp", address)
     if err != nil {
-        s.logger.Fatal(err)
+        s.logger.Fatal(err.Error(), s.logserv)
     }
 
     gs := grpc.NewServer()
     RegisterHookProviderServer(gs, s)
-    s.logger.Fatal(gs.Serve(lis))
+    s.logger.Fatal(gs.Serve(lis).Error(), s.logserv)
 }

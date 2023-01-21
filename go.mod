@@ -22,6 +22,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.4.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/go-redis/redis v0.0.0-20190803144825-742f3ccb21cd // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
@@ -30,6 +31,7 @@ require (
 	github.com/klauspost/compress v1.15.14 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
+	github.com/magefile/mage v1.14.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -46,6 +48,7 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	go.elastic.co/ecszap v1.0.1-0.20210922110956-698ab8c60e81 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect

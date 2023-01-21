@@ -15,7 +15,7 @@ type Server struct {
     *Tcp
 }
 
-func NewServer(addr string, l adapter.Logger, c codec.Codec, r adapter.BytesCallback) *Server {
+func NewServer(addr string, l adapter.ZapLogger, c codec.Codec, r adapter.BytesCallback) *Server {
     s := &Server{
         Tcp: NewTcp(addr, l, c, r),
     }
@@ -28,6 +28,5 @@ func (s *Server) Run() error {
         s.address,
         gnet.WithMulticore(true),
         gnet.WithReuseAddr(true),
-        gnet.WithLogger(s.logger),
     )
 }

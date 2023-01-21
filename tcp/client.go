@@ -11,17 +11,18 @@ import (
     "github.com/auroraride/adapter/codec"
     "github.com/auroraride/adapter/message"
     "github.com/panjf2000/gnet/v2"
+    "go.uber.org/zap"
     "time"
 )
 
 type Client struct {
     *Tcp
 
-    Conn   *Conn
+    conn   gnet.Conn
     Sender chan message.Messenger
 }
 
-func NewClient(addr string, l adapter.Logger, c codec.Codec) *Client {
+func NewClient(addr string, l adapter.ZapLogger, c codec.Codec) *Client {
     cli := &Client{
         Tcp:    NewTcp(addr, l, c, nil),
         Sender: make(chan message.Messenger),
@@ -33,7 +34,11 @@ func NewClient(addr string, l adapter.Logger, c codec.Codec) *Client {
 func (c *Client) Run() {
     for {
         err := c.dial()
-        c.logger.Errorf("[ADAPTER] TCP (%s) 连接失败: %v, 5s后重试连接...", c.address, err)
+        c.logger.Info(
+            "连接失败, 5s后重试连接...",
+            c.logserv,
+            zap.Error(err),
+        )
         time.Sleep(5 * time.Second)
     }
 }
@@ -44,13 +49,11 @@ func (c *Client) dial() (err error) {
     }
 
     var (
-        cli  *gnet.Client
-        conn gnet.Conn
+        cli *gnet.Client
     )
 
     cli, err = gnet.NewClient(
         c,
-        gnet.WithLogger(c.logger),
         gnet.WithReuseAddr(true),
     )
     if err != nil {
@@ -63,14 +66,9 @@ func (c *Client) dial() (err error) {
 
     defer cli.Stop()
 
-    conn, err = cli.Dial("tcp", c.address)
+    c.conn, err = cli.Dial("tcp", c.address)
     if err != nil {
         return
-    }
-
-    c.Conn = &Conn{
-        Conn:  conn,
-        codec: c.Tcp.codec,
     }
 
     if c.Hooks.Connect != nil {
@@ -80,10 +78,24 @@ func (c *Client) dial() (err error) {
     for {
         select {
         case data := <-c.Sender:
-            err = c.Conn.Send(data)
-            if err != nil {
-                c.logger.Errorf("[ADAPTER] 消息发送失败 (%#v): %v", data, err)
-            }
+            go c.Send(data)
+            // var b []byte
+            // b, err = message.Pack(data)
+            // if err != nil {
+            //     return
+            // }
+            //
+            // encoded := c.codec.Encode(b)
+            // _, err = c.Conn.Write(encoded)
+            // // encoded, err = c.Conn.Send(data)
+            // if err != nil {
+            //     c.logger.Info(
+            //         "消息发送失败",
+            //         c.logserv,
+            //         zap.Error(err),
+            //         zap.Binary("encoded", encoded),
+            //     )
+            // }
         case <-c.closeCh:
             if err == nil {
                 err = errors.New("未知原因断开连接")
@@ -93,11 +105,43 @@ func (c *Client) dial() (err error) {
             }
             return
         default:
-            _, err = c.codec.Decode(c.Conn)
+            _, err = c.codec.Decode(c.conn)
             if err != nil && err != adapter.ErrorIncompletePacket {
-                c.logger.Errorf("[ADAPTER] 消息读取失败: %v", err)
+                c.logger.Info(
+                    "消息读取失败",
+                    c.logserv,
+                    zap.Error(err),
+                )
                 c.closeCh <- true
             }
         }
     }
+}
+
+func (c *Client) Send(data message.Messenger) {
+    var (
+        packed  []byte
+        encoded []byte
+        err     error
+    )
+    defer func() {
+        if err != nil {
+            c.logger.Info(
+                "消息发送失败",
+                c.logserv,
+                zap.Error(err),
+                zap.Binary("encoded", encoded),
+                zap.Binary("packed", packed),
+            )
+        }
+    }()
+
+    packed, err = message.Pack(data)
+    if err != nil {
+        return
+    }
+
+    encoded = c.codec.Encode(packed)
+    _, err = c.conn.Write(encoded)
+    return
 }

@@ -9,6 +9,7 @@ import (
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
     "github.com/panjf2000/gnet/v2"
+    "go.uber.org/zap"
 )
 
 type Hook struct {
@@ -23,25 +24,27 @@ type Tcp struct {
 
     address  string
     codec    codec.Codec
-    logger   adapter.Logger
+    logger   *zap.Logger
     receiver adapter.BytesCallback
+    logserv  zap.Field
 
     Hooks Hook
 
     closeCh chan bool
 }
 
-func NewTcp(addr string, l adapter.Logger, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
+func NewTcp(addr string, l adapter.ZapLogger, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
     return &Tcp{
         address:  addr,
-        logger:   l,
+        logger:   l.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
         codec:    c,
         receiver: receiver,
+        logserv:  adapter.LoggerNamespace("ADAPTER TCP"),
     }
 }
 
 func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
-    t.logger.Infof("[ADAPTER] TCP启动: %s", t.address)
+    t.logger.Info("启动于: "+t.address, t.logserv)
 
     if t.Hooks.Boot != nil {
         t.Hooks.Boot()
@@ -51,7 +54,7 @@ func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
 }
 
 func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
-    t.logger.Infof("[ADAPTER] 已断开连接: %v", c.RemoteAddr())
+    t.logger.Info("已断开连接: "+c.RemoteAddr().String(), t.logserv)
     if t.closeCh != nil {
         t.closeCh <- true
     }
@@ -59,7 +62,7 @@ func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 }
 
 func (t *Tcp) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
-    t.logger.Infof("[ADAPTER] 已开始连接: %v", c.RemoteAddr())
+    t.logger.Info("已开始连接: "+c.RemoteAddr().String(), t.logserv)
     return
 }
 
@@ -75,7 +78,11 @@ func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
             break
         }
         if err != nil {
-            t.logger.Errorf("[ADAPTER] 消息读取失败, err: %v", err)
+            t.logger.Info(
+                "消息读取失败",
+                t.logserv,
+                zap.Error(err),
+            )
             return
         }
 
