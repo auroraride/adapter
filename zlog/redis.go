@@ -5,7 +5,10 @@
 
 package zlog
 
-import "github.com/go-redis/redis"
+import (
+    "context"
+    "github.com/go-redis/redis/v9"
+)
 
 type RedisWriter struct {
     cli *redis.Client
@@ -20,6 +23,6 @@ func NewRedisWriter(cli *redis.Client) *RedisWriter {
 }
 
 func (w *RedisWriter) Write(p []byte) (int, error) {
-    n, err := w.cli.RPush(w.key, p).Result()
+    n, err := w.cli.RPush(context.Background(), w.key, p).Result()
     return int(n), err
 }

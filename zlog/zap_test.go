@@ -6,7 +6,7 @@
 package zlog
 
 import (
-    "github.com/go-redis/redis"
+    "github.com/go-redis/redis/v9"
     "testing"
 )
 
