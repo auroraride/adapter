@@ -7,7 +7,8 @@ package exhook
 
 import (
     "bytes"
-    log "github.com/sirupsen/logrus"
+    "github.com/auroraride/adapter/zlog"
+    "github.com/go-redis/redis/v9"
     "testing"
 )
 
@@ -17,8 +18,13 @@ func TestRun(t *testing.T) {
         a1       = []byte("A1")
         a2       = []byte("A2")
     )
+    writer := zlog.NewRedisWriter(redis.NewClient(&redis.Options{
+        Addr: "127.0.0.1:6379",
+        DB:   0,
+    }))
+    zlog.New("test", writer, true)
 
-    s := NewServer(log.StandardLogger(), HookMessagePublish, HookMessageDelivered)
+    s := NewServer(zlog.StandardLogger(), HookMessagePublish, HookMessageDelivered)
     s.OnMessageReceived = func(in *MessagePublishRequest) (reply *Message) {
         topic := bytes.Split([]byte(in.Message.Topic), splitter)
         reply = in.Message

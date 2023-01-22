@@ -17,5 +17,4 @@ func TestNew(t *testing.T) {
     }))
     New("test", writer, true)
     Info("test new message db 0")
-    Infof("[FD=%d / %s, Recv] %s", 1, "addr", []byte("test"))
 }

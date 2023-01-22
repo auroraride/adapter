@@ -22,7 +22,6 @@ func New(application string, writer io.Writer, stdout bool) {
     var cores []zapcore.Core
 
     encoder := ecszap.NewDefaultEncoderConfig()
-    encoder.EncodeCaller = ecszap.FullCallerEncoder
     encoder.EncodeCaller = func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
         if e, ok := enc.(zapcore.ArrayEncoder); ok {
             _ = e.AppendObject(&caller{c})
