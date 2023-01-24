@@ -9,8 +9,10 @@ import (
     "bufio"
     "bytes"
     "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/zlog"
     "github.com/labstack/echo/v4"
     ew "github.com/labstack/echo/v4/middleware"
+    "go.uber.org/zap"
     "io"
     "net"
     "net/http"
@@ -242,5 +244,69 @@ func (mw *DumpFileMiddleware) WithDefaultConfig() echo.MiddlewareFunc {
 func (mw *DumpFileMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFunc {
     return dump(func(c echo.Context, reqBody []byte, resBody []byte) {
         mw.ch <- dumpBuffer(cfg, c, reqBody, resBody)
+    })
+}
+
+type DumpZapLoggerMiddleware struct {
+    logger    adapter.ZapLogger
+    namespace string
+}
+
+func NewDumpLoggerMiddleware(logger adapter.ZapLogger) *DumpZapLoggerMiddleware {
+    return &DumpZapLoggerMiddleware{logger: logger, namespace: "DUMP"}
+}
+
+func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFunc {
+    return dump(func(c echo.Context, reqBody []byte, resBody []byte) {
+        var fields []zap.Field
+
+        // log request header
+        if cfg.RequestHeaderSkipper == nil || !cfg.RequestHeaderSkipper(c) {
+            var arr []string
+
+            // k = v
+            for _, k := range cfg.RequestHeaders {
+                arr = append(arr, k+" = "+c.Request().Header.Get(k))
+            }
+
+            fields = append(fields, zap.Strings("reqheader", arr))
+        }
+
+        // log request body
+        if len(reqBody) > 0 {
+            fields = append(fields, zap.ByteString("payload", reqBody))
+        }
+
+        // log response header
+        if cfg.ResponseHeaderSkipper == nil || !cfg.ResponseHeaderSkipper(c) {
+            var arr []string
+
+            for k := range c.Response().Header() {
+                arr = append(arr, k+" = "+c.Response().Header().Get(k))
+            }
+
+            fields = append(fields, zap.Strings("resheader", arr))
+        }
+
+        // log response body
+        if len(resBody) > 0 {
+            fields = append(fields, zap.ByteString("response", resBody))
+        }
+        go zlog.Named(mw.namespace).Info(
+            "["+c.Request().Method+"] "+c.Request().RequestURI,
+            fields...,
+        )
+    })
+}
+
+func (mw *DumpZapLoggerMiddleware) WithDefaultConfig() echo.MiddlewareFunc {
+    return mw.WithConfig(&DumpConfig{
+        RequestHeaders: []string{
+            adapter.HeaderUserType,
+            adapter.HeaderUserID,
+        },
+        ResponseHeaderSkipper: func(c echo.Context) bool {
+            return true
+        },
     })
 }

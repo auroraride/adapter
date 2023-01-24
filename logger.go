@@ -37,7 +37,3 @@ type ZapLogger interface {
 
     GetLogger() *zap.Logger
 }
-
-func LoggerNamespace(name string) zap.Field {
-    return zap.String("@namespace", name)
-}

@@ -60,7 +60,7 @@ type Monitor[T Channelizer] struct {
     // 日志记录器
     logger *zap.Logger
 
-    logserv zap.Field
+    namespace string
 
     // 监听器
     // 数据格式为: chan *Message[T] -> key
@@ -73,7 +73,7 @@ func NewMonitor[T Channelizer](dsn string, logger adapter.ZapLogger, t T, receiv
         dsn:       dsn,
         receiver:  receiver,
         logger:    logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
-        logserv:   adapter.LoggerNamespace("MONITOR"),
+        namespace: "MONITOR",
         listeners: &sync.Map{},
     }
 }
@@ -121,9 +121,8 @@ func (m *Monitor[T]) sendMessage(message *Message[T]) {
 func (m *Monitor[T]) Listen() {
     l := pq.NewListener(m.dsn, 10*time.Second, time.Minute, func(ev pq.ListenerEventType, err error) {
         if err != nil {
-            m.logger.Error(
+            m.logger.Named(m.namespace).Error(
                 "监听错误",
-                m.logserv,
                 zap.String("channel", m.channel),
                 zap.Error(err),
             )
@@ -132,17 +131,15 @@ func (m *Monitor[T]) Listen() {
 
     err := l.Listen(m.channel)
     if err != nil {
-        m.logger.Error(
+        m.logger.Named(m.namespace).Error(
             "监听失败",
-            m.logserv,
             zap.String("channel", m.channel),
             zap.Error(err),
         )
     }
 
-    m.logger.Error(
+    m.logger.Named(m.namespace).Error(
         "开始监听...",
-        m.logserv,
         zap.String("channel", m.channel),
     )
 
@@ -165,9 +162,8 @@ func (m *Monitor[T]) Listen() {
             var message *Message[T]
             message, err = ParseMessage[T]([]byte(n.Extra))
             if err != nil {
-                m.logger.Error(
+                m.logger.Named(m.namespace).Error(
                     "消息解析失败",
-                    m.logserv,
                     zap.String("channel", m.channel),
                     zap.Error(err),
                     zap.String("extra", n.Extra),

@@ -6,44 +6,24 @@
 package adapter
 
 import (
+    "github.com/stretchr/testify/require"
     "testing"
 )
 
 func TestChar(t *testing.T) {
-    if string(Newline) != "\n" {
-        t.Fail()
-    }
-    if string(Hyphen) != "-" {
-        t.Fail()
-    }
-    if string(Equal) != "=" {
-        t.Fail()
-    }
-    if string(Colon) != ":" {
-        t.Fail()
-    }
-    if string(Comma) != "," {
-        t.Fail()
-    }
-    if string(Period) != "." {
-        t.Fail()
-    }
-    if string(LeftSquareBracket) != "[" {
-        t.Fail()
-    }
-    if string(RightSquareBracket) != "]" {
-        t.Fail()
-    }
-    if string(LeftBracket) != "(" {
-        t.Fail()
-    }
-    if string(RightBracket) != ")" {
-        t.Fail()
-    }
-    if string(LeftCurlyBracket) != "{" {
-        t.Fail()
-    }
-    if string(RightCurlyBracket) != "}" {
-        t.Fail()
-    }
+    require.Equal(t, "\n", ConvertBytes2String(Newline))
+    require.Equal(t, " ", ConvertBytes2String(Space))
+    require.Equal(t, "\"", ConvertBytes2String(DoubleQuote))
+    require.Equal(t, "'", ConvertBytes2String(SingleQuote))
+    require.Equal(t, "", ConvertBytes2String(Comma))
+    require.Equal(t, "", ConvertBytes2String(Hyphen))
+    require.Equal(t, "", ConvertBytes2String(Period))
+    require.Equal(t, "", ConvertBytes2String(Colon))
+    require.Equal(t, "", ConvertBytes2String(Equal))
+    require.Equal(t, "", ConvertBytes2String(LeftSquareBracket))
+    require.Equal(t, "", ConvertBytes2String(RightSquareBracket))
+    require.Equal(t, "", ConvertBytes2String(LeftBracket))
+    require.Equal(t, "", ConvertBytes2String(RightBracket))
+    require.Equal(t, "", ConvertBytes2String(LeftCurlyBracket))
+    require.Equal(t, "", ConvertBytes2String(RightCurlyBracket))
 }

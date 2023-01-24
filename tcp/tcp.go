@@ -22,11 +22,11 @@ type Hook struct {
 type Tcp struct {
     gnet.BuiltinEventEngine
 
-    address  string
-    codec    codec.Codec
-    logger   *zap.Logger
-    receiver adapter.BytesCallback
-    logserv  zap.Field
+    address   string
+    codec     codec.Codec
+    logger    *zap.Logger
+    receiver  adapter.BytesCallback
+    namespace string
 
     Hooks Hook
 
@@ -35,16 +35,16 @@ type Tcp struct {
 
 func NewTcp(addr string, l adapter.ZapLogger, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
     return &Tcp{
-        address:  addr,
-        logger:   l.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
-        codec:    c,
-        receiver: receiver,
-        logserv:  adapter.LoggerNamespace("ADAPTER TCP"),
+        address:   addr,
+        logger:    l.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
+        codec:     c,
+        receiver:  receiver,
+        namespace: "TCP",
     }
 }
 
 func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
-    t.logger.Info("启动于: "+t.address, t.logserv)
+    t.logger.Named(t.namespace).Info("启动于: " + t.address)
 
     if t.Hooks.Boot != nil {
         t.Hooks.Boot()
@@ -54,7 +54,7 @@ func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
 }
 
 func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
-    t.logger.Info("已断开连接: "+c.RemoteAddr().String(), t.logserv)
+    t.logger.Named(t.namespace).Info("已断开连接: " + c.RemoteAddr().String())
     if t.closeCh != nil {
         t.closeCh <- true
     }
@@ -62,7 +62,7 @@ func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 }
 
 func (t *Tcp) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
-    t.logger.Info("已开始连接: "+c.RemoteAddr().String(), t.logserv)
+    t.logger.Named(t.namespace).Info("已开始连接: " + c.RemoteAddr().String())
     return
 }
 
@@ -78,9 +78,8 @@ func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
             break
         }
         if err != nil {
-            t.logger.Info(
+            t.logger.Named(t.namespace).Info(
                 "消息读取失败",
-                t.logserv,
                 zap.Error(err),
             )
             return

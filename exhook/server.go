@@ -22,7 +22,7 @@ type Server struct {
     hooks             []Hook
     logger            *zap.Logger
     OnMessageReceived MessageReceived
-    logserv           zap.Field
+    namespace         string
 }
 
 // OnProviderLoaded 定义需要挂载的钩子列表
@@ -104,9 +104,8 @@ func (s *Server) OnSessionTerminated(ctx context.Context, in *SessionTerminatedR
 }
 
 func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest) (*ValuedResponse, error) {
-    s.logger.Info(
+    s.logger.Named(s.namespace).Info(
         "收到消息 ↑",
-        s.logserv,
         zap.String("peerhost", in.Message.Headers["peerhost"]),
         zap.String("topic", in.Message.Topic),
         zap.Binary("payload", in.Message.Payload),
@@ -125,9 +124,8 @@ func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest
 }
 
 func (s *Server) OnMessageDelivered(ctx context.Context, in *MessageDeliveredRequest) (*EmptySuccess, error) {
-    s.logger.Info(
+    s.logger.Named(s.namespace).Info(
         "发送消息 ↓",
-        s.logserv,
         zap.String("clientid", in.Clientinfo.Clientid),
         zap.String("topic", in.Message.Topic),
         zap.Binary("payload", in.Message.Payload),
@@ -148,19 +146,19 @@ func NewServer(logger adapter.ZapLogger, hooks ...Hook) *Server {
         panic("钩子数量不能为空")
     }
     return &Server{
-        hooks:   hooks,
-        logger:  logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
-        logserv: adapter.LoggerNamespace("EXHOOK"),
+        hooks:     hooks,
+        logger:    logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
+        namespace: "EXHOOK",
     }
 }
 
 func (s *Server) Run(address string) {
     lis, err := net.Listen("tcp", address)
     if err != nil {
-        s.logger.Fatal(err.Error(), s.logserv)
+        s.logger.Named(s.namespace).Fatal(err.Error())
     }
 
     gs := grpc.NewServer()
     RegisterHookProviderServer(gs, s)
-    s.logger.Fatal(gs.Serve(lis).Error(), s.logserv)
+    s.logger.Named(s.namespace).Fatal(gs.Serve(lis).Error())
 }

@@ -58,3 +58,7 @@ func Infof(format string, args ...any) {
 func Errorf(format string, args ...any) {
     std.Errorf(format, args...)
 }
+
+func Named(name string) *zap.Logger {
+    return std.Named(name)
+}

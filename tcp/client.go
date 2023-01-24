@@ -34,9 +34,8 @@ func NewClient(addr string, l adapter.ZapLogger, c codec.Codec) *Client {
 func (c *Client) Run() {
     for {
         err := c.dial()
-        c.logger.Info(
+        c.logger.Named(c.namespace).Info(
             "连接失败, 5s后重试连接...",
-            c.logserv,
             zap.Error(err),
         )
         time.Sleep(5 * time.Second)
@@ -107,9 +106,8 @@ func (c *Client) dial() (err error) {
         default:
             _, err = c.codec.Decode(c.conn)
             if err != nil && err != adapter.ErrorIncompletePacket {
-                c.logger.Info(
+                c.logger.Named(c.namespace).Info(
                     "消息读取失败",
-                    c.logserv,
                     zap.Error(err),
                 )
                 c.closeCh <- true
@@ -126,9 +124,8 @@ func (c *Client) Send(data message.Messenger) {
     )
     defer func() {
         if err != nil {
-            c.logger.Info(
+            c.logger.Named(c.namespace).Info(
                 "消息发送失败",
-                c.logserv,
                 zap.Error(err),
                 zap.Binary("encoded", encoded),
                 zap.Binary("packed", packed),

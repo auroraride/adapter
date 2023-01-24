@@ -21,41 +21,42 @@ type Hub struct {
     logger    *zap.Logger
     client    mqtt.Client
     listeners map[string]chan []byte
-    logserv   zap.Field
+    namespace string
 }
 
 func NewHub(server string, id string, username string, password string, logger adapter.ZapLogger) *Hub {
     return &Hub{
-        Server:   server,
-        ClientID: id,
-        Username: username,
-        Password: password,
-        logger:   logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
-        logserv:  adapter.LoggerNamespace("MQTT"),
+        Server:    server,
+        ClientID:  id,
+        Username:  username,
+        Password:  password,
+        logger:    logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
+        namespace: "MQTT",
     }
 }
 
 func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
-    h.logger.Info(
+    h.logger.Named(h.namespace).Info(
         "收到消息 ↑",
-        h.logserv,
         zap.String("topic", msg.Topic()),
         zap.Binary("payload", msg.Payload()),
     )
 }
 
 func (h *Hub) connectHandler(client mqtt.Client) {
-    h.logger.Info(
+    options := client.OptionsReader()
+    h.logger.Named(h.namespace).Info(
         "已连接",
-        h.logserv,
+        zap.String("clientid", options.ClientID()),
     )
 }
 
 func (h *Hub) connectLostHandler(client mqtt.Client, err error) {
-    h.logger.Error(
+    options := client.OptionsReader()
+    h.logger.Named(h.namespace).Error(
         "已断开连接",
         zap.Error(err),
-        h.logserv,
+        zap.String("clientid", options.ClientID()),
     )
 }
 

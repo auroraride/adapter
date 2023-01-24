@@ -8,6 +8,8 @@ package adapter
 var (
     Newline            = []byte{10}  // \n
     Space              = []byte{32}  //
+    DoubleQuote        = []byte{34}  // "
+    SingleQuote        = []byte{39}  // '
     Comma              = []byte{44}  // ,
     Hyphen             = []byte{45}  // -
     Period             = []byte{46}  // .
