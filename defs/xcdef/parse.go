@@ -10,6 +10,8 @@ import (
     "strings"
 )
 
+type Faults []Fault
+
 type Fault uint8
 
 func (f Fault) String() string {

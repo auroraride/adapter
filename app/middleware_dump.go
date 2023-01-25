@@ -3,7 +3,7 @@
 // Created at 2022-12-29
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package middleware
+package app
 
 import (
     "bufio"

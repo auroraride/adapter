@@ -19,11 +19,11 @@ const (
 )
 
 type BaseService struct {
-    User *adapter.User
+    user *adapter.User
     ctx  context.Context
 }
 
-func newService(params ...any) *BaseService {
+func NewService(params ...any) *BaseService {
     nq := PermissionRequired
     s := &BaseService{
         ctx: context.Background(),
@@ -31,15 +31,23 @@ func newService(params ...any) *BaseService {
     for _, param := range params {
         switch v := param.(type) {
         case *adapter.User:
-            s.User = v
+            s.user = v
         case Permission:
             nq = v
         case context.Context:
             s.ctx = v
         }
     }
-    if s.User == nil && nq {
+    if s.user == nil && nq {
         Panic(http.StatusUnauthorized, adapter.ErrorUserRequired)
     }
     return s
+}
+
+func (s *BaseService) GetContext() context.Context {
+    return s.ctx
+}
+
+func (s *BaseService) GetUser() *adapter.User {
+    return s.user
 }
