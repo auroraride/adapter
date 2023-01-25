@@ -9,7 +9,6 @@ import (
     "bufio"
     "bytes"
     "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/zlog"
     "github.com/labstack/echo/v4"
     ew "github.com/labstack/echo/v4/middleware"
     "go.uber.org/zap"
@@ -158,9 +157,11 @@ func dump(handler DumpHandler) echo.MiddlewareFunc {
             writer := &DumpResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
             c.Response().Writer = writer
 
-            if err = next(c); err != nil {
-                c.Error(err)
-            }
+            err = next(c)
+
+            // if err != nil {
+            //     c.Error(err)
+            // }
 
             // Callback
             handler(c, reqBody, resBody.Bytes())
@@ -253,12 +254,17 @@ type DumpZapLoggerMiddleware struct {
 }
 
 func NewDumpLoggerMiddleware(logger adapter.ZapLogger) *DumpZapLoggerMiddleware {
-    return &DumpZapLoggerMiddleware{logger: logger, namespace: "DUMP"}
+    return &DumpZapLoggerMiddleware{
+        logger:    logger,
+        namespace: "DUMP",
+    }
 }
 
 func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFunc {
     return dump(func(c echo.Context, reqBody []byte, resBody []byte) {
-        var fields []zap.Field
+        fields := []zap.Field{
+            zap.String("remoteAddr", c.Request().RemoteAddr),
+        }
 
         // log request header
         if cfg.RequestHeaderSkipper == nil || !cfg.RequestHeaderSkipper(c) {
@@ -292,7 +298,8 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
         if len(resBody) > 0 {
             fields = append(fields, zap.ByteString("response", resBody))
         }
-        go zlog.Named(mw.namespace).Info(
+        // x := adapter.GetCaller(0)
+        go mw.logger.GetLogger().WithOptions(zap.WithCaller(false)).Named(mw.namespace).Info(
             "["+c.Request().Method+"] "+c.Request().RequestURI,
             fields...,
         )

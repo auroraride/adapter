@@ -44,7 +44,7 @@ func NewTcp(addr string, l adapter.ZapLogger, c codec.Codec, receiver adapter.By
 }
 
 func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
-    t.logger.Named(t.namespace).Info("启动于: " + t.address)
+    t.logger.Named(t.namespace).Info("启动 -> " + t.address)
 
     if t.Hooks.Boot != nil {
         t.Hooks.Boot()

@@ -157,6 +157,7 @@ func (s *Server) Run(address string) {
     if err != nil {
         s.logger.Named(s.namespace).Fatal(err.Error())
     }
+    s.logger.Named(s.namespace).Info("启动 -> " + address)
 
     gs := grpc.NewServer()
     RegisterHookProviderServer(gs, s)

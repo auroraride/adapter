@@ -8,11 +8,19 @@ package app
 import (
     "fmt"
     "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/maintain"
     "github.com/labstack/echo/v4"
+    "github.com/labstack/echo/v4/middleware"
     "net/http"
 )
 
-func NewEcho() (e *echo.Echo) {
+type EchoConfig struct {
+    AuthSkipper middleware.Skipper
+    Logger      adapter.ZapLogger
+    Maintain    maintain.Config
+}
+
+func NewEcho(cfg *EchoConfig) (e *echo.Echo) {
     e = echo.New()
 
     // 默认json序列化工具
@@ -28,7 +36,6 @@ func NewEcho() (e *echo.Echo) {
         case *echo.HTTPError:
             target := err.(*echo.HTTPError)
             message = fmt.Errorf("%v", target.Message)
-            break
         }
         _ = ctx.SendResponse(code, message, data)
     }
@@ -50,5 +57,18 @@ func NewEcho() (e *echo.Echo) {
     // 绑定校验器
     e.Validator = NewValidator()
 
+    // 获取远程IP
+    e.IPExtractor = echo.ExtractIPFromXFFHeader()
+
+    // middlewares
+    e.Use(
+        ContextMiddleware(),
+        RecoverMiddleware(cfg.Logger),
+        UserMiddleware(cfg.AuthSkipper),
+        NewDumpLoggerMiddleware(cfg.Logger).WithDefaultConfig(),
+    )
+
+    // 运维接口
+    e.GET("/maintain/update/:token", maintain.NewController(cfg.Maintain, Quit).UpdateApi)
     return
 }

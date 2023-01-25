@@ -88,15 +88,10 @@ func (s GPSStatus) String() string {
 }
 
 func (s *GPSStatus) Scan(src interface{}) error {
-    switch v := src.(type) {
-    case nil:
-        return nil
-    case uint8:
-        *s = GPSStatus(v)
-    }
+    *s = GPSStatus(uint8(src.(int64)))
     return nil
 }
 
 func (s GPSStatus) Value() (driver.Value, error) {
-    return s, nil
+    return int64(s), nil
 }

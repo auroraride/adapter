@@ -7,6 +7,11 @@ package maintain
 
 import "os"
 
+type Config struct {
+    Token string
+    IP    []string
+}
+
 var (
     maintainFile = "runtime/MAINTAIN"
 )

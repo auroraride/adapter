@@ -3,7 +3,7 @@
 // Created at 2023-01-22
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package xcdef
+package batdef
 
 type Cabinet struct {
     ID     uint64 `json:"id"`
