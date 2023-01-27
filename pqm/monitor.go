@@ -35,6 +35,7 @@ type Message[T any] struct {
     Table  string `json:"table"`
     Action Action `json:"action"`
     Data   T      `json:"data"`
+    Old    T      `json:"old"`
 }
 
 func ParseMessage[T any](b []byte) (message *Message[T], err error) {

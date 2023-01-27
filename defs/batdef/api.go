@@ -5,7 +5,5 @@
 
 package batdef
 
-type InCabinetRequest struct {
-    Cabinet *Cabinet `json:"cabinet" validate:"required"`
-    SN      string   `json:"sn" validate:"required"`
+type ReignResponse struct {
 }

@@ -100,3 +100,7 @@ type BinInfoRequest struct {
     Serial  string `json:"serial" validate:"required"`  // 电柜编号
     Ordinal *int   `json:"ordinal" validate:"required"` // 仓位序号
 }
+
+type CabinetNameResponse struct {
+    Name string `json:"name"`
+}

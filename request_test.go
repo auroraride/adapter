@@ -8,6 +8,7 @@ package adapter
 import (
     "github.com/go-resty/resty/v2"
     "github.com/labstack/echo/v4"
+    "github.com/stretchr/testify/require"
     "net/http"
     "testing"
 )
@@ -33,4 +34,14 @@ func TestPost(t *testing.T) {
         t.Fail()
     }
     t.Log(res)
+}
+
+func TestFastRequest(t *testing.T) {
+    type data struct {
+        Name string `json:"name"`
+    }
+    res, err := FastRequest[*AurResponse[data]]("http://localhost:5533/kit/cabinet/name/CH7208KXHD220408016", RequestMethodGet)
+
+    require.Nil(t, err)
+    require.Equal(t, data{Name: "斜口"}, res.Data)
 }
