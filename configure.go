@@ -18,21 +18,26 @@ import (
 type Configurable interface {
     GetApplication() string
     GetApiAddress() string
-    SetKeySuffix(suffix string)
+    SetKeyPrefix(prefix string)
+    GetKeyPrefix() string
     GetCacheKey(key string) string
 }
 
 type Configure struct {
     Application string
-    KeySuffix   string
+    keyPrefix   string
 
     Api struct {
-        Bind string
+        Bind      string
+        BodyLimit string
+        RateLimit float64
     }
 
     Redis struct {
-        Logkey  string
-        Address string
+        Address  string
+        Username string
+        Password string
+        DB       int `koanf:"db"`
     }
 }
 
@@ -44,12 +49,16 @@ func (c *Configure) GetApiAddress() string {
     return c.Api.Bind
 }
 
-func (c *Configure) SetKeySuffix(suffix string) {
-    c.KeySuffix = suffix
+func (c *Configure) SetKeyPrefix(prefix string) {
+    c.keyPrefix = prefix
+}
+
+func (c *Configure) GetKeyPrefix() string {
+    return c.keyPrefix
 }
 
 func (c *Configure) GetCacheKey(key string) string {
-    return strings.ToUpper(key) + ":" + c.KeySuffix
+    return c.keyPrefix + key
 }
 
 func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err error) {
@@ -63,8 +72,13 @@ func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err 
     }
 
     // 写入默认配置
-    if _, err = os.Stat(cf); os.IsNotExist(err) {
-        _ = os.WriteFile(cf, defaultConfig, 0755)
+    _, err = os.Stat(cf)
+    if defaultConfig != nil && os.IsNotExist(err) {
+        err = os.WriteFile(cf, defaultConfig, 0755)
+    }
+
+    if err != nil {
+        return
     }
 
     k := koanf.New(".")
@@ -89,13 +103,12 @@ func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err 
     }})
 
     if err == nil {
-        cfg.SetKeySuffix(ApplicationKey(cfg.GetApplication(), cfg.GetApiAddress()))
+        cfg.SetKeyPrefix(ApplicationKey(cfg.GetApplication()))
     }
 
     return
 }
 
-func ApplicationKey(application, addr string) string {
-    index := strings.Index(addr, ":")
-    return strings.ToUpper(application) + "_" + addr[index+1:]
+func ApplicationKey(application string) string {
+    return strings.ToUpper(application) + ":"
 }

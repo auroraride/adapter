@@ -30,6 +30,8 @@ func NewController(cfg Config, quit chan bool) *controller {
 }
 
 func (ctl *controller) UpdateApi(c echo.Context) (err error) {
+    _ = Create()
+
     addr := c.Request().RemoteAddr
     n := strings.Index(addr, ":")
     host := addr[:n]
@@ -49,8 +51,6 @@ func (ctl *controller) UpdateApi(c echo.Context) (err error) {
 func (ctl *controller) doQuit() {
     ticker := time.NewTicker(time.Second)
     defer ticker.Stop()
-
-    _ = Create()
 
     for ; true; <-ticker.C {
         // 是否有进行中的异步业务

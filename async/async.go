@@ -42,9 +42,6 @@ func WithTaskReturn[T any](cb func() T) T {
 
 func IsDone() bool {
     var n int
-    if tasks == nil {
-        return true
-    }
 
     tasks.Range(func(_, _ any) bool {
         n += 1
