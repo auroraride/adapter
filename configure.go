@@ -6,12 +6,53 @@
 package adapter
 
 import (
-    "github.com/spf13/viper"
+    "github.com/knadh/koanf"
+    "github.com/knadh/koanf/parsers/yaml"
+    "github.com/knadh/koanf/providers/file"
+    "github.com/mitchellh/mapstructure"
     "os"
     "path/filepath"
+    "strings"
 )
 
-func LoadConfigure[T any](cf string, defaultConfig []byte) (cfg *T, err error) {
+type Configurable interface {
+    GetApplication() string
+    GetApiAddress() string
+    SetKeySuffix(suffix string)
+    GetCacheKey(key string) string
+}
+
+type Configure struct {
+    Application string
+    KeySuffix   string
+
+    Api struct {
+        Bind string
+    }
+
+    Redis struct {
+        Logkey  string
+        Address string
+    }
+}
+
+func (c *Configure) GetApplication() string {
+    return c.Application
+}
+
+func (c *Configure) GetApiAddress() string {
+    return c.Api.Bind
+}
+
+func (c *Configure) SetKeySuffix(suffix string) {
+    c.KeySuffix = suffix
+}
+
+func (c *Configure) GetCacheKey(key string) string {
+    return strings.ToUpper(key) + ":" + c.KeySuffix
+}
+
+func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err error) {
     // 判定文件是否存在
     dir := filepath.Dir(cf)
     if _, err = os.Stat(dir); os.IsNotExist(err) {
@@ -26,18 +67,35 @@ func LoadConfigure[T any](cf string, defaultConfig []byte) (cfg *T, err error) {
         _ = os.WriteFile(cf, defaultConfig, 0755)
     }
 
-    // 配置文件和环境变量
-    viper.SetConfigFile(cf)
-    viper.AutomaticEnv()
+    k := koanf.New(".")
+    f := file.Provider(cf)
+    p := yaml.Parser()
 
-    // 读取配置
-    err = viper.ReadInConfig()
+    err = k.Load(f, p)
     if err != nil {
         return
     }
 
     // 解析配置
-    cfg = new(T)
-    err = viper.Unmarshal(cfg)
+    err = k.UnmarshalWithConf("", cfg, koanf.UnmarshalConf{DecoderConfig: &mapstructure.DecoderConfig{
+        DecodeHook: mapstructure.ComposeDecodeHookFunc(
+            mapstructure.StringToTimeDurationHookFunc(),
+            mapstructure.StringToSliceHookFunc(","),
+            mapstructure.TextUnmarshallerHookFunc()),
+        Metadata:         nil,
+        Result:           cfg,
+        WeaklyTypedInput: true,
+        Squash:           true,
+    }})
+
+    if err == nil {
+        cfg.SetKeySuffix(ApplicationKey(cfg.GetApplication(), cfg.GetApiAddress()))
+    }
+
     return
+}
+
+func ApplicationKey(application, addr string) string {
+    index := strings.Index(addr, ":")
+    return strings.ToUpper(application) + "_" + addr[index+1:]
 }
