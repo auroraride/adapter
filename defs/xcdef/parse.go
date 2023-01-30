@@ -12,7 +12,11 @@ import (
 
 type Faults []Fault
 
-type Fault uint8
+type Fault uint
+
+func (f Fault) Value() uint {
+    return uint(f)
+}
 
 func (f Fault) String() string {
     switch f {

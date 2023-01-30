@@ -10,9 +10,11 @@ import "errors"
 var (
     ErrorData                = errors.New("数据错误")
     ErrorConfig              = errors.New("配置获取失败")
+    ErrorLoginExpired        = errors.New("登录超时")
     ErrorForbidden           = errors.New("禁止访问")
     ErrorInvaildCheckSum     = errors.New("数据和校验失败")
     ErrorNotFound            = errors.New("未找到资源")
+    ErrorExpired             = errors.New("已过期")
     ErrorBadRequest          = errors.New("请求参数错误")
     ErrorInternalServer      = errors.New("未知错误")
     ErrorUserRequired        = errors.New("需要用户信息")

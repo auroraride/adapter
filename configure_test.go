@@ -13,6 +13,7 @@ import (
 
 func TestLoadConfigure(t *testing.T) {
     type Config struct {
+        Configure
         Version int
         Debug   bool
         Message string
@@ -26,8 +27,8 @@ func TestLoadConfigure(t *testing.T) {
     dcb, err := jsoniter.Marshal(dc)
     assert.NoError(t, err)
 
-    var cfg *Config
-    cfg, err = LoadConfigure[Config]("/tmp/adapter_config_temp.yaml", dcb)
+    cfg := new(Config)
+    err = LoadConfigure[*Config](cfg, "/tmp/adapter_config_temp.yaml", dcb)
     assert.NoError(t, err)
 
     assert.Equal(t, dc, cfg)

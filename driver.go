@@ -20,7 +20,7 @@ type Geometry struct {
 }
 
 func (g *Geometry) Scan(val interface{}) error {
-    b, err := hex.DecodeString(val.(string))
+    b, err := hex.DecodeString(ConvertBytes2String(val.([]byte)))
     if err != nil {
         return err
     }
