@@ -1,0 +1,38 @@
+syntax = "proto3";
+option go_package = "github.com/auroraride/adapter/micro";
+
+package micro;
+
+service SyncProvider {
+
+}
+
+// 同步消息
+message Sync {
+    bool full = 1; // 是否全量同步
+    string serial = 2; // 电柜编码
+    optional Cabinet cabinet = 3; // 电柜
+    repeated Bin bins = 4; // 仓位
+}
+
+message Cabinet {
+    uint64 ID = 1;
+    bool online = 2; // 是否在线
+    string brand = 3; // 品牌
+    string serial = 4; // 电柜编号
+    string status = 5; // 状态
+    bool enable = 6; // 是否启用
+    optional float lng = 7; // 经度
+    optional float lat = 8; // 纬度
+    optional float gsm = 9; // GSM信号强度
+    optional float voltage = 10; // 换电柜总电压 (V)
+    optional float current = 11; // 换电柜总电流 (A)
+    optional float temperature = 12; // 柜体温度值 (换电柜温度)
+    optional float electricity = 13; // 总用电量
+}
+
+message Bin {
+    uint64 ID = 1;
+    string brand = 2; // 品牌
+    string serial = 3; // 电柜编号
+}
