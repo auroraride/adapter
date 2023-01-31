@@ -15,8 +15,25 @@ import (
     "strings"
 )
 
+type Environment string
+
+const (
+    Production  Environment = "production"
+    Development Environment = "development"
+)
+
+func (e Environment) String() string {
+    return string(e)
+}
+
+func (e Environment) UpperString() string {
+    return strings.ToUpper(string(e))
+}
+
 type Configurable interface {
     GetApplication() string
+    GetEnvironment() Environment
+    SetEnvironment(env Environment)
     GetApiAddress() string
     SetKeyPrefix(prefix string)
     GetKeyPrefix() string
@@ -26,6 +43,7 @@ type Configurable interface {
 type Configure struct {
     Application string
     keyPrefix   string
+    Environment Environment
 
     Api struct {
         Bind      string
@@ -43,6 +61,14 @@ type Configure struct {
 
 func (c *Configure) GetApplication() string {
     return c.Application
+}
+
+func (c *Configure) GetEnvironment() Environment {
+    return c.Environment
+}
+
+func (c *Configure) SetEnvironment(env Environment) {
+    c.Environment = env
 }
 
 func (c *Configure) GetApiAddress() string {
@@ -104,6 +130,10 @@ func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err 
 
     if err == nil {
         cfg.SetKeyPrefix(ApplicationKey(cfg.GetApplication()))
+    }
+
+    if cfg.GetEnvironment() == "" {
+        cfg.SetEnvironment(Production)
     }
 
     return

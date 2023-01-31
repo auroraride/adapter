@@ -1,0 +1,40 @@
+// Copyright (C) liasica. 2023-present.
+//
+// Created at 2023-01-30
+// Based on adapter by liasica, magicrolan@qq.com.
+
+package sync
+
+import (
+    "fmt"
+    "github.com/auroraride/adapter"
+    "github.com/go-redis/redis/v9"
+    "go.uber.org/zap"
+    "testing"
+    "time"
+)
+
+type testdata struct {
+    ID int `json:"id" mapstructure:"id"`
+}
+
+func TestRun(t *testing.T) {
+    logger, _ := zap.NewDevelopment()
+    s := New[testdata](
+        redis.NewClient(&redis.Options{}),
+        adapter.Development,
+        "TEST",
+        func(data *testdata) {
+            fmt.Printf("%#v\n", data)
+        },
+        logger,
+    )
+    go s.Run()
+
+    i := 0
+    ticker := time.NewTicker(10 * time.Second)
+    for ; true; <-ticker.C {
+        i += 1
+        s.Push(&testdata{ID: i})
+    }
+}

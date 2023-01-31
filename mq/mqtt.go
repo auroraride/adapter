@@ -39,7 +39,7 @@ func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
     h.logger.Named(h.namespace).Info(
         "收到消息 ↑",
         zap.String("topic", msg.Topic()),
-        zap.Binary("payload", msg.Payload()),
+        zap.ByteString("payload", msg.Payload()),
     )
 }
 

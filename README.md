@@ -29,7 +29,7 @@
 | :------: | :--: |
 |   HTTP   |  1x  |
 |   TCP    |  2x  |
-|   gRPC   |  3x  |
+|   MQTT   |  3x  |
 
 
 
@@ -47,7 +47,7 @@
 - xcbms
   
     - api: `127.0.0.1:5210`
-    - exhook: `127.0.0.1:5230`
+    - exhook: `127.0.0.1:5211`
     
 
 
@@ -58,6 +58,8 @@
 
 - ELK
 - ClickHouse
+
+
 
 ## 日志库
 
@@ -71,12 +73,24 @@
 - [Go语言高性能日志库zap使用](https://huangzhongde.cn/post/Golang/2020-03-07-golang_logger_zap/)
 - [在Go中集成ELK服务](https://jasonkayzk.github.io/2021/05/16/%E5%9C%A8Go%E4%B8%AD%E9%9B%86%E6%88%90ELK%E6%9C%8D%E5%8A%A1/)
 
+
+
 ## MQTT
 
 - [emqx: 多语言 - 钩子扩展](https://www.emqx.io/docs/zh/v5.0/advanced/lang-exhook.html)
 - [emqx: MQTT Go 客户端库](https://www.emqx.io/docs/zh/v5.0/development/go.html)
 - [如何在 Golang 中使用 MQTT](https://www.emqx.com/zh/blog/how-to-use-mqtt-in-golang)
 
+
+
 ## 字节
 
 - [Golang binary包——byte数组如何转int？](https://studygolang.com/articles/1122)
+
+
+
+## 消息
+
+- [golang实现redis消息队列，基于stream](https://www.hengyumo.cn/momoblog/detail/202205020949382)
+- [go-redis：Stream 消息队列详解](https://www.daixiaohou.com/293.html)
+- [把Redis当作队列来用，真的合适吗？](http://kaito-kidd.com/2021/04/19/can-redis-be-used-as-a-queue/)
