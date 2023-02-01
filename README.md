@@ -57,7 +57,18 @@
 ## 日志数据库
 
 - ELK
-- ClickHouse
+- ClickHouse + ClickVisual
+- [替代ELK：ClickHouse+Kafka+FileBeat才是最绝的](https://dbaplus.cn/news-160-4753-1.html)
+- [ES/ClickHouse/Loki三种核心日志分析软件比较与思考](https://www.modb.pro/db/391519)
+
+
+
+
+### ClickHouse
+- [唯品会基于 Clickhouse 存储日志的实践(从文本和JSON混合的日志数据中提取JSON字段)](https://blog.csdn.net/wypblog/article/details/125056897)
+- [ClickHouse可视化](https://zhuanlan.zhihu.com/p/355043330)
+- [EFK升级到ClickHouse的日志存储实战](https://blog.csdn.net/u011487470/article/details/125095610)
+- 日志采集路径：iLogtail -> Kafka -> Flink -> ClickHouse
 
 
 
