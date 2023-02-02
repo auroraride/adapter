@@ -9,7 +9,6 @@ import (
     "fmt"
     "github.com/auroraride/adapter"
     "github.com/go-redis/redis/v9"
-    "go.uber.org/zap"
     "testing"
     "time"
 )
@@ -19,7 +18,6 @@ type testdata struct {
 }
 
 func TestRun(t *testing.T) {
-    logger, _ := zap.NewDevelopment()
     s := New[testdata](
         redis.NewClient(&redis.Options{}),
         adapter.Development,
@@ -27,7 +25,6 @@ func TestRun(t *testing.T) {
         func(data *testdata) {
             fmt.Printf("%#v\n", data)
         },
-        logger,
     )
     go s.Run()
 
