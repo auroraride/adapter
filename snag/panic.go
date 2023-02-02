@@ -7,16 +7,15 @@ package snag
 
 import (
     "fmt"
-    "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/zlog"
     "go.uber.org/zap"
 )
 
-func WithRecover(cb func(), logger adapter.ZapLogger) {
+func WithRecover(cb func()) {
 
     defer func() {
         if v := recover(); v != nil {
-            // logger.Errorf("捕获未处理崩溃: %v\n%s", v, debug.Stack())
-            logger.Panic(
+            zlog.Error(
                 "捕获未处理崩溃",
                 zap.Stack("stack"),
                 zap.Error(fmt.Errorf("%v", v)),

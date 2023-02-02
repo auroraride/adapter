@@ -7,7 +7,7 @@ package exhook
 
 import (
     "context"
-    "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/zlog"
     "go.uber.org/zap"
     "google.golang.org/grpc"
     "net"
@@ -20,7 +20,6 @@ type Server struct {
     UnimplementedHookProviderServer
 
     hooks             []Hook
-    logger            *zap.Logger
     OnMessageReceived MessageReceived
     namespace         string
 }
@@ -104,7 +103,7 @@ func (s *Server) OnSessionTerminated(ctx context.Context, in *SessionTerminatedR
 }
 
 func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest) (*ValuedResponse, error) {
-    s.logger.Named(s.namespace).Info(
+    zlog.Named(s.namespace).Info(
         "收到消息 ↑",
         zap.String("peerhost", in.Message.Headers["peerhost"]),
         zap.String("topic", in.Message.Topic),
@@ -124,7 +123,7 @@ func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest
 }
 
 func (s *Server) OnMessageDelivered(ctx context.Context, in *MessageDeliveredRequest) (*EmptySuccess, error) {
-    s.logger.Named(s.namespace).Info(
+    zlog.Named(s.namespace).Info(
         "发送消息 ↓",
         zap.String("clientid", in.Clientinfo.Clientid),
         zap.String("topic", in.Message.Topic),
@@ -141,13 +140,12 @@ func (s *Server) OnMessageAcked(ctx context.Context, in *MessageAckedRequest) (*
     return &EmptySuccess{}, nil
 }
 
-func NewServer(logger adapter.ZapLogger, hooks ...Hook) *Server {
+func NewServer(hooks ...Hook) *Server {
     if len(hooks) == 0 {
         panic("钩子数量不能为空")
     }
     return &Server{
         hooks:     hooks,
-        logger:    logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
         namespace: "EXHOOK",
     }
 }
@@ -155,11 +153,11 @@ func NewServer(logger adapter.ZapLogger, hooks ...Hook) *Server {
 func (s *Server) Run(address string) {
     lis, err := net.Listen("tcp", address)
     if err != nil {
-        s.logger.Named(s.namespace).Fatal(err.Error())
+        zlog.Named(s.namespace).Fatal(err.Error())
     }
-    s.logger.Named(s.namespace).Info("启动 -> " + address)
+    zlog.Named(s.namespace).Info("启动 -> " + address)
 
     gs := grpc.NewServer()
     RegisterHookProviderServer(gs, s)
-    s.logger.Named(s.namespace).Fatal(gs.Serve(lis).Error())
+    zlog.Named(s.namespace).Fatal(gs.Serve(lis).Error())
 }

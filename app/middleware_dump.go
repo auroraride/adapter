@@ -9,6 +9,7 @@ import (
     "bufio"
     "bytes"
     "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/zlog"
     "github.com/labstack/echo/v4"
     ew "github.com/labstack/echo/v4/middleware"
     "go.uber.org/zap"
@@ -249,13 +250,11 @@ func (mw *DumpFileMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFunc {
 }
 
 type DumpZapLoggerMiddleware struct {
-    logger    adapter.ZapLogger
     namespace string
 }
 
-func NewDumpLoggerMiddleware(logger adapter.ZapLogger) *DumpZapLoggerMiddleware {
+func NewDumpLoggerMiddleware() *DumpZapLoggerMiddleware {
     return &DumpZapLoggerMiddleware{
-        logger:    logger,
         namespace: "DUMP",
     }
 }
@@ -299,7 +298,7 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
             fields = append(fields, zap.ByteString("response", resBody))
         }
         // x := adapter.GetCaller(0)
-        go mw.logger.GetLogger().WithOptions(zap.WithCaller(false)).Named(mw.namespace).Info(
+        go zlog.Named(mw.namespace).Info(
             "["+c.Request().Method+"] "+c.Request().RequestURI,
             fields...,
         )

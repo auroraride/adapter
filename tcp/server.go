@@ -15,9 +15,9 @@ type Server struct {
     *Tcp
 }
 
-func NewServer(addr string, l adapter.ZapLogger, c codec.Codec, r adapter.BytesCallback) *Server {
+func NewServer(addr string, c codec.Codec, r adapter.BytesCallback) *Server {
     s := &Server{
-        Tcp: NewTcp(addr, l, c, r),
+        Tcp: NewTcp(addr, c, r),
     }
     return s
 }

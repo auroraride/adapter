@@ -8,6 +8,7 @@ package tcp
 import (
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
+    "github.com/auroraride/adapter/zlog"
     "github.com/panjf2000/gnet/v2"
     "go.uber.org/zap"
 )
@@ -24,7 +25,6 @@ type Tcp struct {
 
     address   string
     codec     codec.Codec
-    logger    *zap.Logger
     receiver  adapter.BytesCallback
     namespace string
 
@@ -33,10 +33,9 @@ type Tcp struct {
     closeCh chan bool
 }
 
-func NewTcp(addr string, l adapter.ZapLogger, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
+func NewTcp(addr string, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
     return &Tcp{
         address:   addr,
-        logger:    l.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
         codec:     c,
         receiver:  receiver,
         namespace: "TCP",
@@ -44,7 +43,7 @@ func NewTcp(addr string, l adapter.ZapLogger, c codec.Codec, receiver adapter.By
 }
 
 func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
-    t.logger.Named(t.namespace).Info("启动 -> " + t.address)
+    zlog.Named(t.namespace).Info("启动 -> " + t.address)
 
     if t.Hooks.Boot != nil {
         t.Hooks.Boot()
@@ -54,7 +53,7 @@ func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
 }
 
 func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
-    t.logger.Named(t.namespace).Info("已断开连接: " + c.RemoteAddr().String())
+    zlog.Named(t.namespace).Info("已断开连接: " + c.RemoteAddr().String())
     if t.closeCh != nil {
         t.closeCh <- true
     }
@@ -62,7 +61,7 @@ func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 }
 
 func (t *Tcp) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
-    t.logger.Named(t.namespace).Info("已开始连接: " + c.RemoteAddr().String())
+    zlog.Named(t.namespace).Info("已开始连接: " + c.RemoteAddr().String())
     return
 }
 
@@ -78,7 +77,7 @@ func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
             break
         }
         if err != nil {
-            t.logger.Named(t.namespace).Info(
+            zlog.Named(t.namespace).Info(
                 "消息读取失败",
                 zap.Error(err),
             )

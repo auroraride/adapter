@@ -8,6 +8,7 @@ package app
 import (
     "fmt"
     "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/zlog"
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
     "go.uber.org/zap"
@@ -22,7 +23,7 @@ func ContextMiddleware() echo.MiddlewareFunc {
     }
 }
 
-func RecoverMiddleware(logger adapter.ZapLogger) echo.MiddlewareFunc {
+func RecoverMiddleware() echo.MiddlewareFunc {
     return func(next echo.HandlerFunc) echo.HandlerFunc {
         return func(c echo.Context) error {
             ctx := Context(c)
@@ -34,7 +35,7 @@ func RecoverMiddleware(logger adapter.ZapLogger) echo.MiddlewareFunc {
                         _ = ctx.SendResponse(v.Code, v.Message, v.Data)
                     default:
                         err := fmt.Errorf("%v", r)
-                        logger.GetLogger().Named("PANIC").Error("捕获未处理崩溃", zap.Error(err), zap.Stack("stack"))
+                        zlog.Named("PANIC").Error("捕获未处理崩溃", zap.Error(err), zap.Stack("stack"))
                         _ = Context(c).SendResponse(http.StatusInternalServerError, err)
                     }
                 }

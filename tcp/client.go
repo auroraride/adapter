@@ -10,6 +10,7 @@ import (
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
     "github.com/auroraride/adapter/message"
+    "github.com/auroraride/adapter/zlog"
     "github.com/panjf2000/gnet/v2"
     "go.uber.org/zap"
     "time"
@@ -22,9 +23,9 @@ type Client struct {
     Sender chan message.Messenger
 }
 
-func NewClient(addr string, l adapter.ZapLogger, c codec.Codec) *Client {
+func NewClient(addr string, c codec.Codec) *Client {
     cli := &Client{
-        Tcp:    NewTcp(addr, l, c, nil),
+        Tcp:    NewTcp(addr, c, nil),
         Sender: make(chan message.Messenger),
     }
     cli.Tcp.closeCh = make(chan bool)
@@ -34,7 +35,7 @@ func NewClient(addr string, l adapter.ZapLogger, c codec.Codec) *Client {
 func (c *Client) Run() {
     for {
         err := c.dial()
-        c.logger.Named(c.namespace).Info(
+        zlog.Named(c.namespace).Info(
             "连接失败, 5s后重试连接...",
             zap.Error(err),
         )
@@ -88,7 +89,7 @@ func (c *Client) dial() (err error) {
             // _, err = c.Conn.Write(encoded)
             // // encoded, err = c.Conn.Send(data)
             // if err != nil {
-            //     c.logger.Info(
+            //     zlog.Named(c.namespace).Info(
             //         "消息发送失败",
             //         c.logserv,
             //         zap.Error(err),
@@ -106,7 +107,7 @@ func (c *Client) dial() (err error) {
         default:
             _, err = c.codec.Decode(c.conn)
             if err != nil && err != adapter.ErrorIncompletePacket {
-                c.logger.Named(c.namespace).Info(
+                zlog.Named(c.namespace).Info(
                     "消息读取失败",
                     zap.Error(err),
                 )
@@ -124,7 +125,7 @@ func (c *Client) Send(data message.Messenger) {
     )
     defer func() {
         if err != nil {
-            c.logger.Named(c.namespace).Info(
+            zlog.Named(c.namespace).Info(
                 "消息发送失败",
                 zap.Error(err),
                 zap.Binary("encoded", encoded),

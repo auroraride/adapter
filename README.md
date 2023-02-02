@@ -86,6 +86,14 @@
 
 
 
+### zap
+
+- [go zap自定义日志输出格式](https://www.jianshu.com/p/fc90ea603ef2)
+- [如何自定义zap的日志输出格式？](https://cloud.tencent.com/developer/article/1811437)
+- [GoLang 日志库 zap 的使用](https://cloud.tencent.com/developer/article/1645126)
+
+
+
 ## MQTT
 
 - [emqx: 多语言 - 钩子扩展](https://www.emqx.io/docs/zh/v5.0/advanced/lang-exhook.html)

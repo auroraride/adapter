@@ -6,7 +6,7 @@
 package pqm
 
 import (
-    "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/zlog"
     jsoniter "github.com/json-iterator/go"
     "github.com/lib/pq"
     "go.uber.org/zap"
@@ -58,9 +58,6 @@ type Monitor[T Channelizer] struct {
     // 监听频道
     channel string
 
-    // 日志记录器
-    logger *zap.Logger
-
     namespace string
 
     // 监听器
@@ -68,12 +65,11 @@ type Monitor[T Channelizer] struct {
     listeners *sync.Map
 }
 
-func NewMonitor[T Channelizer](dsn string, logger adapter.ZapLogger, t T, receiver Callback[T]) *Monitor[T] {
+func NewMonitor[T Channelizer](dsn string, t T, receiver Callback[T]) *Monitor[T] {
     return &Monitor[T]{
         channel:   t.GetTableName(),
         dsn:       dsn,
         receiver:  receiver,
-        logger:    logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
         namespace: "MONITOR",
         listeners: &sync.Map{},
     }
@@ -122,7 +118,7 @@ func (m *Monitor[T]) sendMessage(message *Message[T]) {
 func (m *Monitor[T]) Listen() {
     l := pq.NewListener(m.dsn, 10*time.Second, time.Minute, func(ev pq.ListenerEventType, err error) {
         if err != nil {
-            m.logger.Named(m.namespace).Error(
+            zlog.Named(m.namespace).Error(
                 "监听错误",
                 zap.String("channel", m.channel),
                 zap.Error(err),
@@ -132,14 +128,14 @@ func (m *Monitor[T]) Listen() {
 
     err := l.Listen(m.channel)
     if err != nil {
-        m.logger.Named(m.namespace).Error(
+        zlog.Named(m.namespace).Error(
             "监听失败",
             zap.String("channel", m.channel),
             zap.Error(err),
         )
     }
 
-    m.logger.Named(m.namespace).Error(
+    zlog.Named(m.namespace).Info(
         "开始监听...",
         zap.String("channel", m.channel),
     )
@@ -156,14 +152,14 @@ func (m *Monitor[T]) Listen() {
             // var prettyJSON bytes.Buffer
             // _ = jsoniter.Indent(&prettyJSON, []byte(n.Extra), "", "  ")
             // fmt.Println(string(prettyjsoniter.Bytes()))
-            // m.logger.Infof("[MONITOR] [%s] 收到数据库变动: \n%s", m.channel, n.Extra)
+            // zlog.Infof("[MONITOR] [%s] 收到数据库变动: \n%s", m.channel, n.Extra)
             // fmt.Printf("[MONITOR] [%s] 收到数据库变动: %s\n", m.channel, n.Extra)
 
             // TODO 事件通知
             var message *Message[T]
             message, err = ParseMessage[T]([]byte(n.Extra))
             if err != nil {
-                m.logger.Named(m.namespace).Error(
+                zlog.Named(m.namespace).Error(
                     "消息解析失败",
                     zap.String("channel", m.channel),
                     zap.Error(err),

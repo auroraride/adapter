@@ -6,7 +6,7 @@
 package mq
 
 import (
-    "github.com/auroraride/adapter"
+    "github.com/auroraride/adapter/zlog"
     mqtt "github.com/eclipse/paho.mqtt.golang"
     "go.uber.org/zap"
     "time"
@@ -18,25 +18,23 @@ type Hub struct {
     Username string
     Password string
 
-    logger    *zap.Logger
     client    mqtt.Client
     listeners map[string]chan []byte
     namespace string
 }
 
-func NewHub(server string, id string, username string, password string, logger adapter.ZapLogger) *Hub {
+func NewHub(server string, id string, username string, password string) *Hub {
     return &Hub{
         Server:    server,
         ClientID:  id,
         Username:  username,
         Password:  password,
-        logger:    logger.GetLogger().WithOptions(zap.AddCallerSkip(-2)),
         namespace: "MQTT",
     }
 }
 
 func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
-    h.logger.Named(h.namespace).Info(
+    zlog.Named(h.namespace).Info(
         "收到消息 ↑",
         zap.String("topic", msg.Topic()),
         zap.ByteString("payload", msg.Payload()),
@@ -45,7 +43,7 @@ func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
 
 func (h *Hub) connectHandler(client mqtt.Client) {
     options := client.OptionsReader()
-    h.logger.Named(h.namespace).Info(
+    zlog.Named(h.namespace).Info(
         "已连接",
         zap.String("clientid", options.ClientID()),
     )
@@ -53,7 +51,7 @@ func (h *Hub) connectHandler(client mqtt.Client) {
 
 func (h *Hub) connectLostHandler(client mqtt.Client, err error) {
     options := client.OptionsReader()
-    h.logger.Named(h.namespace).Error(
+    zlog.Named(h.namespace).Error(
         "已断开连接",
         zap.Error(err),
         zap.String("clientid", options.ClientID()),

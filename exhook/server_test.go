@@ -31,7 +31,7 @@ func TestRun(t *testing.T) {
     }))
     zlog.New("test", writer, true)
 
-    s := NewServer(zlog.StandardLogger(), HookMessagePublish, HookMessageDelivered)
+    s := NewServer(HookMessagePublish, HookMessageDelivered)
     s.OnMessageReceived = func(in *MessagePublishRequest) (reply *Message) {
         topic := adapter.ConvertString2Bytes(in.Message.Topic)
         if len(topic) != 22 {

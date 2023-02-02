@@ -59,6 +59,14 @@ func Errorf(format string, args ...any) {
     std.Errorf(format, args...)
 }
 
-func Named(name string) *zap.Logger {
-    return std.Named(name)
+func (*Logger) clone() *Logger {
+    cp := *(std.Logger)
+    return &Logger{Logger: &cp}
+}
+
+func Named(name string) *Logger {
+    // cp := std.clone()
+    // cp.Logger = &Logger{Logger: }
+
+    return &Logger{Logger: std.Logger.Named(name).WithOptions(zap.AddCallerSkip(-1))}
 }
