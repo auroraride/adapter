@@ -9,7 +9,6 @@ import (
     "bufio"
     "bytes"
     "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/zlog"
     "github.com/labstack/echo/v4"
     ew "github.com/labstack/echo/v4/middleware"
     "go.uber.org/zap"
@@ -262,7 +261,9 @@ func NewDumpLoggerMiddleware() *DumpZapLoggerMiddleware {
 func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFunc {
     return dump(func(c echo.Context, reqBody []byte, resBody []byte) {
         fields := []zap.Field{
-            zap.String("remoteAddr", c.Request().RemoteAddr),
+            zap.String("remote_addr", c.Request().RemoteAddr),
+            zap.String("method", c.Request().Method),
+            zap.String("url", c.Request().RequestURI),
         }
 
         // log request header
@@ -274,12 +275,12 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
                 arr = append(arr, k+" = "+c.Request().Header.Get(k))
             }
 
-            fields = append(fields, zap.Strings("reqheader", arr))
+            fields = append(fields, zap.Strings("request_header", arr))
         }
 
         // log request body
         if len(reqBody) > 0 {
-            fields = append(fields, zap.ByteString("payload", reqBody))
+            fields = append(fields, zap.ByteString("request_body", reqBody))
         }
 
         // log response header
@@ -290,16 +291,16 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
                 arr = append(arr, k+" = "+c.Response().Header().Get(k))
             }
 
-            fields = append(fields, zap.Strings("resheader", arr))
+            fields = append(fields, zap.Strings("response_header", arr))
         }
 
         // log response body
         if len(resBody) > 0 {
-            fields = append(fields, zap.ByteString("response", resBody))
+            fields = append(fields, zap.ByteString("response_body", resBody))
         }
         // x := adapter.GetCaller(0)
-        go zlog.Named(mw.namespace).Info(
-            "["+c.Request().Method+"] "+c.Request().RequestURI,
+        go zap.L().Named(mw.namespace).Info(
+            "收到api请求",
             fields...,
         )
     })

@@ -11,26 +11,29 @@ import (
     "os"
 )
 
-func Test() {
-    zap.L().Named("Test").Info("Test", zap.String("str", "v"))
-}
-
 func Initialize(cfg *Config) {
     var opts []zapcore.WriteSyncer
     if cfg.Stdout {
         opts = append(opts, zapcore.AddSync(os.Stdout))
     }
+    for _, w := range cfg.Writers {
+        opts = append(opts, zapcore.AddSync(w))
+    }
+
     if cfg.Application == "" {
         panic("application必填")
     }
 
     syncWriter := zapcore.NewMultiWriteSyncer(opts...)
+
     c := NewCore(
         cfg,
         syncWriter,
         zap.NewAtomicLevelAt(zap.DebugLevel),
     )
+
     logger := zap.New(c, zap.AddCaller())
 
+    // SetStandardLogger(logger)
     zap.ReplaceGlobals(logger)
 }

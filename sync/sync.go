@@ -8,7 +8,6 @@ package sync
 import (
     "context"
     "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/zlog"
     "github.com/go-redis/redis/v9"
     "go.uber.org/zap"
 )
@@ -55,7 +54,7 @@ func (s *Sync[T]) Run() {
     for {
         results, err := s.client.XRead(ctx, xReadArgs).Result()
         if err != nil {
-            zlog.Named(s.namespace).Error("同步消息读取失败", zap.Error(err))
+            zap.L().Named(s.namespace).Error("同步消息读取失败", zap.Error(err))
             continue
         }
         if len(results) > 0 {
@@ -63,13 +62,14 @@ func (s *Sync[T]) Run() {
                 for _, message := range result.Messages {
                     id := message.ID
                     go func() {
+                        zap.L().Named(s.namespace).Info("收到同步消息", zap.String("values", message.Values[s.key].(string)))
+
                         var data *T
                         data, err = Unmarshal[T](s.key, message.Values)
                         if err != nil {
-                            zlog.Named(s.namespace).Error("同步消息解析失败", zap.Error(err), zap.Any("payload", data))
+                            zap.L().Named(s.namespace).Error("同步消息解析失败", zap.Error(err))
                             return
                         }
-                        zlog.Named(s.namespace).Info("收到同步消息", zap.String("payload", message.Values[s.key].(string)))
                         s.receiver(data)
                     }()
                     s.client.XDel(ctx, s.stream, id)
@@ -82,7 +82,7 @@ func (s *Sync[T]) Run() {
 func (s *Sync[T]) Push(data any) {
     m, err := Marshal(s.key, data)
     if err != nil {
-        zlog.Named(s.namespace).Error("同步消息格式化失败", zap.Error(err))
+        zap.L().Named(s.namespace).Error("同步消息格式化失败", zap.Error(err))
     }
 
     err = s.client.XAdd(context.Background(), &redis.XAddArgs{
@@ -91,6 +91,6 @@ func (s *Sync[T]) Push(data any) {
         Values: m,
     }).Err()
     if err != nil {
-        zlog.Named(s.namespace).Error("同步消息发送失败", zap.Error(err))
+        zap.L().Named(s.namespace).Error("同步消息发送失败", zap.Error(err))
     }
 }

@@ -6,7 +6,7 @@
 package mq
 
 import (
-    "github.com/auroraride/adapter/zlog"
+    "github.com/auroraride/adapter/log"
     mqtt "github.com/eclipse/paho.mqtt.golang"
     "go.uber.org/zap"
     "time"
@@ -34,16 +34,18 @@ func NewHub(server string, id string, username string, password string) *Hub {
 }
 
 func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
-    zlog.Named(h.namespace).Info(
-        "收到消息 ↑",
+    options := client.OptionsReader()
+    zap.L().Named(h.namespace).Info(
+        "收到消息",
         zap.String("topic", msg.Topic()),
-        zap.ByteString("payload", msg.Payload()),
+        log.Binary(msg.Payload()),
+        zap.String("clientid", options.ClientID()),
     )
 }
 
 func (h *Hub) connectHandler(client mqtt.Client) {
     options := client.OptionsReader()
-    zlog.Named(h.namespace).Info(
+    zap.L().Named(h.namespace).Info(
         "已连接",
         zap.String("clientid", options.ClientID()),
     )
@@ -51,7 +53,7 @@ func (h *Hub) connectHandler(client mqtt.Client) {
 
 func (h *Hub) connectLostHandler(client mqtt.Client, err error) {
     options := client.OptionsReader()
-    zlog.Named(h.namespace).Error(
+    zap.L().Named(h.namespace).Error(
         "已断开连接",
         zap.Error(err),
         zap.String("clientid", options.ClientID()),

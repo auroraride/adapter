@@ -14,14 +14,15 @@ import (
 )
 
 type Config struct {
-    Json        bool   `json:"json"`
-    Stdout      bool   `json:"stdout"`
-    Application string `json:"application"`
+    FormatJson  bool
+    Stdout      bool
+    Application string
+    Writers     []io.Writer
 }
 
 func (cfg *Config) ToZapCoreEncoderConfig() zapcore.EncoderConfig {
     var prefix, suffix string
-    if !cfg.Json {
+    if !cfg.FormatJson {
         prefix = "["
         suffix = "]"
     }
@@ -30,12 +31,12 @@ func (cfg *Config) ToZapCoreEncoderConfig() zapcore.EncoderConfig {
         CallerKey:     "caller",
         LevelKey:      "level",
         MessageKey:    "message",
-        TimeKey:       "@timestamp",
+        TimeKey:       "ts",
         StacktraceKey: "stacktrace",
-        NameKey:       "namespace",
+        NameKey:       "logger",
         LineEnding:    zapcore.DefaultLineEnding,
         EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-            enc.AppendString(prefix + t.Format("2006-01-02 15:04:05.000") + suffix)
+            enc.AppendString(prefix + t.Format("2006-01-02T15:04:05.000Z0700") + suffix)
         },
         EncodeLevel: func(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
             enc.AppendString(prefix + level.CapitalString() + suffix)
@@ -45,7 +46,13 @@ func (cfg *Config) ToZapCoreEncoderConfig() zapcore.EncoderConfig {
         },
         EncodeDuration: zapcore.SecondsDurationEncoder,
         EncodeName: func(s string, enc zapcore.PrimitiveArrayEncoder) {
-            enc.AppendString(prefix + strings.ToUpper(s) + suffix)
+            // if cfg.FormatJson {
+            //     if e, ok := enc.(zapcore.ArrayEncoder); ok {
+            //         _ = e.AppendObject(cfg.parseName(s))
+            //     }
+            //     return
+            // }
+            enc.AppendString(prefix + strings.ToLower(s) + suffix)
         },
         NewReflectedEncoder: func(w io.Writer) zapcore.ReflectedEncoder {
             enc := jsoniter.NewEncoder(w)
@@ -61,10 +68,17 @@ func (cfg *Config) Encoder() zapcore.Encoder {
         config = cfg.ToZapCoreEncoderConfig()
         enc    zapcore.Encoder
     )
-    if cfg.Json {
+    if cfg.FormatJson {
         enc = zapcore.NewJSONEncoder(config)
     } else {
         enc = zapcore.NewConsoleEncoder(config)
     }
     return WrapEncoder(cfg, enc)
+}
+
+func (cfg *Config) parseName(s string) zapcore.ObjectMarshaler {
+    return &loggerObject{
+        namespace:   strings.ToUpper(s),
+        application: strings.ToLower(cfg.Application),
+    }
 }

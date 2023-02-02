@@ -7,7 +7,7 @@ package exhook
 
 import (
     "context"
-    "github.com/auroraride/adapter/zlog"
+    "github.com/auroraride/adapter/log"
     "go.uber.org/zap"
     "google.golang.org/grpc"
     "net"
@@ -103,11 +103,11 @@ func (s *Server) OnSessionTerminated(ctx context.Context, in *SessionTerminatedR
 }
 
 func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest) (*ValuedResponse, error) {
-    zlog.Named(s.namespace).Info(
-        "收到消息 ↑",
+    zap.L().Named(s.namespace).Info(
+        "收到消息",
         zap.String("peerhost", in.Message.Headers["peerhost"]),
         zap.String("topic", in.Message.Topic),
-        zap.Binary("payload", in.Message.Payload),
+        log.Binary(in.Message.Payload),
     )
 
     var msg *Message
@@ -123,11 +123,11 @@ func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest
 }
 
 func (s *Server) OnMessageDelivered(ctx context.Context, in *MessageDeliveredRequest) (*EmptySuccess, error) {
-    zlog.Named(s.namespace).Info(
-        "发送消息 ↓",
+    zap.L().Named(s.namespace).Info(
+        "发送消息",
         zap.String("clientid", in.Clientinfo.Clientid),
         zap.String("topic", in.Message.Topic),
-        zap.Binary("payload", in.Message.Payload),
+        log.Binary(in.Message.Payload),
     )
     return &EmptySuccess{}, nil
 }
@@ -153,11 +153,11 @@ func NewServer(hooks ...Hook) *Server {
 func (s *Server) Run(address string) {
     lis, err := net.Listen("tcp", address)
     if err != nil {
-        zlog.Named(s.namespace).Fatal(err.Error())
+        zap.L().Named(s.namespace).Fatal(err.Error())
     }
-    zlog.Named(s.namespace).Info("启动 -> " + address)
+    zap.L().Named(s.namespace).Info("启动 -> " + address)
 
     gs := grpc.NewServer()
     RegisterHookProviderServer(gs, s)
-    zlog.Named(s.namespace).Fatal(gs.Serve(lis).Error())
+    zap.L().Named(s.namespace).Fatal(gs.Serve(lis).Error())
 }

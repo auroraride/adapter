@@ -8,9 +8,10 @@ package exhook
 import (
     "bytes"
     "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/zlog"
+    "github.com/auroraride/adapter/log"
     "github.com/go-redis/redis/v9"
     "go.uber.org/zap"
+    "io"
     "testing"
 )
 
@@ -25,17 +26,20 @@ var (
 )
 
 func TestRun(t *testing.T) {
-    writer := zlog.NewRedisWriter(redis.NewClient(&redis.Options{
-        Addr: "127.0.0.1:6379",
-        DB:   0,
-    }))
-    zlog.New("test", writer, true)
+    log.Initialize(&log.Config{
+        FormatJson:  true,
+        Stdout:      true,
+        Application: "exhook",
+        Writers: []io.Writer{
+            log.NewRedisWriter(redis.NewClient(&redis.Options{})),
+        },
+    })
 
     s := NewServer(HookMessagePublish, HookMessageDelivered)
     s.OnMessageReceived = func(in *MessagePublishRequest) (reply *Message) {
         topic := adapter.ConvertString2Bytes(in.Message.Topic)
         if len(topic) != 22 {
-            zlog.Error("topic长度应为22", zap.Error(adapter.ErrorData))
+            zap.L().Error("topic长度应为22", zap.Error(adapter.ErrorData))
         }
 
         reply = in.Message

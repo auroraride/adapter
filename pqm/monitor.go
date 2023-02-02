@@ -6,7 +6,6 @@
 package pqm
 
 import (
-    "github.com/auroraride/adapter/zlog"
     jsoniter "github.com/json-iterator/go"
     "github.com/lib/pq"
     "go.uber.org/zap"
@@ -118,9 +117,8 @@ func (m *Monitor[T]) sendMessage(message *Message[T]) {
 func (m *Monitor[T]) Listen() {
     l := pq.NewListener(m.dsn, 10*time.Second, time.Minute, func(ev pq.ListenerEventType, err error) {
         if err != nil {
-            zlog.Named(m.namespace).Error(
-                "监听错误",
-                zap.String("channel", m.channel),
+            zap.L().Named(m.namespace).Error(
+                m.channel+": 监听错误",
                 zap.Error(err),
             )
         }
@@ -128,16 +126,14 @@ func (m *Monitor[T]) Listen() {
 
     err := l.Listen(m.channel)
     if err != nil {
-        zlog.Named(m.namespace).Error(
-            "监听失败",
-            zap.String("channel", m.channel),
+        zap.L().Named(m.namespace).Error(
+            m.channel+": 监听失败",
             zap.Error(err),
         )
     }
 
-    zlog.Named(m.namespace).Info(
-        "开始监听...",
-        zap.String("channel", m.channel),
+    zap.L().Named(m.namespace).Info(
+        m.channel + ": 开始监听...",
     )
 
     after := time.After(90 * time.Second)
@@ -152,16 +148,15 @@ func (m *Monitor[T]) Listen() {
             // var prettyJSON bytes.Buffer
             // _ = jsoniter.Indent(&prettyJSON, []byte(n.Extra), "", "  ")
             // fmt.Println(string(prettyjsoniter.Bytes()))
-            // zlog.Infof("[MONITOR] [%s] 收到数据库变动: \n%s", m.channel, n.Extra)
+            // zap.L().Infof("[MONITOR] [%s] 收到数据库变动: \n%s", m.channel, n.Extra)
             // fmt.Printf("[MONITOR] [%s] 收到数据库变动: %s\n", m.channel, n.Extra)
 
             // TODO 事件通知
             var message *Message[T]
             message, err = ParseMessage[T]([]byte(n.Extra))
             if err != nil {
-                zlog.Named(m.namespace).Error(
-                    "消息解析失败",
-                    zap.String("channel", m.channel),
+                zap.L().Named(m.namespace).Error(
+                    m.channel+": 消息解析失败",
                     zap.Error(err),
                     zap.String("extra", n.Extra),
                 )

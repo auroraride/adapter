@@ -9,7 +9,6 @@ import (
     "fmt"
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/async"
-    "github.com/auroraride/adapter/zlog"
     "github.com/labstack/echo/v4"
     "golang.org/x/exp/slices"
     "net/http"
@@ -56,7 +55,6 @@ func (ctl *controller) doQuit() {
         // 是否有进行中的异步业务
         if async.IsDone() {
             ctl.quit <- true
-            zlog.Sync()
             return
         }
     }

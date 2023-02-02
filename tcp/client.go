@@ -9,8 +9,8 @@ import (
     "errors"
     "github.com/auroraride/adapter"
     "github.com/auroraride/adapter/codec"
+    "github.com/auroraride/adapter/log"
     "github.com/auroraride/adapter/message"
-    "github.com/auroraride/adapter/zlog"
     "github.com/panjf2000/gnet/v2"
     "go.uber.org/zap"
     "time"
@@ -35,7 +35,7 @@ func NewClient(addr string, c codec.Codec) *Client {
 func (c *Client) Run() {
     for {
         err := c.dial()
-        zlog.Named(c.namespace).Info(
+        zap.L().Named(c.namespace).Info(
             "连接失败, 5s后重试连接...",
             zap.Error(err),
         )
@@ -89,7 +89,7 @@ func (c *Client) dial() (err error) {
             // _, err = c.Conn.Write(encoded)
             // // encoded, err = c.Conn.Send(data)
             // if err != nil {
-            //     zlog.Named(c.namespace).Info(
+            //     zap.L().Named(c.namespace).Info(
             //         "消息发送失败",
             //         c.logserv,
             //         zap.Error(err),
@@ -107,7 +107,7 @@ func (c *Client) dial() (err error) {
         default:
             _, err = c.codec.Decode(c.conn)
             if err != nil && err != adapter.ErrorIncompletePacket {
-                zlog.Named(c.namespace).Info(
+                zap.L().Named(c.namespace).Info(
                     "消息读取失败",
                     zap.Error(err),
                 )
@@ -125,11 +125,12 @@ func (c *Client) Send(data message.Messenger) {
     )
     defer func() {
         if err != nil {
-            zlog.Named(c.namespace).Info(
+            zap.L().Named(c.namespace).Info(
                 "消息发送失败",
                 zap.Error(err),
                 zap.Binary("encoded", encoded),
                 zap.Binary("packed", packed),
+                log.Payload(data),
             )
         }
     }()
