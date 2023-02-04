@@ -80,7 +80,7 @@ message Heartbeat {
 
   bytes geom = 23;
 
-  int64 gps = 24;
+  uint32 gps = 24;
 
   uint32 strength = 25;
 

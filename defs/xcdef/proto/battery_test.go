@@ -88,6 +88,6 @@ func TestNewBatteryServiceClient(t *testing.T) {
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
     defer cancel()
 
-    res, _ := c.GetBatteryDetail(ctx, &BatteryQueryRequest{Id: 210})
+    res, _ := c.GetBatteryDetail(ctx, &BatteryQueryRequest{Id: 1})
     fmt.Println(res)
 }

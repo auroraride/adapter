@@ -63,7 +63,7 @@ func (Heartbeat) Fields() []ent.Field {
             Default(xcdef.GPSStatusNone).
             SchemaType(map[string]string{dialect.Postgres: postgres.TypeSmallInt}).
             Comment("GPS定位状态 (0=未定位 1=GPS定位 4=LBS定位)").
-            Annotations(entproto.Field(24, entproto.Type(descriptorpb.FieldDescriptorProto_TYPE_INT64))),
+            Annotations(entproto.Field(24, entproto.Type(descriptorpb.FieldDescriptorProto_TYPE_UINT32))),
         field.Uint8("strength").Comment("4G通讯信号强度 (0-100 百分比形式)").Annotations(entproto.Field(25)),
         field.Uint16("cycles").Comment("电池包循环次数 (80%累加一次)").Annotations(entproto.Field(26)),
         field.Uint32("charging_time").Comment("本次充电时长").Annotations(entproto.Field(27)),

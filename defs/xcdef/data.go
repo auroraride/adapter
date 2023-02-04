@@ -130,14 +130,15 @@ func (s GPSStatus) Value() (driver.Value, error) {
 
 type MonVoltage [24]uint16
 
-func (m MonVoltage) Bytes() (data []byte) {
+func (m *MonVoltage) Bytes() (data []byte) {
+    data = make([]byte, 48)
     for i, item := range m {
         binary.BigEndian.PutUint16(data[i*2:i*2+2], item)
     }
     return
 }
 
-func (m MonVoltage) FromBytes(data []byte) {
+func (m *MonVoltage) FromBytes(data []byte) {
     for i := 0; i < 24; i++ {
         m[i] = binary.BigEndian.Uint16(data[i*2 : i*2+2])
     }
@@ -147,6 +148,7 @@ func (m MonVoltage) FromBytes(data []byte) {
 type Temperature [4]uint16
 
 func (m *Temperature) Bytes() (data []byte) {
+    data = make([]byte, 8)
     for i, item := range *m {
         binary.BigEndian.PutUint16(data[i*2:i*2+2], item)
     }
