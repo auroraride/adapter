@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	ariga.io/atlas v0.9.1-0.20230119145809-92243f7c55cb
+	entgo.io/contrib v0.3.5
 	entgo.io/ent v0.11.7
 	github.com/eclipse/paho.mqtt.golang v1.4.2
 	github.com/go-playground/validator/v10 v10.11.2
@@ -25,7 +26,6 @@ require (
 )
 
 require (
-	entgo.io/contrib v0.3.5 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect

@@ -6,5 +6,5 @@
 package xcdef
 
 //go:generate go generate ./ent
-//go:generate go run -mod=mod entgo.io/contrib/entproto/cmd/entproto -path ./ent/schema
+//go:generate go run -mod=mod github.com/auroraride/adapter/cmd/entproto -path ./ent/schema
 //go:generate go generate ./proto
