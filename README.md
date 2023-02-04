@@ -47,7 +47,7 @@
 - xcbms
   
     - api: `127.0.0.1:5210`
-    - exhook: `127.0.0.1:5211`
+    - exhook: `127.0.0.1:5230`
     
 
 
@@ -113,3 +113,9 @@
 - [golang实现redis消息队列，基于stream](https://www.hengyumo.cn/momoblog/detail/202205020949382)
 - [go-redis：Stream 消息队列详解](https://www.daixiaohou.com/293.html)
 - [把Redis当作队列来用，真的合适吗？](http://kaito-kidd.com/2021/04/19/can-redis-be-used-as-a-queue/)
+
+
+
+## gRPC
+
+- [gRPC教程](https://www.liwenzhou.com/posts/Go/gRPC/)

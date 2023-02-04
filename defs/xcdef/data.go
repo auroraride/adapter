@@ -7,10 +7,25 @@ package xcdef
 
 import (
     "database/sql/driver"
+    "encoding/binary"
     "strings"
 )
 
 type Faults []Fault
+
+func (s *Faults) Bytes() (data []byte) {
+    for _, fault := range *s {
+        data = append(data, uint8(fault))
+    }
+    return
+}
+
+func (s *Faults) FromBytes(data []byte) {
+    for _, b := range data {
+        *s = append(*s, Fault(b))
+    }
+    return
+}
 
 type Fault uint
 
@@ -70,6 +85,19 @@ func (m MosStatus) String() string {
     return builder.String()
 }
 
+func (m *MosStatus) Bytes() (data []byte) {
+    for _, item := range *m {
+        data = append(data, item)
+    }
+    return
+}
+
+func (m *MosStatus) FromBytes(data []byte) {
+    for i, b := range data {
+        m[i] = b
+    }
+}
+
 type GPSStatus uint8
 
 const (
@@ -98,4 +126,36 @@ func (s *GPSStatus) Scan(src interface{}) error {
 
 func (s GPSStatus) Value() (driver.Value, error) {
     return int64(s), nil
+}
+
+type MonVoltage [24]uint16
+
+func (m MonVoltage) Bytes() (data []byte) {
+    for i, item := range m {
+        binary.BigEndian.PutUint16(data[i*2:i*2+2], item)
+    }
+    return
+}
+
+func (m MonVoltage) FromBytes(data []byte) {
+    for i := 0; i < 24; i++ {
+        m[i] = binary.BigEndian.Uint16(data[i*2 : i*2+2])
+    }
+    return
+}
+
+type Temperature [4]uint16
+
+func (m *Temperature) Bytes() (data []byte) {
+    for i, item := range *m {
+        binary.BigEndian.PutUint16(data[i*2:i*2+2], item)
+    }
+    return
+}
+
+func (m *Temperature) FromBytes(data []byte) {
+    for i := 0; i < 4; i++ {
+        m[i] = binary.BigEndian.Uint16(data[i*2 : i*2+2])
+    }
+    return
 }

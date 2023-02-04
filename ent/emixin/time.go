@@ -6,6 +6,7 @@
 package emixin
 
 import (
+    "entgo.io/contrib/entproto"
     "entgo.io/ent"
     "entgo.io/ent/schema/field"
     "entgo.io/ent/schema/index"
@@ -21,8 +22,8 @@ type TimeMixin struct {
 }
 
 func (t TimeMixin) Fields() []ent.Field {
-    creator := field.Time("created_at").Immutable()
-    updator := field.Time("updated_at")
+    creator := field.Time("created_at").Immutable().Annotations(entproto.Skip())
+    updator := field.Time("updated_at").Annotations(entproto.Skip())
     if t.Optional {
         creator.Optional().Nillable()
         updator.Optional().Nillable()

@@ -5,7 +5,10 @@
 
 package batdef
 
-import "database/sql/driver"
+import (
+    "database/sql/driver"
+    jsoniter "github.com/json-iterator/go"
+)
 
 type ReignAction uint8
 
@@ -33,6 +36,14 @@ func (s *ReignAction) Scan(src interface{}) error {
 
 func (s ReignAction) Value() (driver.Value, error) {
     return int64(s), nil
+}
+
+func (s *ReignAction) MarshalBinary() (data []byte, err error) {
+    return jsoniter.Marshal(s)
+}
+
+func (s *ReignAction) UnmarshalBinary(data []byte) (err error) {
+    return jsoniter.Unmarshal(data, s)
 }
 
 // Reign 电池在位

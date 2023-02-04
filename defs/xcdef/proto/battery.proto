@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package proto;
+
+import "entpb/entpb.proto";
+
+option go_package = "github.com/auroraride/adapter/defs/xcdef/proto";
+
+service BatteryService {
+  rpc GetBatteryDetail (BatteryQueryRequest) returns (entpb.Battery);
+  rpc GetBatterySample (BatteryBatchQueryRequest) returns (BatterySampleResponse);
+}
+
+message BatteryQueryRequest {
+  int64 id = 1;
+}
+
+message BatteryBatchQueryRequest {
+  repeated int64 ids = 1;
+}
+
+message BatterySampleResponse {
+  message Battery {
+    int64 id = 1;
+    string sn = 2;
+    optional uint32 soc = 3; // 剩余电量百分比
+    optional bytes mos_status = 4; // mos状态
+    optional bytes faults = 5; // 故障列表
+    optional bool in_cabinet = 6;
+  }
+
+  repeated Battery items = 1;
+}

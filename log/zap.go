@@ -11,7 +11,7 @@ import (
     "os"
 )
 
-func Initialize(cfg *Config) {
+func New(cfg *Config, options ...Option) {
     var opts []zapcore.WriteSyncer
     if cfg.Stdout {
         opts = append(opts, zapcore.AddSync(os.Stdout))
@@ -36,4 +36,8 @@ func Initialize(cfg *Config) {
 
     // SetStandardLogger(logger)
     zap.ReplaceGlobals(logger)
+
+    for _, opt := range options {
+        opt.apply(logger)
+    }
 }

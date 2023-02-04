@@ -11,12 +11,19 @@ import (
     "encoding/binary"
     "encoding/hex"
     "fmt"
+    "math"
 )
+
+type Byter interface {
+    Bytes() (data []byte)
+    FromBytes(data []byte)
+}
 
 // Geometry 坐标
 // https://github.com/go-pg/pg/issues/829#issuecomment-505882885
 type Geometry struct {
-    Lng, Lat float64
+    Lng float64 `json:"lng"`
+    Lat float64 `json:"lat"`
 }
 
 func (g *Geometry) Scan(val interface{}) error {
@@ -62,4 +69,19 @@ func (g *Geometry) String() string {
 
 func (g Geometry) Value() (driver.Value, error) {
     return g.String(), nil
+}
+
+func (g *Geometry) Bytes() (data []byte) {
+    data = make([]byte, 16)
+    lat := math.Float64bits(g.Lat)
+    binary.BigEndian.PutUint64(data[:8], lat)
+
+    lng := math.Float64bits(g.Lng)
+    binary.BigEndian.PutUint64(data[8:], lng)
+    return
+}
+
+func (g *Geometry) FromBytes(data []byte) {
+    g.Lat = math.Float64frombits(binary.BigEndian.Uint64(data[:8]))
+    g.Lng = math.Float64frombits(binary.BigEndian.Uint64(data[8:]))
 }
