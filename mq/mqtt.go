@@ -35,7 +35,7 @@ func NewHub(server string, id string, username string, password string) *Hub {
 
 func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
     options := client.OptionsReader()
-    zap.L().Named(h.namespace).Info(
+    zap.L().Named(h.namespace).WithOptions(zap.WithCaller(false)).Info(
         "收到消息",
         zap.String("topic", msg.Topic()),
         log.Binary(msg.Payload()),
@@ -45,7 +45,7 @@ func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
 
 func (h *Hub) connectHandler(client mqtt.Client) {
     options := client.OptionsReader()
-    zap.L().Named(h.namespace).Info(
+    zap.L().Named(h.namespace).WithOptions(zap.WithCaller(false)).Info(
         "已连接",
         zap.String("clientid", options.ClientID()),
     )
@@ -53,7 +53,7 @@ func (h *Hub) connectHandler(client mqtt.Client) {
 
 func (h *Hub) connectLostHandler(client mqtt.Client, err error) {
     options := client.OptionsReader()
-    zap.L().Named(h.namespace).Error(
+    zap.L().Named(h.namespace).WithOptions(zap.WithCaller(false)).Error(
         "已断开连接",
         zap.Error(err),
         zap.String("clientid", options.ClientID()),

@@ -13,6 +13,7 @@ import (
 	"github.com/auroraride/adapter/defs/batdef"
 	"github.com/auroraride/adapter/defs/xcdef"
 	"github.com/auroraride/adapter/defs/xcdef/ent/battery"
+	"github.com/auroraride/adapter/defs/xcdef/ent/fault"
 	"github.com/auroraride/adapter/defs/xcdef/ent/heartbeat"
 	"github.com/auroraride/adapter/defs/xcdef/ent/predicate"
 	"github.com/auroraride/adapter/defs/xcdef/ent/reign"
@@ -31,6 +32,7 @@ const (
 
 	// Node types.
 	TypeBattery   = "Battery"
+	TypeFault     = "Fault"
 	TypeHeartbeat = "Heartbeat"
 	TypeReign     = "Reign"
 )
@@ -64,6 +66,9 @@ type BatteryMutation struct {
 	reigns             map[int]struct{}
 	removedreigns      map[int]struct{}
 	clearedreigns      bool
+	fault_log          map[int]struct{}
+	removedfault_log   map[int]struct{}
+	clearedfault_log   bool
 	done               bool
 	oldValue           func(context.Context) (*Battery, error)
 	predicates         []predicate.Battery
@@ -852,6 +857,60 @@ func (m *BatteryMutation) ResetReigns() {
 	m.removedreigns = nil
 }
 
+// AddFaultLogIDs adds the "fault_log" edge to the Fault entity by ids.
+func (m *BatteryMutation) AddFaultLogIDs(ids ...int) {
+	if m.fault_log == nil {
+		m.fault_log = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.fault_log[ids[i]] = struct{}{}
+	}
+}
+
+// ClearFaultLog clears the "fault_log" edge to the Fault entity.
+func (m *BatteryMutation) ClearFaultLog() {
+	m.clearedfault_log = true
+}
+
+// FaultLogCleared reports if the "fault_log" edge to the Fault entity was cleared.
+func (m *BatteryMutation) FaultLogCleared() bool {
+	return m.clearedfault_log
+}
+
+// RemoveFaultLogIDs removes the "fault_log" edge to the Fault entity by IDs.
+func (m *BatteryMutation) RemoveFaultLogIDs(ids ...int) {
+	if m.removedfault_log == nil {
+		m.removedfault_log = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.fault_log, ids[i])
+		m.removedfault_log[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedFaultLog returns the removed IDs of the "fault_log" edge to the Fault entity.
+func (m *BatteryMutation) RemovedFaultLogIDs() (ids []int) {
+	for id := range m.removedfault_log {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// FaultLogIDs returns the "fault_log" edge IDs in the mutation.
+func (m *BatteryMutation) FaultLogIDs() (ids []int) {
+	for id := range m.fault_log {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetFaultLog resets all changes to the "fault_log" edge.
+func (m *BatteryMutation) ResetFaultLog() {
+	m.fault_log = nil
+	m.clearedfault_log = false
+	m.removedfault_log = nil
+}
+
 // Where appends a list predicates to the BatteryMutation builder.
 func (m *BatteryMutation) Where(ps ...predicate.Battery) {
 	m.predicates = append(m.predicates, ps...)
@@ -1258,12 +1317,15 @@ func (m *BatteryMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BatteryMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.heartbeats != nil {
 		edges = append(edges, battery.EdgeHeartbeats)
 	}
 	if m.reigns != nil {
 		edges = append(edges, battery.EdgeReigns)
+	}
+	if m.fault_log != nil {
+		edges = append(edges, battery.EdgeFaultLog)
 	}
 	return edges
 }
@@ -1284,18 +1346,27 @@ func (m *BatteryMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case battery.EdgeFaultLog:
+		ids := make([]ent.Value, 0, len(m.fault_log))
+		for id := range m.fault_log {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BatteryMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedheartbeats != nil {
 		edges = append(edges, battery.EdgeHeartbeats)
 	}
 	if m.removedreigns != nil {
 		edges = append(edges, battery.EdgeReigns)
+	}
+	if m.removedfault_log != nil {
+		edges = append(edges, battery.EdgeFaultLog)
 	}
 	return edges
 }
@@ -1316,18 +1387,27 @@ func (m *BatteryMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case battery.EdgeFaultLog:
+		ids := make([]ent.Value, 0, len(m.removedfault_log))
+		for id := range m.removedfault_log {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BatteryMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedheartbeats {
 		edges = append(edges, battery.EdgeHeartbeats)
 	}
 	if m.clearedreigns {
 		edges = append(edges, battery.EdgeReigns)
+	}
+	if m.clearedfault_log {
+		edges = append(edges, battery.EdgeFaultLog)
 	}
 	return edges
 }
@@ -1340,6 +1420,8 @@ func (m *BatteryMutation) EdgeCleared(name string) bool {
 		return m.clearedheartbeats
 	case battery.EdgeReigns:
 		return m.clearedreigns
+	case battery.EdgeFaultLog:
+		return m.clearedfault_log
 	}
 	return false
 }
@@ -1362,8 +1444,631 @@ func (m *BatteryMutation) ResetEdge(name string) error {
 	case battery.EdgeReigns:
 		m.ResetReigns()
 		return nil
+	case battery.EdgeFaultLog:
+		m.ResetFaultLog()
+		return nil
 	}
 	return fmt.Errorf("unknown Battery edge %s", name)
+}
+
+// FaultMutation represents an operation that mutates the Fault nodes in the graph.
+type FaultMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	sn             *string
+	fault          *xcdef.Fault
+	begin_at       *time.Time
+	end_at         *time.Time
+	clearedFields  map[string]struct{}
+	battery        *int
+	clearedbattery bool
+	done           bool
+	oldValue       func(context.Context) (*Fault, error)
+	predicates     []predicate.Fault
+}
+
+var _ ent.Mutation = (*FaultMutation)(nil)
+
+// faultOption allows management of the mutation configuration using functional options.
+type faultOption func(*FaultMutation)
+
+// newFaultMutation creates new mutation for the Fault entity.
+func newFaultMutation(c config, op Op, opts ...faultOption) *FaultMutation {
+	m := &FaultMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeFault,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withFaultID sets the ID field of the mutation.
+func withFaultID(id int) faultOption {
+	return func(m *FaultMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Fault
+		)
+		m.oldValue = func(ctx context.Context) (*Fault, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Fault.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withFault sets the old Fault of the mutation.
+func withFault(node *Fault) faultOption {
+	return func(m *FaultMutation) {
+		m.oldValue = func(context.Context) (*Fault, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m FaultMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m FaultMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *FaultMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *FaultMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Fault.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetSn sets the "sn" field.
+func (m *FaultMutation) SetSn(s string) {
+	m.sn = &s
+}
+
+// Sn returns the value of the "sn" field in the mutation.
+func (m *FaultMutation) Sn() (r string, exists bool) {
+	v := m.sn
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSn returns the old "sn" field's value of the Fault entity.
+// If the Fault object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FaultMutation) OldSn(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSn is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSn requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSn: %w", err)
+	}
+	return oldValue.Sn, nil
+}
+
+// ResetSn resets all changes to the "sn" field.
+func (m *FaultMutation) ResetSn() {
+	m.sn = nil
+}
+
+// SetBatteryID sets the "battery_id" field.
+func (m *FaultMutation) SetBatteryID(i int) {
+	m.battery = &i
+}
+
+// BatteryID returns the value of the "battery_id" field in the mutation.
+func (m *FaultMutation) BatteryID() (r int, exists bool) {
+	v := m.battery
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBatteryID returns the old "battery_id" field's value of the Fault entity.
+// If the Fault object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FaultMutation) OldBatteryID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBatteryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBatteryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBatteryID: %w", err)
+	}
+	return oldValue.BatteryID, nil
+}
+
+// ResetBatteryID resets all changes to the "battery_id" field.
+func (m *FaultMutation) ResetBatteryID() {
+	m.battery = nil
+}
+
+// SetFault sets the "fault" field.
+func (m *FaultMutation) SetFault(x xcdef.Fault) {
+	m.fault = &x
+}
+
+// Fault returns the value of the "fault" field in the mutation.
+func (m *FaultMutation) Fault() (r xcdef.Fault, exists bool) {
+	v := m.fault
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFault returns the old "fault" field's value of the Fault entity.
+// If the Fault object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FaultMutation) OldFault(ctx context.Context) (v xcdef.Fault, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFault is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFault requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFault: %w", err)
+	}
+	return oldValue.Fault, nil
+}
+
+// ResetFault resets all changes to the "fault" field.
+func (m *FaultMutation) ResetFault() {
+	m.fault = nil
+}
+
+// SetBeginAt sets the "begin_at" field.
+func (m *FaultMutation) SetBeginAt(t time.Time) {
+	m.begin_at = &t
+}
+
+// BeginAt returns the value of the "begin_at" field in the mutation.
+func (m *FaultMutation) BeginAt() (r time.Time, exists bool) {
+	v := m.begin_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBeginAt returns the old "begin_at" field's value of the Fault entity.
+// If the Fault object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FaultMutation) OldBeginAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBeginAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBeginAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBeginAt: %w", err)
+	}
+	return oldValue.BeginAt, nil
+}
+
+// ResetBeginAt resets all changes to the "begin_at" field.
+func (m *FaultMutation) ResetBeginAt() {
+	m.begin_at = nil
+}
+
+// SetEndAt sets the "end_at" field.
+func (m *FaultMutation) SetEndAt(t time.Time) {
+	m.end_at = &t
+}
+
+// EndAt returns the value of the "end_at" field in the mutation.
+func (m *FaultMutation) EndAt() (r time.Time, exists bool) {
+	v := m.end_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEndAt returns the old "end_at" field's value of the Fault entity.
+// If the Fault object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FaultMutation) OldEndAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEndAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEndAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEndAt: %w", err)
+	}
+	return oldValue.EndAt, nil
+}
+
+// ClearEndAt clears the value of the "end_at" field.
+func (m *FaultMutation) ClearEndAt() {
+	m.end_at = nil
+	m.clearedFields[fault.FieldEndAt] = struct{}{}
+}
+
+// EndAtCleared returns if the "end_at" field was cleared in this mutation.
+func (m *FaultMutation) EndAtCleared() bool {
+	_, ok := m.clearedFields[fault.FieldEndAt]
+	return ok
+}
+
+// ResetEndAt resets all changes to the "end_at" field.
+func (m *FaultMutation) ResetEndAt() {
+	m.end_at = nil
+	delete(m.clearedFields, fault.FieldEndAt)
+}
+
+// ClearBattery clears the "battery" edge to the Battery entity.
+func (m *FaultMutation) ClearBattery() {
+	m.clearedbattery = true
+}
+
+// BatteryCleared reports if the "battery" edge to the Battery entity was cleared.
+func (m *FaultMutation) BatteryCleared() bool {
+	return m.clearedbattery
+}
+
+// BatteryIDs returns the "battery" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BatteryID instead. It exists only for internal usage by the builders.
+func (m *FaultMutation) BatteryIDs() (ids []int) {
+	if id := m.battery; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBattery resets all changes to the "battery" edge.
+func (m *FaultMutation) ResetBattery() {
+	m.battery = nil
+	m.clearedbattery = false
+}
+
+// Where appends a list predicates to the FaultMutation builder.
+func (m *FaultMutation) Where(ps ...predicate.Fault) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the FaultMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *FaultMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Fault, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *FaultMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *FaultMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Fault).
+func (m *FaultMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *FaultMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.sn != nil {
+		fields = append(fields, fault.FieldSn)
+	}
+	if m.battery != nil {
+		fields = append(fields, fault.FieldBatteryID)
+	}
+	if m.fault != nil {
+		fields = append(fields, fault.FieldFault)
+	}
+	if m.begin_at != nil {
+		fields = append(fields, fault.FieldBeginAt)
+	}
+	if m.end_at != nil {
+		fields = append(fields, fault.FieldEndAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *FaultMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case fault.FieldSn:
+		return m.Sn()
+	case fault.FieldBatteryID:
+		return m.BatteryID()
+	case fault.FieldFault:
+		return m.Fault()
+	case fault.FieldBeginAt:
+		return m.BeginAt()
+	case fault.FieldEndAt:
+		return m.EndAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *FaultMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case fault.FieldSn:
+		return m.OldSn(ctx)
+	case fault.FieldBatteryID:
+		return m.OldBatteryID(ctx)
+	case fault.FieldFault:
+		return m.OldFault(ctx)
+	case fault.FieldBeginAt:
+		return m.OldBeginAt(ctx)
+	case fault.FieldEndAt:
+		return m.OldEndAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Fault field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *FaultMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case fault.FieldSn:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSn(v)
+		return nil
+	case fault.FieldBatteryID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBatteryID(v)
+		return nil
+	case fault.FieldFault:
+		v, ok := value.(xcdef.Fault)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFault(v)
+		return nil
+	case fault.FieldBeginAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBeginAt(v)
+		return nil
+	case fault.FieldEndAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEndAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Fault field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *FaultMutation) AddedFields() []string {
+	var fields []string
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *FaultMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *FaultMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Fault numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *FaultMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(fault.FieldEndAt) {
+		fields = append(fields, fault.FieldEndAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *FaultMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *FaultMutation) ClearField(name string) error {
+	switch name {
+	case fault.FieldEndAt:
+		m.ClearEndAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Fault nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *FaultMutation) ResetField(name string) error {
+	switch name {
+	case fault.FieldSn:
+		m.ResetSn()
+		return nil
+	case fault.FieldBatteryID:
+		m.ResetBatteryID()
+		return nil
+	case fault.FieldFault:
+		m.ResetFault()
+		return nil
+	case fault.FieldBeginAt:
+		m.ResetBeginAt()
+		return nil
+	case fault.FieldEndAt:
+		m.ResetEndAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Fault field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *FaultMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.battery != nil {
+		edges = append(edges, fault.EdgeBattery)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *FaultMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case fault.EdgeBattery:
+		if id := m.battery; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *FaultMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *FaultMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *FaultMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedbattery {
+		edges = append(edges, fault.EdgeBattery)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *FaultMutation) EdgeCleared(name string) bool {
+	switch name {
+	case fault.EdgeBattery:
+		return m.clearedbattery
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *FaultMutation) ClearEdge(name string) error {
+	switch name {
+	case fault.EdgeBattery:
+		m.ClearBattery()
+		return nil
+	}
+	return fmt.Errorf("unknown Fault unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *FaultMutation) ResetEdge(name string) error {
+	switch name {
+	case fault.EdgeBattery:
+		m.ResetBattery()
+		return nil
+	}
+	return fmt.Errorf("unknown Fault edge %s", name)
 }
 
 // HeartbeatMutation represents an operation that mutates the Heartbeat nodes in the graph.

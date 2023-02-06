@@ -29,7 +29,7 @@
 | :------: | :--: |
 |   HTTP   |  1x  |
 |   TCP    |  2x  |
-|   MQTT   |  3x  |
+|   RPC    |  3x  |
 
 
 
@@ -119,3 +119,6 @@
 ## gRPC
 
 - [gRPC教程](https://www.liwenzhou.com/posts/Go/gRPC/)
+- [golang grpc 客户端负载均衡、重试、健康检查](https://yangxikun.com/golang/2019/10/19/golang-grpc-client-side-lb.html)
+- [GRPC多路复用](https://overstarry.vip/posts/grpc%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/)
+- [gRPC 客户端长连接机制实现及 keepalive 分析](https://pandaychen.github.io/2020/09/01/GRPC-CLIENT-CONN-LASTING/)

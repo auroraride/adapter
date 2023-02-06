@@ -11,6 +11,7 @@ import (
 	"github.com/auroraride/adapter/defs/xcdef/ent/migrate"
 
 	"github.com/auroraride/adapter/defs/xcdef/ent/battery"
+	"github.com/auroraride/adapter/defs/xcdef/ent/fault"
 	"github.com/auroraride/adapter/defs/xcdef/ent/heartbeat"
 	"github.com/auroraride/adapter/defs/xcdef/ent/reign"
 
@@ -26,6 +27,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Battery is the client for interacting with the Battery builders.
 	Battery *BatteryClient
+	// Fault is the client for interacting with the Fault builders.
+	Fault *FaultClient
 	// Heartbeat is the client for interacting with the Heartbeat builders.
 	Heartbeat *HeartbeatClient
 	// Reign is the client for interacting with the Reign builders.
@@ -44,6 +47,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Battery = NewBatteryClient(c.config)
+	c.Fault = NewFaultClient(c.config)
 	c.Heartbeat = NewHeartbeatClient(c.config)
 	c.Reign = NewReignClient(c.config)
 }
@@ -80,6 +84,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:       ctx,
 		config:    cfg,
 		Battery:   NewBatteryClient(cfg),
+		Fault:     NewFaultClient(cfg),
 		Heartbeat: NewHeartbeatClient(cfg),
 		Reign:     NewReignClient(cfg),
 	}, nil
@@ -102,6 +107,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:       ctx,
 		config:    cfg,
 		Battery:   NewBatteryClient(cfg),
+		Fault:     NewFaultClient(cfg),
 		Heartbeat: NewHeartbeatClient(cfg),
 		Reign:     NewReignClient(cfg),
 	}, nil
@@ -133,6 +139,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Battery.Use(hooks...)
+	c.Fault.Use(hooks...)
 	c.Heartbeat.Use(hooks...)
 	c.Reign.Use(hooks...)
 }
@@ -141,6 +148,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Battery.Intercept(interceptors...)
+	c.Fault.Intercept(interceptors...)
 	c.Heartbeat.Intercept(interceptors...)
 	c.Reign.Intercept(interceptors...)
 }
@@ -150,6 +158,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *BatteryMutation:
 		return c.Battery.mutate(ctx, m)
+	case *FaultMutation:
+		return c.Fault.mutate(ctx, m)
 	case *HeartbeatMutation:
 		return c.Heartbeat.mutate(ctx, m)
 	case *ReignMutation:
@@ -284,6 +294,22 @@ func (c *BatteryClient) QueryReigns(b *Battery) *ReignQuery {
 	return query
 }
 
+// QueryFaultLog queries the fault_log edge of a Battery.
+func (c *BatteryClient) QueryFaultLog(b *Battery) *FaultQuery {
+	query := (&FaultClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := b.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(battery.Table, battery.FieldID, id),
+			sqlgraph.To(fault.Table, fault.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, battery.FaultLogTable, battery.FaultLogColumn),
+		)
+		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *BatteryClient) Hooks() []Hook {
 	return c.hooks.Battery
@@ -306,6 +332,140 @@ func (c *BatteryClient) mutate(ctx context.Context, m *BatteryMutation) (Value, 
 		return (&BatteryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Battery mutation op: %q", m.Op())
+	}
+}
+
+// FaultClient is a client for the Fault schema.
+type FaultClient struct {
+	config
+}
+
+// NewFaultClient returns a client for the Fault from the given config.
+func NewFaultClient(c config) *FaultClient {
+	return &FaultClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `fault.Hooks(f(g(h())))`.
+func (c *FaultClient) Use(hooks ...Hook) {
+	c.hooks.Fault = append(c.hooks.Fault, hooks...)
+}
+
+// Use adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `fault.Intercept(f(g(h())))`.
+func (c *FaultClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Fault = append(c.inters.Fault, interceptors...)
+}
+
+// Create returns a builder for creating a Fault entity.
+func (c *FaultClient) Create() *FaultCreate {
+	mutation := newFaultMutation(c.config, OpCreate)
+	return &FaultCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Fault entities.
+func (c *FaultClient) CreateBulk(builders ...*FaultCreate) *FaultCreateBulk {
+	return &FaultCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Fault.
+func (c *FaultClient) Update() *FaultUpdate {
+	mutation := newFaultMutation(c.config, OpUpdate)
+	return &FaultUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FaultClient) UpdateOne(f *Fault) *FaultUpdateOne {
+	mutation := newFaultMutation(c.config, OpUpdateOne, withFault(f))
+	return &FaultUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FaultClient) UpdateOneID(id int) *FaultUpdateOne {
+	mutation := newFaultMutation(c.config, OpUpdateOne, withFaultID(id))
+	return &FaultUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Fault.
+func (c *FaultClient) Delete() *FaultDelete {
+	mutation := newFaultMutation(c.config, OpDelete)
+	return &FaultDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FaultClient) DeleteOne(f *Fault) *FaultDeleteOne {
+	return c.DeleteOneID(f.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *FaultClient) DeleteOneID(id int) *FaultDeleteOne {
+	builder := c.Delete().Where(fault.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FaultDeleteOne{builder}
+}
+
+// Query returns a query builder for Fault.
+func (c *FaultClient) Query() *FaultQuery {
+	return &FaultQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeFault},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Fault entity by its id.
+func (c *FaultClient) Get(ctx context.Context, id int) (*Fault, error) {
+	return c.Query().Where(fault.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FaultClient) GetX(ctx context.Context, id int) *Fault {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryBattery queries the battery edge of a Fault.
+func (c *FaultClient) QueryBattery(f *Fault) *BatteryQuery {
+	query := (&BatteryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := f.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(fault.Table, fault.FieldID, id),
+			sqlgraph.To(battery.Table, battery.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, fault.BatteryTable, fault.BatteryColumn),
+		)
+		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *FaultClient) Hooks() []Hook {
+	return c.hooks.Fault
+}
+
+// Interceptors returns the client interceptors.
+func (c *FaultClient) Interceptors() []Interceptor {
+	return c.inters.Fault
+}
+
+func (c *FaultClient) mutate(ctx context.Context, m *FaultMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FaultCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FaultUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FaultUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FaultDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Fault mutation op: %q", m.Op())
 	}
 }
 

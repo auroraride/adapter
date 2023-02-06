@@ -44,15 +44,18 @@ func (Battery) Edges() []ent.Edge {
     return []ent.Edge{
         edge.To("heartbeats", Heartbeat.Type).Annotations(
             entsql.WithComments(true),
-            entsql.DescColumns("created_at"),
             entproto.Field(10),
         ).Comment("心跳列表"),
 
         edge.To("reigns", Reign.Type).Annotations(
             entsql.WithComments(true),
-            entsql.DescColumns("created_at"),
             entproto.Field(11),
         ).Comment("在位列表"),
+
+        edge.To("fault_log", Fault.Type).Annotations(
+            entsql.WithComments(true),
+            entproto.Field(12),
+        ).Comment("故障列表"),
     }
 }
 

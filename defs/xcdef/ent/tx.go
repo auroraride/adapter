@@ -16,6 +16,8 @@ type Tx struct {
 	config
 	// Battery is the client for interacting with the Battery builders.
 	Battery *BatteryClient
+	// Fault is the client for interacting with the Fault builders.
+	Fault *FaultClient
 	// Heartbeat is the client for interacting with the Heartbeat builders.
 	Heartbeat *HeartbeatClient
 	// Reign is the client for interacting with the Reign builders.
@@ -152,6 +154,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Battery = NewBatteryClient(tx.config)
+	tx.Fault = NewFaultClient(tx.config)
 	tx.Heartbeat = NewHeartbeatClient(tx.config)
 	tx.Reign = NewReignClient(tx.config)
 }

@@ -117,7 +117,7 @@ func (m *Monitor[T]) sendMessage(message *Message[T]) {
 func (m *Monitor[T]) Listen() {
     l := pq.NewListener(m.dsn, 10*time.Second, time.Minute, func(ev pq.ListenerEventType, err error) {
         if err != nil {
-            zap.L().Named(m.namespace).Error(
+            zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Error(
                 m.channel+": 监听错误",
                 zap.Error(err),
             )
@@ -126,13 +126,13 @@ func (m *Monitor[T]) Listen() {
 
     err := l.Listen(m.channel)
     if err != nil {
-        zap.L().Named(m.namespace).Error(
+        zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Error(
             m.channel+": 监听失败",
             zap.Error(err),
         )
     }
 
-    zap.L().Named(m.namespace).Info(
+    zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Info(
         m.channel + ": 开始监听...",
     )
 
@@ -155,7 +155,7 @@ func (m *Monitor[T]) Listen() {
             var message *Message[T]
             message, err = ParseMessage[T]([]byte(n.Extra))
             if err != nil {
-                zap.L().Named(m.namespace).Error(
+                zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Error(
                     m.channel+": 消息解析失败",
                     zap.Error(err),
                     zap.String("extra", n.Extra),

@@ -35,6 +35,8 @@ const (
 	EdgeHeartbeats = "heartbeats"
 	// EdgeReigns holds the string denoting the reigns edge name in mutations.
 	EdgeReigns = "reigns"
+	// EdgeFaultLog holds the string denoting the fault_log edge name in mutations.
+	EdgeFaultLog = "fault_log"
 	// Table holds the table name of the battery in the database.
 	Table = "battery"
 	// HeartbeatsTable is the table that holds the heartbeats relation/edge.
@@ -51,6 +53,13 @@ const (
 	ReignsInverseTable = "reign"
 	// ReignsColumn is the table column denoting the reigns relation/edge.
 	ReignsColumn = "battery_id"
+	// FaultLogTable is the table that holds the fault_log relation/edge.
+	FaultLogTable = "fault"
+	// FaultLogInverseTable is the table name for the Fault entity.
+	// It exists in this package in order to avoid circular dependency with the "fault" package.
+	FaultLogInverseTable = "fault"
+	// FaultLogColumn is the table column denoting the fault_log relation/edge.
+	FaultLogColumn = "battery_id"
 )
 
 // Columns holds all SQL columns for battery fields.

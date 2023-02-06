@@ -32,11 +32,13 @@ type config struct {
 type (
 	hooks struct {
 		Battery   []ent.Hook
+		Fault     []ent.Hook
 		Heartbeat []ent.Hook
 		Reign     []ent.Hook
 	}
 	inters struct {
 		Battery   []ent.Interceptor
+		Fault     []ent.Interceptor
 		Heartbeat []ent.Interceptor
 		Reign     []ent.Interceptor
 	}

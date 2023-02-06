@@ -47,6 +47,62 @@ var (
 			},
 		},
 	}
+	// FaultColumns holds the columns for the "fault" table.
+	FaultColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "sn", Type: field.TypeString, Comment: "电池编号"},
+		{Name: "fault", Type: field.TypeOther, Comment: "故障信息", SchemaType: map[string]string{"postgres": "int"}},
+		{Name: "begin_at", Type: field.TypeTime, Comment: "开始时间"},
+		{Name: "end_at", Type: field.TypeTime, Nullable: true, Comment: "结束时间"},
+		{Name: "battery_id", Type: field.TypeInt, Comment: "电池ID"},
+	}
+	// FaultTable holds the schema information for the "fault" table.
+	FaultTable = &schema.Table{
+		Name:       "fault",
+		Columns:    FaultColumns,
+		PrimaryKey: []*schema.Column{FaultColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "fault_battery_fault_log",
+				Columns:    []*schema.Column{FaultColumns[5]},
+				RefColumns: []*schema.Column{BatteryColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "fault_begin_at",
+				Unique:  false,
+				Columns: []*schema.Column{FaultColumns[3]},
+			},
+			{
+				Name:    "fault_end_at",
+				Unique:  false,
+				Columns: []*schema.Column{FaultColumns[4]},
+			},
+			{
+				Name:    "fault_battery_id",
+				Unique:  false,
+				Columns: []*schema.Column{FaultColumns[5]},
+			},
+			{
+				Name:    "fault_sn",
+				Unique:  false,
+				Columns: []*schema.Column{FaultColumns[1]},
+				Annotation: &entsql.IndexAnnotation{
+					OpClass: "gin_trgm_ops",
+					Types: map[string]string{
+						"postgres": "GIN",
+					},
+				},
+			},
+			{
+				Name:    "fault_fault",
+				Unique:  false,
+				Columns: []*schema.Column{FaultColumns[2]},
+			},
+		},
+	}
 	// HeartbeatColumns holds the columns for the "heartbeat" table.
 	HeartbeatColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -69,7 +125,7 @@ var (
 		{Name: "mon_voltage", Type: field.TypeJSON, Comment: "单体电压 (24个单体电压, 单位mV)"},
 		{Name: "temp", Type: field.TypeJSON, Comment: "电池温度 (4个电池温度传感器, 单位1℃)"},
 		{Name: "mos_temp", Type: field.TypeUint16, Comment: "MOS温度 (1个MOS温度传感器, 单位1℃)"},
-		{Name: "env_temp", Type: field.TypeUint16, Comment: "MOS温度 (1个MOS温度传感器, 单位1℃)"},
+		{Name: "env_temp", Type: field.TypeUint16, Comment: "环境温度 (1个环境温度传感器, 单位1℃)"},
 		{Name: "geom", Type: field.TypeOther, Comment: "坐标", SchemaType: map[string]string{"postgres": "geometry"}},
 		{Name: "gps", Type: field.TypeOther, Comment: "GPS定位状态 (0=未定位 1=GPS定位 4=LBS定位)", SchemaType: map[string]string{"postgres": "smallint"}},
 		{Name: "strength", Type: field.TypeUint8, Comment: "4G通讯信号强度 (0-100 百分比形式)"},
@@ -124,6 +180,16 @@ var (
 				Annotation: &entsql.IndexAnnotation{
 					Types: map[string]string{
 						"postgres": "GIST",
+					},
+				},
+			},
+			{
+				Name:    "heartbeat_faults",
+				Unique:  false,
+				Columns: []*schema.Column{HeartbeatColumns[15]},
+				Annotation: &entsql.IndexAnnotation{
+					Types: map[string]string{
+						"postgres": "GIN",
 					},
 				},
 			},
@@ -197,6 +263,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BatteryTable,
+		FaultTable,
 		HeartbeatTable,
 		ReignTable,
 	}
@@ -205,6 +272,10 @@ var (
 func init() {
 	BatteryTable.Annotation = &entsql.Annotation{
 		Table: "battery",
+	}
+	FaultTable.ForeignKeys[0].RefTable = BatteryTable
+	FaultTable.Annotation = &entsql.Annotation{
+		Table: "fault",
 	}
 	HeartbeatTable.ForeignKeys[0].RefTable = BatteryTable
 	HeartbeatTable.Annotation = &entsql.Annotation{

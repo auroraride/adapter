@@ -31,6 +31,24 @@ message Battery {
   repeated Heartbeat heartbeats = 10;
 
   repeated Reign reigns = 11;
+
+  repeated Fault fault_log = 12;
+}
+
+message Fault {
+  int64 id = 1;
+
+  string sn = 2;
+
+  int64 battery_id = 3;
+
+  int64 fault = 4;
+
+  google.protobuf.Timestamp begin_at = 5;
+
+  google.protobuf.Timestamp end_at = 6;
+
+  Battery battery = 7;
 }
 
 message Heartbeat {

@@ -60,7 +60,7 @@ type Heartbeat struct {
 	Temp *xcdef.Temperature `json:"temp,omitempty"`
 	// MOS温度 (1个MOS温度传感器, 单位1℃)
 	MosTemp uint16 `json:"mos_temp,omitempty"`
-	// MOS温度 (1个MOS温度传感器, 单位1℃)
+	// 环境温度 (1个环境温度传感器, 单位1℃)
 	EnvTemp uint16 `json:"env_temp,omitempty"`
 	// 坐标
 	Geom *adapter.Geometry `json:"geom,omitempty"`

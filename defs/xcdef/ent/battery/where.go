@@ -679,6 +679,33 @@ func HasReignsWith(preds ...predicate.Reign) predicate.Battery {
 	})
 }
 
+// HasFaultLog applies the HasEdge predicate on the "fault_log" edge.
+func HasFaultLog() predicate.Battery {
+	return predicate.Battery(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FaultLogTable, FaultLogColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFaultLogWith applies the HasEdge predicate on the "fault_log" edge with a given conditions (other predicates).
+func HasFaultLogWith(preds ...predicate.Fault) predicate.Battery {
+	return predicate.Battery(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FaultLogInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FaultLogTable, FaultLogColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Battery) predicate.Battery {
 	return predicate.Battery(func(s *sql.Selector) {

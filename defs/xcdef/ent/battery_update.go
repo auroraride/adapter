@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/auroraride/adapter/defs/xcdef/ent/battery"
+	"github.com/auroraride/adapter/defs/xcdef/ent/fault"
 	"github.com/auroraride/adapter/defs/xcdef/ent/heartbeat"
 	"github.com/auroraride/adapter/defs/xcdef/ent/predicate"
 	"github.com/auroraride/adapter/defs/xcdef/ent/reign"
@@ -255,6 +256,21 @@ func (bu *BatteryUpdate) AddReigns(r ...*Reign) *BatteryUpdate {
 	return bu.AddReignIDs(ids...)
 }
 
+// AddFaultLogIDs adds the "fault_log" edge to the Fault entity by IDs.
+func (bu *BatteryUpdate) AddFaultLogIDs(ids ...int) *BatteryUpdate {
+	bu.mutation.AddFaultLogIDs(ids...)
+	return bu
+}
+
+// AddFaultLog adds the "fault_log" edges to the Fault entity.
+func (bu *BatteryUpdate) AddFaultLog(f ...*Fault) *BatteryUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return bu.AddFaultLogIDs(ids...)
+}
+
 // Mutation returns the BatteryMutation object of the builder.
 func (bu *BatteryUpdate) Mutation() *BatteryMutation {
 	return bu.mutation
@@ -300,6 +316,27 @@ func (bu *BatteryUpdate) RemoveReigns(r ...*Reign) *BatteryUpdate {
 		ids[i] = r[i].ID
 	}
 	return bu.RemoveReignIDs(ids...)
+}
+
+// ClearFaultLog clears all "fault_log" edges to the Fault entity.
+func (bu *BatteryUpdate) ClearFaultLog() *BatteryUpdate {
+	bu.mutation.ClearFaultLog()
+	return bu
+}
+
+// RemoveFaultLogIDs removes the "fault_log" edge to Fault entities by IDs.
+func (bu *BatteryUpdate) RemoveFaultLogIDs(ids ...int) *BatteryUpdate {
+	bu.mutation.RemoveFaultLogIDs(ids...)
+	return bu
+}
+
+// RemoveFaultLog removes "fault_log" edges to Fault entities.
+func (bu *BatteryUpdate) RemoveFaultLog(f ...*Fault) *BatteryUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return bu.RemoveFaultLogIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -528,6 +565,60 @@ func (bu *BatteryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: reign.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if bu.mutation.FaultLogCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   battery.FaultLogTable,
+			Columns: []string{battery.FaultLogColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: fault.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := bu.mutation.RemovedFaultLogIDs(); len(nodes) > 0 && !bu.mutation.FaultLogCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   battery.FaultLogTable,
+			Columns: []string{battery.FaultLogColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: fault.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := bu.mutation.FaultLogIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   battery.FaultLogTable,
+			Columns: []string{battery.FaultLogColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: fault.FieldID,
 				},
 			},
 		}
@@ -782,6 +873,21 @@ func (buo *BatteryUpdateOne) AddReigns(r ...*Reign) *BatteryUpdateOne {
 	return buo.AddReignIDs(ids...)
 }
 
+// AddFaultLogIDs adds the "fault_log" edge to the Fault entity by IDs.
+func (buo *BatteryUpdateOne) AddFaultLogIDs(ids ...int) *BatteryUpdateOne {
+	buo.mutation.AddFaultLogIDs(ids...)
+	return buo
+}
+
+// AddFaultLog adds the "fault_log" edges to the Fault entity.
+func (buo *BatteryUpdateOne) AddFaultLog(f ...*Fault) *BatteryUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return buo.AddFaultLogIDs(ids...)
+}
+
 // Mutation returns the BatteryMutation object of the builder.
 func (buo *BatteryUpdateOne) Mutation() *BatteryMutation {
 	return buo.mutation
@@ -827,6 +933,27 @@ func (buo *BatteryUpdateOne) RemoveReigns(r ...*Reign) *BatteryUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return buo.RemoveReignIDs(ids...)
+}
+
+// ClearFaultLog clears all "fault_log" edges to the Fault entity.
+func (buo *BatteryUpdateOne) ClearFaultLog() *BatteryUpdateOne {
+	buo.mutation.ClearFaultLog()
+	return buo
+}
+
+// RemoveFaultLogIDs removes the "fault_log" edge to Fault entities by IDs.
+func (buo *BatteryUpdateOne) RemoveFaultLogIDs(ids ...int) *BatteryUpdateOne {
+	buo.mutation.RemoveFaultLogIDs(ids...)
+	return buo
+}
+
+// RemoveFaultLog removes "fault_log" edges to Fault entities.
+func (buo *BatteryUpdateOne) RemoveFaultLog(f ...*Fault) *BatteryUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return buo.RemoveFaultLogIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -1079,6 +1206,60 @@ func (buo *BatteryUpdateOne) sqlSave(ctx context.Context) (_node *Battery, err e
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: reign.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if buo.mutation.FaultLogCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   battery.FaultLogTable,
+			Columns: []string{battery.FaultLogColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: fault.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buo.mutation.RemovedFaultLogIDs(); len(nodes) > 0 && !buo.mutation.FaultLogCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   battery.FaultLogTable,
+			Columns: []string{battery.FaultLogColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: fault.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buo.mutation.FaultLogIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   battery.FaultLogTable,
+			Columns: []string{battery.FaultLogColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: fault.FieldID,
 				},
 			},
 		}

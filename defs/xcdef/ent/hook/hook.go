@@ -21,6 +21,18 @@ func (f BatteryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BatteryMutation", m)
 }
 
+// The FaultFunc type is an adapter to allow the use of ordinary
+// function as Fault mutator.
+type FaultFunc func(context.Context, *ent.FaultMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FaultFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.FaultMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FaultMutation", m)
+}
+
 // The HeartbeatFunc type is an adapter to allow the use of ordinary
 // function as Heartbeat mutator.
 type HeartbeatFunc func(context.Context, *ent.HeartbeatMutation) (ent.Value, error)

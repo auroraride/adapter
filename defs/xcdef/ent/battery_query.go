@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/auroraride/adapter/defs/xcdef/ent/battery"
+	"github.com/auroraride/adapter/defs/xcdef/ent/fault"
 	"github.com/auroraride/adapter/defs/xcdef/ent/heartbeat"
 	"github.com/auroraride/adapter/defs/xcdef/ent/predicate"
 	"github.com/auroraride/adapter/defs/xcdef/ent/reign"
@@ -26,9 +27,11 @@ type BatteryQuery struct {
 	predicates          []predicate.Battery
 	withHeartbeats      *HeartbeatQuery
 	withReigns          *ReignQuery
+	withFaultLog        *FaultQuery
 	modifiers           []func(*sql.Selector)
 	withNamedHeartbeats map[string]*HeartbeatQuery
 	withNamedReigns     map[string]*ReignQuery
+	withNamedFaultLog   map[string]*FaultQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -102,6 +105,28 @@ func (bq *BatteryQuery) QueryReigns() *ReignQuery {
 			sqlgraph.From(battery.Table, battery.FieldID, selector),
 			sqlgraph.To(reign.Table, reign.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, battery.ReignsTable, battery.ReignsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFaultLog chains the current query on the "fault_log" edge.
+func (bq *BatteryQuery) QueryFaultLog() *FaultQuery {
+	query := (&FaultClient{config: bq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := bq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := bq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(battery.Table, battery.FieldID, selector),
+			sqlgraph.To(fault.Table, fault.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, battery.FaultLogTable, battery.FaultLogColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
 		return fromU, nil
@@ -301,6 +326,7 @@ func (bq *BatteryQuery) Clone() *BatteryQuery {
 		predicates:     append([]predicate.Battery{}, bq.predicates...),
 		withHeartbeats: bq.withHeartbeats.Clone(),
 		withReigns:     bq.withReigns.Clone(),
+		withFaultLog:   bq.withFaultLog.Clone(),
 		// clone intermediate query.
 		sql:  bq.sql.Clone(),
 		path: bq.path,
@@ -326,6 +352,17 @@ func (bq *BatteryQuery) WithReigns(opts ...func(*ReignQuery)) *BatteryQuery {
 		opt(query)
 	}
 	bq.withReigns = query
+	return bq
+}
+
+// WithFaultLog tells the query-builder to eager-load the nodes that are connected to
+// the "fault_log" edge. The optional arguments are used to configure the query builder of the edge.
+func (bq *BatteryQuery) WithFaultLog(opts ...func(*FaultQuery)) *BatteryQuery {
+	query := (&FaultClient{config: bq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	bq.withFaultLog = query
 	return bq
 }
 
@@ -407,9 +444,10 @@ func (bq *BatteryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Batt
 	var (
 		nodes       = []*Battery{}
 		_spec       = bq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			bq.withHeartbeats != nil,
 			bq.withReigns != nil,
+			bq.withFaultLog != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -447,6 +485,13 @@ func (bq *BatteryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Batt
 			return nil, err
 		}
 	}
+	if query := bq.withFaultLog; query != nil {
+		if err := bq.loadFaultLog(ctx, query, nodes,
+			func(n *Battery) { n.Edges.FaultLog = []*Fault{} },
+			func(n *Battery, e *Fault) { n.Edges.FaultLog = append(n.Edges.FaultLog, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range bq.withNamedHeartbeats {
 		if err := bq.loadHeartbeats(ctx, query, nodes,
 			func(n *Battery) { n.appendNamedHeartbeats(name) },
@@ -458,6 +503,13 @@ func (bq *BatteryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Batt
 		if err := bq.loadReigns(ctx, query, nodes,
 			func(n *Battery) { n.appendNamedReigns(name) },
 			func(n *Battery, e *Reign) { n.appendNamedReigns(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range bq.withNamedFaultLog {
+		if err := bq.loadFaultLog(ctx, query, nodes,
+			func(n *Battery) { n.appendNamedFaultLog(name) },
+			func(n *Battery, e *Fault) { n.appendNamedFaultLog(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -503,6 +555,33 @@ func (bq *BatteryQuery) loadReigns(ctx context.Context, query *ReignQuery, nodes
 	}
 	query.Where(predicate.Reign(func(s *sql.Selector) {
 		s.Where(sql.InValues(battery.ReignsColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.BatteryID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "battery_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (bq *BatteryQuery) loadFaultLog(ctx context.Context, query *FaultQuery, nodes []*Battery, init func(*Battery), assign func(*Battery, *Fault)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Battery)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.Where(predicate.Fault(func(s *sql.Selector) {
+		s.Where(sql.InValues(battery.FaultLogColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -645,6 +724,20 @@ func (bq *BatteryQuery) WithNamedReigns(name string, opts ...func(*ReignQuery)) 
 		bq.withNamedReigns = make(map[string]*ReignQuery)
 	}
 	bq.withNamedReigns[name] = query
+	return bq
+}
+
+// WithNamedFaultLog tells the query-builder to eager-load the nodes that are connected to the "fault_log"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (bq *BatteryQuery) WithNamedFaultLog(name string, opts ...func(*FaultQuery)) *BatteryQuery {
+	query := (&FaultClient{config: bq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if bq.withNamedFaultLog == nil {
+		bq.withNamedFaultLog = make(map[string]*FaultQuery)
+	}
+	bq.withNamedFaultLog[name] = query
 	return bq
 }
 

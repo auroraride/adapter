@@ -9,6 +9,9 @@ import (
 // Battery is the predicate function for battery builders.
 type Battery func(*sql.Selector)
 
+// Fault is the predicate function for fault builders.
+type Fault func(*sql.Selector)
+
 // Heartbeat is the predicate function for heartbeat builders.
 type Heartbeat func(*sql.Selector)
 

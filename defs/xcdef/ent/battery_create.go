@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/auroraride/adapter/defs/xcdef/ent/battery"
+	"github.com/auroraride/adapter/defs/xcdef/ent/fault"
 	"github.com/auroraride/adapter/defs/xcdef/ent/heartbeat"
 	"github.com/auroraride/adapter/defs/xcdef/ent/reign"
 )
@@ -186,6 +187,21 @@ func (bc *BatteryCreate) AddReigns(r ...*Reign) *BatteryCreate {
 	return bc.AddReignIDs(ids...)
 }
 
+// AddFaultLogIDs adds the "fault_log" edge to the Fault entity by IDs.
+func (bc *BatteryCreate) AddFaultLogIDs(ids ...int) *BatteryCreate {
+	bc.mutation.AddFaultLogIDs(ids...)
+	return bc
+}
+
+// AddFaultLog adds the "fault_log" edges to the Fault entity.
+func (bc *BatteryCreate) AddFaultLog(f ...*Fault) *BatteryCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return bc.AddFaultLogIDs(ids...)
+}
+
 // Mutation returns the BatteryMutation object of the builder.
 func (bc *BatteryCreate) Mutation() *BatteryMutation {
 	return bc.mutation
@@ -345,6 +361,25 @@ func (bc *BatteryCreate) createSpec() (*Battery, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: reign.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := bc.mutation.FaultLogIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   battery.FaultLogTable,
+			Columns: []string{battery.FaultLogColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: fault.FieldID,
 				},
 			},
 		}

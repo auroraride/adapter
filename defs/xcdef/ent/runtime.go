@@ -8,6 +8,7 @@ import (
 	"github.com/auroraride/adapter/defs/batdef"
 	"github.com/auroraride/adapter/defs/xcdef"
 	"github.com/auroraride/adapter/defs/xcdef/ent/battery"
+	"github.com/auroraride/adapter/defs/xcdef/ent/fault"
 	"github.com/auroraride/adapter/defs/xcdef/ent/heartbeat"
 	"github.com/auroraride/adapter/defs/xcdef/ent/reign"
 	"github.com/auroraride/adapter/defs/xcdef/ent/schema"
@@ -32,6 +33,12 @@ func init() {
 	battery.DefaultUpdatedAt = batteryDescUpdatedAt.Default.(func() time.Time)
 	// battery.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	battery.UpdateDefaultUpdatedAt = batteryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	faultFields := schema.Fault{}.Fields()
+	_ = faultFields
+	// faultDescBeginAt is the schema descriptor for begin_at field.
+	faultDescBeginAt := faultFields[3].Descriptor()
+	// fault.DefaultBeginAt holds the default value on creation for the begin_at field.
+	fault.DefaultBeginAt = faultDescBeginAt.Default.(func() time.Time)
 	heartbeatFields := schema.Heartbeat{}.Fields()
 	_ = heartbeatFields
 	// heartbeatDescCreatedAt is the schema descriptor for created_at field.

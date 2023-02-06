@@ -26,7 +26,7 @@ var (
 )
 
 func TestRun(t *testing.T) {
-    log.Initialize(&log.Config{
+    log.New(&log.Config{
         FormatJson:  true,
         Stdout:      true,
         Application: "exhook",

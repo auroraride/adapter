@@ -47,11 +47,14 @@ type BatteryEdges struct {
 	Heartbeats []*Heartbeat `json:"heartbeats,omitempty"`
 	// 在位列表
 	Reigns []*Reign `json:"reigns,omitempty"`
+	// 故障列表
+	FaultLog []*Fault `json:"fault_log,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes     [2]bool
+	loadedTypes     [3]bool
 	namedHeartbeats map[string][]*Heartbeat
 	namedReigns     map[string][]*Reign
+	namedFaultLog   map[string][]*Fault
 }
 
 // HeartbeatsOrErr returns the Heartbeats value or an error if the edge
@@ -70,6 +73,15 @@ func (e BatteryEdges) ReignsOrErr() ([]*Reign, error) {
 		return e.Reigns, nil
 	}
 	return nil, &NotLoadedError{edge: "reigns"}
+}
+
+// FaultLogOrErr returns the FaultLog value or an error if the edge
+// was not loaded in eager-loading.
+func (e BatteryEdges) FaultLogOrErr() ([]*Fault, error) {
+	if e.loadedTypes[2] {
+		return e.FaultLog, nil
+	}
+	return nil, &NotLoadedError{edge: "fault_log"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -184,6 +196,11 @@ func (b *Battery) QueryHeartbeats() *HeartbeatQuery {
 // QueryReigns queries the "reigns" edge of the Battery entity.
 func (b *Battery) QueryReigns() *ReignQuery {
 	return NewBatteryClient(b.config).QueryReigns(b)
+}
+
+// QueryFaultLog queries the "fault_log" edge of the Battery entity.
+func (b *Battery) QueryFaultLog() *FaultQuery {
+	return NewBatteryClient(b.config).QueryFaultLog(b)
 }
 
 // Update returns a builder for updating this Battery.
@@ -301,6 +318,30 @@ func (b *Battery) appendNamedReigns(name string, edges ...*Reign) {
 		b.Edges.namedReigns[name] = []*Reign{}
 	} else {
 		b.Edges.namedReigns[name] = append(b.Edges.namedReigns[name], edges...)
+	}
+}
+
+// NamedFaultLog returns the FaultLog named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (b *Battery) NamedFaultLog(name string) ([]*Fault, error) {
+	if b.Edges.namedFaultLog == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := b.Edges.namedFaultLog[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (b *Battery) appendNamedFaultLog(name string, edges ...*Fault) {
+	if b.Edges.namedFaultLog == nil {
+		b.Edges.namedFaultLog = make(map[string][]*Fault)
+	}
+	if len(edges) == 0 {
+		b.Edges.namedFaultLog[name] = []*Fault{}
+	} else {
+		b.Edges.namedFaultLog[name] = append(b.Edges.namedFaultLog[name], edges...)
 	}
 }
 

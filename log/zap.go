@@ -6,6 +6,7 @@
 package log
 
 import (
+    grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
     "go.uber.org/zap"
     "go.uber.org/zap/zapcore"
     "os"
@@ -36,6 +37,8 @@ func New(cfg *Config, options ...Option) {
 
     // SetStandardLogger(logger)
     zap.ReplaceGlobals(logger)
+
+    grpczap.ReplaceGrpcLoggerV2(logger.WithOptions(zap.WithCaller(false), zap.IncreaseLevel(zapcore.WarnLevel)).Named("grpc"))
 
     for _, opt := range options {
         opt.apply(logger)

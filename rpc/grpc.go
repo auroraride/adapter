@@ -1,0 +1,64 @@
+// Copyright (C) liasica. 2023-present.
+//
+// Created at 2023-02-05
+// Based on adapter by liasica, magicrolan@qq.com.
+
+package rpc
+
+import (
+    "context"
+    grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/credentials/insecure"
+    "net"
+    "time"
+)
+
+type ServerRegister func(s *grpc.Server)
+
+func NewServer(address string, register ServerRegister, options ...grpc.ServerOption) (err error) {
+    var lis net.Listener
+    lis, err = net.Listen("tcp", address)
+    if err != nil {
+        return
+    }
+
+    options = append(
+        options,
+        grpc.KeepaliveEnforcementPolicy(kaep),
+        grpc.KeepaliveParams(kasp),
+    )
+
+    s := grpc.NewServer(options...)
+    register(s)
+
+    defer s.GracefulStop()
+
+    return s.Serve(lis)
+}
+
+type ClientRegister func(conn *grpc.ClientConn)
+
+func NewClient(address string, register ClientRegister, options ...grpc.DialOption) (err error) {
+    var conn *grpc.ClientConn
+    options = append(options,
+        grpc.WithTransportCredentials(insecure.NewCredentials()),
+        // grpc.WithBlock(),
+        grpc.WithKeepaliveParams(kacp),
+        grpc.WithUnaryInterceptor(grpcretry.UnaryClientInterceptor(rtcp...)),
+        grpc.WithStreamInterceptor(grpcretry.StreamClientInterceptor(rtcp...)),
+    )
+
+    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+    defer cancel()
+
+    conn, err = grpc.DialContext(ctx, address, options...)
+
+    if err != nil {
+        return
+    }
+
+    register(conn)
+
+    return
+}

@@ -5,7 +5,10 @@
 
 package log
 
-import "go.uber.org/zap"
+import (
+    jsoniter "github.com/json-iterator/go"
+    "go.uber.org/zap"
+)
 
 func Binary(b []byte) zap.Field {
     return zap.Binary("binary", b)
@@ -13,4 +16,13 @@ func Binary(b []byte) zap.Field {
 
 func Payload(payload any) zap.Field {
     return zap.Reflect("payload", payload)
+}
+
+func JsonData(data any) zap.Field {
+    b, _ := jsoniter.Marshal(data)
+    return zap.ByteString("data", b)
+}
+
+func ResponseBody(b []byte) zap.Field {
+    return zap.ByteString("response", b)
 }

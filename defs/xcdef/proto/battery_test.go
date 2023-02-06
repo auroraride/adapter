@@ -8,17 +8,9 @@ package proto
 import (
     "context"
     "fmt"
-    "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/log"
-    "github.com/go-redis/redis/v9"
-    grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
-    grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-    grpcctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-    "go.uber.org/zap"
-    "go.uber.org/zap/zapcore"
+    "github.com/auroraride/adapter/defs/xcdef/proto/entpb"
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
-    "io"
     stdLog "log"
     "net"
     "testing"
@@ -26,57 +18,32 @@ import (
 )
 
 type testServer struct {
-    UnimplementedBatteryServiceServer
+    UnimplementedBatteryServer
 }
 
 func (s *testServer) GetBatterySample(ctx context.Context, req *BatteryBatchQueryRequest) (res *BatterySampleResponse, err error) {
-    // res = &BatterySampleResponse{Items: make([]*BatterySampleResponse_Battery, 0)}
+    res = &BatterySampleResponse{Items: make([]*entpb.Heartbeat, 0)}
     return
 }
 
-func TestBatteryService(t *testing.T) {
-    var zaplogger *zap.Logger
-    log.New(&log.Config{
-        FormatJson:  true,
-        Stdout:      true,
-        Application: "testbattery",
-        Writers: []io.Writer{
-            log.NewRedisWriter(redis.NewClient(&redis.Options{})),
-        },
-    }, log.WithReplacer(func(logger *zap.Logger) {
-        zaplogger = logger.WithOptions(zap.WithCaller(false), zap.IncreaseLevel(zapcore.WarnLevel)).Named("grpc-battery")
-        grpczap.ReplaceGrpcLoggerV2(zaplogger)
-    }))
+func (s *testServer) GetBatteryDetail(context.Context, *BatteryQueryRequest) (bat *entpb.Battery, err error) {
+    // res = &BatterySampleResponse{Items: make([]*BatterySampleResponse_Battery, 0)}
+    bat = &entpb.Battery{Id: 1}
+    return
+}
 
+func TestBattery(t *testing.T) {
     lis, err := net.Listen("tcp", ":8972")
     if err != nil {
         stdLog.Fatal(err)
     }
-    s := grpc.NewServer(
-        grpcmiddleware.WithUnaryServerChain(
-            grpcctxtags.UnaryServerInterceptor(grpcctxtags.WithFieldExtractor(grpcctxtags.CodeGenRequestFieldExtractor)),
-            grpczap.UnaryServerInterceptor(zaplogger, adapter.GrpcZapDefaultOptions...),
-        ),
-    )
-    RegisterBatteryServiceServer(s, &testServer{})
+    s := grpc.NewServer()
+    RegisterBatteryServer(s, &testServer{})
     stdLog.Fatal(s.Serve(lis))
 }
 
-func TestNewBatteryServiceClient(t *testing.T) {
-    var zaplogger *zap.Logger
-    log.New(&log.Config{
-        FormatJson:  true,
-        Stdout:      true,
-        Application: "testbattery",
-        Writers: []io.Writer{
-            log.NewRedisWriter(redis.NewClient(&redis.Options{})),
-        },
-    }, log.WithReplacer(func(logger *zap.Logger) {
-        zaplogger = logger.WithOptions(zap.WithCaller(false), zap.IncreaseLevel(zapcore.WarnLevel)).Named("grpc-battery")
-        grpczap.ReplaceGrpcLoggerV2(zaplogger)
-    }))
-
-    conn, err := grpc.Dial("127.0.0.1:5031", grpc.WithTransportCredentials(insecure.NewCredentials()))
+func TestNewBatteryClient(t *testing.T) {
+    conn, err := grpc.Dial("127.0.0.1:8972", grpc.WithTransportCredentials(insecure.NewCredentials()))
     if err != nil {
         stdLog.Fatal(err)
     }
@@ -84,10 +51,21 @@ func TestNewBatteryServiceClient(t *testing.T) {
         _ = conn.Close()
     }(conn)
 
-    c := NewBatteryServiceClient(conn)
-    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+    c := NewBatteryClient(conn)
+    ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
     defer cancel()
 
-    res, _ := c.GetBatteryDetail(ctx, &BatteryQueryRequest{Id: 1})
-    fmt.Println(res)
+    n := 0
+    for {
+        if n >= 10 {
+            break
+        }
+        n += 1
+        info, _ := c.GetBatterySample(ctx, &BatteryBatchQueryRequest{Sn: []string{"B10D787986981494"}})
+        fmt.Println("info", info)
+        time.Sleep(1 * time.Second)
+    }
+
+    detail, _ := c.GetBatteryDetail(ctx, &BatteryQueryRequest{Sn: "B10D787986981494"})
+    fmt.Println("detail", detail)
 }

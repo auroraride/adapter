@@ -27,10 +27,15 @@ func (s *Faults) FromBytes(data []byte) {
     return
 }
 
-type Fault uint
+type Fault int
 
-func (f Fault) Value() uint {
-    return uint(f)
+func (f *Fault) Scan(src interface{}) error {
+    *f = Fault(src.(int64))
+    return nil
+}
+
+func (f Fault) Value() (driver.Value, error) {
+    return int64(f), nil
 }
 
 func (f Fault) String() string {
@@ -83,6 +88,16 @@ func (m MosStatus) String() string {
         builder.WriteString("关")
     }
     return builder.String()
+}
+
+// CanCharge 是否可充电
+func (m MosStatus) CanCharge() bool {
+    return m[0] == 1
+}
+
+// CanDisCharge 是否可放电
+func (m MosStatus) CanDisCharge() bool {
+    return m[1] == 1
 }
 
 func (m *MosStatus) Bytes() (data []byte) {

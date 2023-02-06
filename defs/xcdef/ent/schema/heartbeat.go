@@ -54,7 +54,7 @@ func (Heartbeat) Fields() []ent.Field {
         field.JSON("mon_voltage", &xcdef.MonVoltage{}).Comment("单体电压 (24个单体电压, 单位mV)").Annotations(entproto.Field(19, entproto.Type(descriptorpb.FieldDescriptorProto_TYPE_BYTES))),
         field.JSON("temp", &xcdef.Temperature{}).Comment("电池温度 (4个电池温度传感器, 单位1℃)").Annotations(entproto.Field(20, entproto.Type(descriptorpb.FieldDescriptorProto_TYPE_BYTES))),
         field.Uint16("mos_temp").Comment("MOS温度 (1个MOS温度传感器, 单位1℃)").Annotations(entproto.Field(21)),
-        field.Uint16("env_temp").Comment("MOS温度 (1个MOS温度传感器, 单位1℃)").Annotations(entproto.Field(22)),
+        field.Uint16("env_temp").Comment("环境温度 (1个环境温度传感器, 单位1℃)").Annotations(entproto.Field(22)),
         field.Other("geom", &adapter.Geometry{}).
             SchemaType(map[string]string{dialect.Postgres: postgres.TypeGeometry}).
             Comment("坐标").
@@ -104,6 +104,11 @@ func (Heartbeat) Indexes() []ent.Index {
         index.Fields("geom").Annotations(
             entsql.IndexTypes(map[string]string{
                 dialect.Postgres: "GIST",
+            }),
+        ),
+        index.Fields("faults").Annotations(
+            entsql.IndexTypes(map[string]string{
+                dialect.Postgres: "GIN",
             }),
         ),
     }
