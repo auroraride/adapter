@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/auroraride/adapter/rpc/echo/pb";
 
-package grpc.examples.echo;
+package pb;
 
 // EchoRequest is the request for echo.
 message EchoRequest {

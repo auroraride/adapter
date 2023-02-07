@@ -25,7 +25,7 @@ func main() {
     if err != nil {
         log.Fatalf("entproto: failed loading ent graph: %v", err)
     }
-    graph.Package = graph.Package[:len(graph.Package)-4]
+    graph.Package = "github.com/auroraride/adapter/rpc"
     if err := entproto.Generate(graph); err != nil {
         log.Fatalf("entproto: failed generating protos: %s", err)
     }

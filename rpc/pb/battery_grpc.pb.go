@@ -4,11 +4,10 @@
 // - protoc             v3.21.12
 // source: battery.proto
 
-package proto
+package pb
 
 import (
 	context "context"
-	entpb "github.com/auroraride/adapter/defs/xcdef/proto/entpb"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -23,8 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BatteryClient interface {
-	GetBatteryDetail(ctx context.Context, in *BatteryQueryRequest, opts ...grpc.CallOption) (*entpb.Battery, error)
-	GetBatterySample(ctx context.Context, in *BatteryBatchQueryRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error)
+	Batch(ctx context.Context, in *BatteryBatchRequest, opts ...grpc.CallOption) (*BatteryBatchResponse, error)
+	Sample(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error)
 }
 
 type batteryClient struct {
@@ -35,18 +34,18 @@ func NewBatteryClient(cc grpc.ClientConnInterface) BatteryClient {
 	return &batteryClient{cc}
 }
 
-func (c *batteryClient) GetBatteryDetail(ctx context.Context, in *BatteryQueryRequest, opts ...grpc.CallOption) (*entpb.Battery, error) {
-	out := new(entpb.Battery)
-	err := c.cc.Invoke(ctx, "/proto.Battery/GetBatteryDetail", in, out, opts...)
+func (c *batteryClient) Batch(ctx context.Context, in *BatteryBatchRequest, opts ...grpc.CallOption) (*BatteryBatchResponse, error) {
+	out := new(BatteryBatchResponse)
+	err := c.cc.Invoke(ctx, "/pb.Battery/Batch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *batteryClient) GetBatterySample(ctx context.Context, in *BatteryBatchQueryRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error) {
+func (c *batteryClient) Sample(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error) {
 	out := new(BatterySampleResponse)
-	err := c.cc.Invoke(ctx, "/proto.Battery/GetBatterySample", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pb.Battery/Sample", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +56,8 @@ func (c *batteryClient) GetBatterySample(ctx context.Context, in *BatteryBatchQu
 // All implementations must embed UnimplementedBatteryServer
 // for forward compatibility
 type BatteryServer interface {
-	GetBatteryDetail(context.Context, *BatteryQueryRequest) (*entpb.Battery, error)
-	GetBatterySample(context.Context, *BatteryBatchQueryRequest) (*BatterySampleResponse, error)
+	Batch(context.Context, *BatteryBatchRequest) (*BatteryBatchResponse, error)
+	Sample(context.Context, *BatterySnRequest) (*BatterySampleResponse, error)
 	mustEmbedUnimplementedBatteryServer()
 }
 
@@ -66,11 +65,11 @@ type BatteryServer interface {
 type UnimplementedBatteryServer struct {
 }
 
-func (UnimplementedBatteryServer) GetBatteryDetail(context.Context, *BatteryQueryRequest) (*entpb.Battery, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBatteryDetail not implemented")
+func (UnimplementedBatteryServer) Batch(context.Context, *BatteryBatchRequest) (*BatteryBatchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Batch not implemented")
 }
-func (UnimplementedBatteryServer) GetBatterySample(context.Context, *BatteryBatchQueryRequest) (*BatterySampleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBatterySample not implemented")
+func (UnimplementedBatteryServer) Sample(context.Context, *BatterySnRequest) (*BatterySampleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sample not implemented")
 }
 func (UnimplementedBatteryServer) mustEmbedUnimplementedBatteryServer() {}
 
@@ -85,38 +84,38 @@ func RegisterBatteryServer(s grpc.ServiceRegistrar, srv BatteryServer) {
 	s.RegisterService(&Battery_ServiceDesc, srv)
 }
 
-func _Battery_GetBatteryDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatteryQueryRequest)
+func _Battery_Batch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatteryBatchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BatteryServer).GetBatteryDetail(ctx, in)
+		return srv.(BatteryServer).Batch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Battery/GetBatteryDetail",
+		FullMethod: "/pb.Battery/Batch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BatteryServer).GetBatteryDetail(ctx, req.(*BatteryQueryRequest))
+		return srv.(BatteryServer).Batch(ctx, req.(*BatteryBatchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Battery_GetBatterySample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BatteryBatchQueryRequest)
+func _Battery_Sample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatterySnRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BatteryServer).GetBatterySample(ctx, in)
+		return srv.(BatteryServer).Sample(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Battery/GetBatterySample",
+		FullMethod: "/pb.Battery/Sample",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BatteryServer).GetBatterySample(ctx, req.(*BatteryBatchQueryRequest))
+		return srv.(BatteryServer).Sample(ctx, req.(*BatterySnRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -125,16 +124,16 @@ func _Battery_GetBatterySample_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Battery_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Battery",
+	ServiceName: "pb.Battery",
 	HandlerType: (*BatteryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetBatteryDetail",
-			Handler:    _Battery_GetBatteryDetail_Handler,
+			MethodName: "Batch",
+			Handler:    _Battery_Batch_Handler,
 		},
 		{
-			MethodName: "GetBatterySample",
-			Handler:    _Battery_GetBatterySample_Handler,
+			MethodName: "Sample",
+			Handler:    _Battery_Sample_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

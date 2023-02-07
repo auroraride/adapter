@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package pb;
+
+import "xcpb/xcpb.proto";
+
+option go_package = "github.com/auroraride/adapter/rpc/pb";
+
+service Battery {
+  rpc Batch (BatteryBatchRequest) returns (BatteryBatchResponse);
+  rpc Sample (BatterySnRequest) returns (BatterySampleResponse);
+}
+
+message BatterySnRequest {
+  string sn = 1;
+}
+
+message BatteryBatchRequest {
+  repeated string sn = 1;
+}
+
+message BatteryBatchResponse {
+  map<string, xcpb.Battery> items = 1;
+}
+
+message BatterySampleResponse {
+  double voltage = 1;
+  double current = 2;
+  uint32 soc = 3;
+  bytes geom = 4;
+}

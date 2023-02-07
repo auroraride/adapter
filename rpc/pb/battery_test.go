@@ -3,12 +3,12 @@
 // Created at 2023-02-03
 // Based on adapter by liasica, magicrolan@qq.com.
 
-package proto
+package pb
 
 import (
     "context"
     "fmt"
-    "github.com/auroraride/adapter/defs/xcdef/proto/entpb"
+    "github.com/auroraride/adapter/rpc/pb/xcpb"
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
     stdLog "log"
@@ -22,13 +22,13 @@ type testServer struct {
 }
 
 func (s *testServer) GetBatterySample(ctx context.Context, req *BatteryBatchQueryRequest) (res *BatterySampleResponse, err error) {
-    res = &BatterySampleResponse{Items: make([]*entpb.Heartbeat, 0)}
+    res = &BatterySampleResponse{Items: make([]*xcpb.Heartbeat, 0)}
     return
 }
 
-func (s *testServer) GetBatteryDetail(context.Context, *BatteryQueryRequest) (bat *entpb.Battery, err error) {
+func (s *testServer) GetBatteryDetail(context.Context, *BatteryQueryRequest) (bat *xcpb.Battery, err error) {
     // res = &BatterySampleResponse{Items: make([]*BatterySampleResponse_Battery, 0)}
-    bat = &entpb.Battery{Id: 1}
+    bat = &xcpb.Battery{Id: 1}
     return
 }
 

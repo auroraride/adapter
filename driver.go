@@ -19,6 +19,12 @@ type Byter interface {
     FromBytes(data []byte)
 }
 
+func NewGeometry(b []byte) (geom *Geometry) {
+    geom = new(Geometry)
+    geom.FromBytes(b)
+    return
+}
+
 // Geometry 坐标
 // https://github.com/go-pg/pg/issues/829#issuecomment-505882885
 type Geometry struct {

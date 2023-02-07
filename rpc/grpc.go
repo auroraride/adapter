@@ -9,7 +9,9 @@ import (
     "context"
     grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
     "google.golang.org/grpc"
+    "google.golang.org/grpc/codes"
     "google.golang.org/grpc/credentials/insecure"
+    "google.golang.org/grpc/status"
     "net"
     "time"
 )
@@ -46,7 +48,7 @@ func NewClient(address string, register ClientRegister, options ...grpc.DialOpti
         // grpc.WithBlock(),
         grpc.WithKeepaliveParams(kacp),
         grpc.WithUnaryInterceptor(grpcretry.UnaryClientInterceptor(rtcp...)),
-        grpc.WithStreamInterceptor(grpcretry.StreamClientInterceptor(rtcp...)),
+        // grpc.WithStreamInterceptor(grpcretry.StreamClientInterceptor(rtcp...)),
     )
 
     ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -61,4 +63,12 @@ func NewClient(address string, register ClientRegister, options ...grpc.DialOpti
     register(conn)
 
     return
+}
+
+func NeedReconnect(err error) bool {
+    s, ok := status.FromError(err)
+    if !ok {
+        return false
+    }
+    return s.Code() == codes.Unavailable
 }

@@ -7,6 +7,7 @@ package rpc
 
 import (
     "context"
+    "fmt"
     "github.com/auroraride/adapter/rpc/pb"
     grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
     "github.com/stretchr/testify/require"
@@ -26,6 +27,19 @@ type testServer struct {
 
 func (*testServer) UnaryEcho(_ context.Context, req *pb.EchoRequest) (*pb.EchoResponse, error) {
     return &pb.EchoResponse{Message: time.Now().Format("2006-01-02 15:04:05.999") + " -> " + req.Message}, nil
+}
+
+func (*testServer) BidirectionalStreamingEcho(srv pb.Echo_BidirectionalStreamingEchoServer) error {
+    for {
+        recv, err := srv.Recv()
+        if err != nil {
+            return err
+        }
+        fmt.Println(recv.Message)
+        if err = srv.Send(&pb.EchoResponse{Message: "[S] " + recv.Message}); err != nil {
+            return err
+        }
+    }
 }
 
 func TestServer(t *testing.T) {

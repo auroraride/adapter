@@ -15,3 +15,19 @@ func RemoveSliceDuplicate[T comparable](items []T) (list []T) {
     }
     return
 }
+
+func ConvertSliceToMap[T any, K comparable](arr []T, f func(T) (K, T, bool)) (data map[K]T) {
+    if len(arr) == 0 {
+        return
+    }
+    data = make(map[K]T)
+    for _, t := range arr {
+        k, v, ok := f(t)
+        if ok {
+            data[k] = v
+        } else {
+            data[k] = t
+        }
+    }
+    return
+}
