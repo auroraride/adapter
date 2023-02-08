@@ -35,6 +35,7 @@ func NewHub(server string, id string, username string, password string) *Hub {
 
 func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
     options := client.OptionsReader()
+    client.OptionsReader()
     zap.L().Named(h.namespace).WithOptions(zap.WithCaller(false)).Info(
         "收到消息",
         zap.String("topic", msg.Topic()),

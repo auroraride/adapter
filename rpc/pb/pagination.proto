@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/auroraride/adapter/rpc/pb";
+
+message Pagination {
+  int64 current = 1;
+  int64 pages = 2;
+  int64 total = 3;
+}
