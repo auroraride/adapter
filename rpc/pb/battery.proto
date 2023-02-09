@@ -12,6 +12,7 @@ service Battery {
   rpc Batch (BatteryBatchRequest) returns (BatteryBatchResponse);
   rpc Sample (BatterySnRequest) returns (BatterySampleResponse);
   rpc FaultList (BatteryFaultListRequest) returns (BatteryFaultListResponse);
+  rpc FaultOverview (BatterySnRequest) returns (BatteryFaultOverviewResponse);
 }
 
 message BatterySnRequest {
@@ -47,6 +48,15 @@ enum BatteryFaultType {
   BatteryFaultDisChargingTemperatureLow = 14; // 放电低温
   BatteryFaultShortCircuit = 15; // 短路
   BatteryFaultMosTemperatureHigh = 16; // MOS高温
+}
+
+message BatteryFaultOverview {
+  BatteryFaultType fault = 1;
+  int64 times = 2;
+}
+
+message BatteryFaultOverviewResponse {
+  repeated BatteryFaultOverview items = 1;
 }
 
 message BatteryFaultListRequest {

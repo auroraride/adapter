@@ -25,6 +25,7 @@ type BatteryClient interface {
 	Batch(ctx context.Context, in *BatteryBatchRequest, opts ...grpc.CallOption) (*BatteryBatchResponse, error)
 	Sample(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error)
 	FaultList(ctx context.Context, in *BatteryFaultListRequest, opts ...grpc.CallOption) (*BatteryFaultListResponse, error)
+	FaultOverview(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryFaultOverviewResponse, error)
 }
 
 type batteryClient struct {
@@ -62,6 +63,15 @@ func (c *batteryClient) FaultList(ctx context.Context, in *BatteryFaultListReque
 	return out, nil
 }
 
+func (c *batteryClient) FaultOverview(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryFaultOverviewResponse, error) {
+	out := new(BatteryFaultOverviewResponse)
+	err := c.cc.Invoke(ctx, "/pb.Battery/FaultOverview", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BatteryServer is the server API for Battery service.
 // All implementations must embed UnimplementedBatteryServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type BatteryServer interface {
 	Batch(context.Context, *BatteryBatchRequest) (*BatteryBatchResponse, error)
 	Sample(context.Context, *BatterySnRequest) (*BatterySampleResponse, error)
 	FaultList(context.Context, *BatteryFaultListRequest) (*BatteryFaultListResponse, error)
+	FaultOverview(context.Context, *BatterySnRequest) (*BatteryFaultOverviewResponse, error)
 	mustEmbedUnimplementedBatteryServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedBatteryServer) Sample(context.Context, *BatterySnRequest) (*B
 }
 func (UnimplementedBatteryServer) FaultList(context.Context, *BatteryFaultListRequest) (*BatteryFaultListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FaultList not implemented")
+}
+func (UnimplementedBatteryServer) FaultOverview(context.Context, *BatterySnRequest) (*BatteryFaultOverviewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FaultOverview not implemented")
 }
 func (UnimplementedBatteryServer) mustEmbedUnimplementedBatteryServer() {}
 
@@ -152,6 +166,24 @@ func _Battery_FaultList_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Battery_FaultOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatterySnRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatteryServer).FaultOverview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.Battery/FaultOverview",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatteryServer).FaultOverview(ctx, req.(*BatterySnRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Battery_ServiceDesc is the grpc.ServiceDesc for Battery service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var Battery_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FaultList",
 			Handler:    _Battery_FaultList_Handler,
+		},
+		{
+			MethodName: "FaultOverview",
+			Handler:    _Battery_FaultOverview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
