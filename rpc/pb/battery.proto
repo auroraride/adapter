@@ -13,6 +13,7 @@ service Battery {
   rpc Sample (BatterySnRequest) returns (BatterySampleResponse);
   rpc FaultList (BatteryFaultListRequest) returns (BatteryFaultListResponse);
   rpc FaultOverview (BatterySnRequest) returns (BatteryFaultOverviewResponse);
+  rpc Statistics (BatterySnRequest) returns (BatteryStatisticsResponse);
 }
 
 message BatterySnRequest {
@@ -77,4 +78,16 @@ message BatteryFault {
 message BatteryFaultListResponse {
   Pagination pagination = 1;
   repeated BatteryFault items = 2;
+}
+
+message BatteryStatisticsResponse {
+  repeated string date_hour = 1;
+  repeated double voltage = 2;
+  repeated double bat_temp = 3;
+  repeated double mos_temp = 4;
+  repeated double env_temp = 5;
+  repeated double soc = 6;
+  repeated double strength = 7;
+  repeated double charging = 8;
+  repeated double dis_charging = 9;
 }
