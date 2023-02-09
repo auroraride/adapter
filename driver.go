@@ -11,6 +11,7 @@ import (
     "encoding/binary"
     "encoding/hex"
     "fmt"
+    "github.com/qichengzx/coordtransform"
     "math"
 )
 
@@ -30,6 +31,11 @@ func NewGeometry(b []byte) (geom *Geometry) {
 type Geometry struct {
     Lng float64 `json:"lng"`
     Lat float64 `json:"lat"`
+}
+
+func (g *Geometry) WGS84toGCJ02() *Geometry {
+    g.Lng, g.Lat = coordtransform.WGS84toGCJ02(g.Lng, g.Lat)
+    return g
 }
 
 func (g *Geometry) Scan(val interface{}) error {

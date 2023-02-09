@@ -73,6 +73,12 @@ func (f Fault) String() string {
 
 type MosStatus [2]uint8
 
+func NewMosStatus(b []byte) (ms *MosStatus) {
+    ms = new(MosStatus)
+    ms.FromBytes(b)
+    return
+}
+
 func (m MosStatus) String() string {
     var builder strings.Builder
     builder.WriteString("充电")
@@ -145,6 +151,12 @@ func (s GPSStatus) Value() (driver.Value, error) {
 
 type MonVoltage [24]uint16
 
+func NewMonVoltage(b []byte) (mv *MonVoltage) {
+    mv = new(MonVoltage)
+    mv.FromBytes(b)
+    return
+}
+
 func (m *MonVoltage) Bytes() (data []byte) {
     data = make([]byte, 48)
     for i, item := range m {
@@ -161,6 +173,12 @@ func (m *MonVoltage) FromBytes(data []byte) {
 }
 
 type Temperature [4]uint16
+
+func NewTemperature(b []byte) (tt *Temperature) {
+    tt = new(Temperature)
+    tt.FromBytes(b)
+    return
+}
 
 func (m *Temperature) Bytes() (data []byte) {
     data = make([]byte, 8)
