@@ -97,3 +97,33 @@ func (g *Geometry) FromBytes(data []byte) {
     g.Lat = math.Float64frombits(binary.BigEndian.Uint64(data[:8]))
     g.Lng = math.Float64frombits(binary.BigEndian.Uint64(data[8:]))
 }
+
+// haversin(θ) function
+func hsin(theta float64) float64 {
+    return math.Pow(math.Sin(theta/2), 2)
+}
+
+// Distance function returns the distance (in meters) between two points of
+//     a given longitude and latitude relatively accurately (using a spherical
+//     approximation of the Earth) through the Haversin Distance Formula for
+//     great arc distance on a sphere with accuracy for small distances
+//
+// point coordinates are supplied in degrees and converted into rad. in the func
+//
+// distance returned is METERS!!!!!!
+// http://en.wikipedia.org/wiki/Haversine_formula
+// https://gist.github.com/cdipaolo/d3f8db3848278b49db68
+func (g *Geometry) Distance(g2 *Geometry) float64 {
+    // convert to radians
+    // must cast radius as float to multiply later
+    var la1, lo1, la2, lo2 float64
+    la1 = g.Lat * math.Pi / 180
+    lo1 = g.Lng * math.Pi / 180
+    la2 = g2.Lat * math.Pi / 180
+    lo2 = g2.Lng * math.Pi / 180
+
+    // calculate
+    h := hsin(la2-la1) + math.Cos(la1)*math.Cos(la2)*hsin(lo2-lo1)
+
+    return 2 * 6378245 * math.Asin(math.Sqrt(h))
+}
