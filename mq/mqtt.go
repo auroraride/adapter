@@ -20,24 +20,22 @@ type Hub struct {
 
     client    mqtt.Client
     listeners map[string]chan []byte
-    namespace string
 }
 
 func NewHub(server string, id string, username string, password string) *Hub {
     return &Hub{
-        Server:    server,
-        ClientID:  id,
-        Username:  username,
-        Password:  password,
-        namespace: "MQTT",
+        Server:   server,
+        ClientID: id,
+        Username: username,
+        Password: password,
     }
 }
 
 func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
     options := client.OptionsReader()
     client.OptionsReader()
-    zap.L().Named(h.namespace).WithOptions(zap.WithCaller(false)).Info(
-        "收到消息",
+    zap.L().WithOptions(zap.WithCaller(false)).Info(
+        "MQTT: 收到消息",
         zap.String("topic", msg.Topic()),
         log.Binary(msg.Payload()),
         zap.String("clientid", options.ClientID()),
@@ -46,16 +44,16 @@ func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
 
 func (h *Hub) connectHandler(client mqtt.Client) {
     options := client.OptionsReader()
-    zap.L().Named(h.namespace).WithOptions(zap.WithCaller(false)).Info(
-        "已连接",
+    zap.L().WithOptions(zap.WithCaller(false)).Info(
+        "MQTT: 已连接",
         zap.String("clientid", options.ClientID()),
     )
 }
 
 func (h *Hub) connectLostHandler(client mqtt.Client, err error) {
     options := client.OptionsReader()
-    zap.L().Named(h.namespace).WithOptions(zap.WithCaller(false)).Error(
-        "已断开连接",
+    zap.L().WithOptions(zap.WithCaller(false)).Error(
+        "MQTT: 已断开连接",
         zap.Error(err),
         zap.String("clientid", options.ClientID()),
     )

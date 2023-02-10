@@ -35,8 +35,8 @@ func NewClient(addr string, c codec.Codec) *Client {
 func (c *Client) Run() {
     for {
         err := c.dial()
-        zap.L().Named(c.namespace).WithOptions(zap.WithCaller(false)).Info(
-            "连接失败, 5s后重试连接...",
+        zap.L().WithOptions(zap.WithCaller(false)).Info(
+            "[TCP] 连接失败, 5s后重试连接...",
             zap.Error(err),
         )
         time.Sleep(5 * time.Second)
@@ -89,8 +89,8 @@ func (c *Client) dial() (err error) {
             // _, err = c.Conn.Write(encoded)
             // // encoded, err = c.Conn.Send(data)
             // if err != nil {
-            //     zap.L().Named(c.namespace).Info(
-            //         "消息发送失败",
+            //     zap.L().Info(
+            //         "[TCP] 消息发送失败",
             //         c.logserv,
             //         zap.Error(err),
             //         zap.Binary("encoded", encoded),
@@ -107,8 +107,8 @@ func (c *Client) dial() (err error) {
         default:
             _, err = c.codec.Decode(c.conn)
             if err != nil && err != adapter.ErrorIncompletePacket {
-                zap.L().Named(c.namespace).WithOptions(zap.WithCaller(false)).Info(
-                    "消息读取失败",
+                zap.L().WithOptions(zap.WithCaller(false)).Info(
+                    "[TCP] 消息读取失败",
                     zap.Error(err),
                 )
                 c.closeCh <- true
@@ -125,8 +125,8 @@ func (c *Client) Send(data message.Messenger) {
     )
     defer func() {
         if err != nil {
-            zap.L().Named(c.namespace).WithOptions(zap.WithCaller(false)).Info(
-                "消息发送失败",
+            zap.L().WithOptions(zap.WithCaller(false)).Info(
+                "[TCP] 消息发送失败",
                 zap.Error(err),
                 zap.Binary("encoded", encoded),
                 zap.Binary("packed", packed),

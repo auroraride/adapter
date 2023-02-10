@@ -21,7 +21,7 @@ func New(cfg *Config, options ...Option) {
         opts = append(opts, zapcore.AddSync(w))
     }
 
-    if cfg.Application == "" {
+    if cfg.LoggerName == "" {
         panic("application必填")
     }
 
@@ -38,7 +38,7 @@ func New(cfg *Config, options ...Option) {
     // SetStandardLogger(logger)
     zap.ReplaceGlobals(logger)
 
-    grpczap.ReplaceGrpcLoggerV2(logger.WithOptions(zap.WithCaller(false), zap.IncreaseLevel(zapcore.WarnLevel)).Named("grpc"))
+    grpczap.ReplaceGrpcLoggerV2(logger.WithOptions(zap.WithCaller(false), zap.IncreaseLevel(zapcore.WarnLevel)))
 
     for _, opt := range options {
         opt.apply(logger)

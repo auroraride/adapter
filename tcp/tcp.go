@@ -22,10 +22,9 @@ type Hook struct {
 type Tcp struct {
     gnet.BuiltinEventEngine
 
-    address   string
-    codec     codec.Codec
-    receiver  adapter.BytesCallback
-    namespace string
+    address  string
+    codec    codec.Codec
+    receiver adapter.BytesCallback
 
     Hooks Hook
 
@@ -34,15 +33,14 @@ type Tcp struct {
 
 func NewTcp(addr string, c codec.Codec, receiver adapter.BytesCallback) *Tcp {
     return &Tcp{
-        address:   addr,
-        codec:     c,
-        receiver:  receiver,
-        namespace: "TCP",
+        address:  addr,
+        codec:    c,
+        receiver: receiver,
     }
 }
 
 func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
-    zap.L().Named(t.namespace).WithOptions(zap.WithCaller(false)).Info("启动 -> " + t.address)
+    zap.L().WithOptions(zap.WithCaller(false)).Info("[TCP] 启动 -> " + t.address)
 
     if t.Hooks.Boot != nil {
         t.Hooks.Boot()
@@ -52,7 +50,7 @@ func (t *Tcp) OnBoot(gnet.Engine) (action gnet.Action) {
 }
 
 func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
-    zap.L().Named(t.namespace).WithOptions(zap.WithCaller(false)).Info("已断开连接: " + c.RemoteAddr().String())
+    zap.L().WithOptions(zap.WithCaller(false)).Info("[TCP] 已断开连接: " + c.RemoteAddr().String())
     if t.closeCh != nil {
         t.closeCh <- true
     }
@@ -60,7 +58,7 @@ func (t *Tcp) OnClose(c gnet.Conn, err error) (action gnet.Action) {
 }
 
 func (t *Tcp) OnOpen(c gnet.Conn) (out []byte, action gnet.Action) {
-    zap.L().Named(t.namespace).WithOptions(zap.WithCaller(false)).Info("已开始连接: " + c.RemoteAddr().String())
+    zap.L().WithOptions(zap.WithCaller(false)).Info("[TCP] 已开始连接: " + c.RemoteAddr().String())
     return
 }
 
@@ -76,8 +74,8 @@ func (t *Tcp) OnTraffic(c gnet.Conn) (action gnet.Action) {
             break
         }
         if err != nil {
-            zap.L().Named(t.namespace).WithOptions(zap.WithCaller(false)).Info(
-                "消息读取失败",
+            zap.L().WithOptions(zap.WithCaller(false)).Info(
+                "[TCP] 消息读取失败",
                 zap.Error(err),
             )
             return

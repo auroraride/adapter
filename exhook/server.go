@@ -21,7 +21,6 @@ type Server struct {
 
     hooks             []Hook
     OnMessageReceived MessageReceived
-    namespace         string
 }
 
 // OnProviderLoaded 定义需要挂载的钩子列表
@@ -103,8 +102,8 @@ func (s *Server) OnSessionTerminated(ctx context.Context, in *SessionTerminatedR
 }
 
 func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest) (*ValuedResponse, error) {
-    zap.L().Named(s.namespace).WithOptions(zap.WithCaller(false)).Info(
-        "收到消息",
+    zap.L().WithOptions(zap.WithCaller(false)).Info(
+        "EXHOOK: 收到消息",
         zap.String("peerhost", in.Message.Headers["peerhost"]),
         zap.String("topic", in.Message.Topic),
         log.Binary(in.Message.Payload),
@@ -123,8 +122,8 @@ func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest
 }
 
 func (s *Server) OnMessageDelivered(ctx context.Context, in *MessageDeliveredRequest) (*EmptySuccess, error) {
-    zap.L().Named(s.namespace).WithOptions(zap.WithCaller(false)).Info(
-        "发送消息",
+    zap.L().WithOptions(zap.WithCaller(false)).Info(
+        "EXHOOK: 发送消息",
         zap.String("clientid", in.Clientinfo.Clientid),
         zap.String("topic", in.Message.Topic),
         log.Binary(in.Message.Payload),
@@ -145,19 +144,18 @@ func NewServer(hooks ...Hook) *Server {
         panic("钩子数量不能为空")
     }
     return &Server{
-        hooks:     hooks,
-        namespace: "EXHOOK",
+        hooks: hooks,
     }
 }
 
 func (s *Server) Run(address string) {
     lis, err := net.Listen("tcp", address)
     if err != nil {
-        zap.L().Named(s.namespace).WithOptions(zap.WithCaller(false)).Fatal(err.Error())
+        zap.L().WithOptions(zap.WithCaller(false)).Fatal(err.Error())
     }
-    zap.L().Named(s.namespace).WithOptions(zap.WithCaller(false)).Info("启动 -> " + address)
+    zap.L().WithOptions(zap.WithCaller(false)).Info("EXHOOK: 启动 -> " + address)
 
     gs := grpc.NewServer()
     RegisterHookProviderServer(gs, s)
-    zap.L().Named(s.namespace).WithOptions(zap.WithCaller(false)).Fatal(gs.Serve(lis).Error())
+    zap.L().WithOptions(zap.WithCaller(false)).Fatal(gs.Serve(lis).Error())
 }

@@ -27,24 +27,3 @@ func (e *encoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (b *buf
     b, err = e.Encoder.EncodeEntry(ent, fields)
     return
 }
-
-type loggerObject struct {
-    namespace   string
-    application string
-}
-
-func (o *loggerObject) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-    enc.AddString("application", o.application)
-    enc.AddString("namespace", o.namespace)
-    return nil
-}
-
-type object struct {
-    key   string
-    value string
-}
-
-func (o *object) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-    enc.AddString(o.key, o.value)
-    return nil
-}

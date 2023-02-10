@@ -14,10 +14,10 @@ import (
 )
 
 type Config struct {
-    FormatJson  bool
-    Stdout      bool
-    Application string
-    Writers     []io.Writer
+    FormatJson bool
+    Stdout     bool
+    LoggerName string
+    Writers    []io.Writer
 }
 
 func (cfg *Config) ToZapCoreEncoderConfig() zapcore.EncoderConfig {
@@ -74,11 +74,4 @@ func (cfg *Config) Encoder() zapcore.Encoder {
         enc = zapcore.NewConsoleEncoder(config)
     }
     return WrapEncoder(cfg, enc)
-}
-
-func (cfg *Config) parseName(s string) zapcore.ObjectMarshaler {
-    return &loggerObject{
-        namespace:   strings.ToUpper(s),
-        application: strings.ToLower(cfg.Application),
-    }
 }

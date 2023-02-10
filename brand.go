@@ -5,7 +5,10 @@
 
 package adapter
 
-import "database/sql/driver"
+import (
+    "database/sql/driver"
+    "strings"
+)
 
 type CabinetBrand string
 
@@ -13,6 +16,10 @@ const (
     CabinetBrandUnknown CabinetBrand = "UNKNOWN"
     CabinetBrandKaixin  CabinetBrand = "KAIXIN"
 )
+
+func (b CabinetBrand) LoggerName() string {
+    return "cabinet-" + strings.ToLower(b.String())
+}
 
 func (b CabinetBrand) String() string {
     return string(b)
@@ -38,6 +45,10 @@ const (
     BatteryBrandUnknown BatteryBrand = "UNKNOWN"
     BatteryBrandXC      BatteryBrand = "XC"
 )
+
+func (b BatteryBrand) LoggerName() string {
+    return "battery-" + strings.ToLower(b.String())
+}
 
 func (b BatteryBrand) String() string {
     return string(b)

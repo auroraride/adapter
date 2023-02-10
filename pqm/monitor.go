@@ -57,8 +57,6 @@ type Monitor[T Channelizer] struct {
     // 监听频道
     channel string
 
-    namespace string
-
     // 监听器
     // 数据格式为: chan *Message[T] -> key
     listeners *sync.Map
@@ -69,7 +67,6 @@ func NewMonitor[T Channelizer](dsn string, t T, receiver Callback[T]) *Monitor[T
         channel:   t.GetTableName(),
         dsn:       dsn,
         receiver:  receiver,
-        namespace: "MONITOR",
         listeners: &sync.Map{},
     }
 }
@@ -117,8 +114,8 @@ func (m *Monitor[T]) sendMessage(message *Message[T]) {
 func (m *Monitor[T]) Listen() {
     l := pq.NewListener(m.dsn, 10*time.Second, time.Minute, func(ev pq.ListenerEventType, err error) {
         if err != nil {
-            zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Error(
-                m.channel+": 监听错误",
+            zap.L().WithOptions(zap.WithCaller(false)).Error(
+                "[MONITOR] "+m.channel+": 监听错误",
                 zap.Error(err),
             )
         }
@@ -126,14 +123,14 @@ func (m *Monitor[T]) Listen() {
 
     err := l.Listen(m.channel)
     if err != nil {
-        zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Error(
-            m.channel+": 监听失败",
+        zap.L().WithOptions(zap.WithCaller(false)).Error(
+            "[MONITOR] "+m.channel+": 监听失败",
             zap.Error(err),
         )
     }
 
-    zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Info(
-        m.channel + ": 开始监听...",
+    zap.L().WithOptions(zap.WithCaller(false)).Info(
+        "[MONITOR] " + m.channel + ": 开始监听...",
     )
 
     after := time.After(90 * time.Second)
@@ -155,8 +152,8 @@ func (m *Monitor[T]) Listen() {
             var message *Message[T]
             message, err = ParseMessage[T]([]byte(n.Extra))
             if err != nil {
-                zap.L().Named(m.namespace).WithOptions(zap.WithCaller(false)).Error(
-                    m.channel+": 消息解析失败",
+                zap.L().WithOptions(zap.WithCaller(false)).Error(
+                    "[MONITOR] "+m.channel+": 消息解析失败",
                     zap.Error(err),
                     zap.String("extra", n.Extra),
                 )
