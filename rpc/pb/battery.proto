@@ -101,25 +101,27 @@ message BatteryPositionRequest {
 
 message BatteryPosition {
   bool in_cabinet = 1;
-  bool standstill = 2;
+  bool stationary = 2;
   uint32 soc = 3;
   double lng = 4;
   double lat = 5;
   double voltage = 6;
-  double gsm = 7;
+  uint32 gsm = 7;
   google.protobuf.Timestamp at = 8;
 }
 
-message BatteryStand {
+message BatteryStationary {
   int64 duration = 1;
   google.protobuf.Timestamp start_at = 2;
-  google.protobuf.Timestamp end_at = 3;
+  optional google.protobuf.Timestamp end_at = 3;
   uint32 start_soc = 4;
-  uint32 end_soc = 5;
+  optional uint32 end_soc = 5;
   string address = 6;
 }
 
 message BatteryPositionResponse {
-
-  repeated BatteryPosition positions = 5;
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end = 2;
+  repeated BatteryStationary stationary = 3;
+  repeated BatteryPosition positions = 4;
 }
