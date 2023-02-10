@@ -256,7 +256,7 @@ func NewDumpLoggerMiddleware(application string) *DumpZapLoggerMiddleware {
 
 func getHeaders(headers http.Header, skipper HeaderSkipper) (strs []string) {
     for k := range headers {
-        if skipper(k) {
+        if skipper != nil && skipper(k) {
             continue
         }
         strs = append(strs, k+" = "+headers.Get(k))

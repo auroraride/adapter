@@ -34,8 +34,7 @@ func RecoverMiddleware() echo.MiddlewareFunc {
                         _ = ctx.SendResponse(v.Code, v.Message, v.Data)
                     default:
                         err := fmt.Errorf("%v", r)
-                        zap.L().WithOptions(zap.WithCaller(false)).Error("捕获未处理崩溃", zap.Error(err))
-                        _ = Context(c).SendResponse(http.StatusInternalServerError, err)
+                        zap.L().WithOptions(zap.WithCaller(false)).Error("捕获未处理崩溃", zap.Error(err), zap.Stack("stack"))
                     }
                 }
             }()
