@@ -29,7 +29,9 @@ func (c core) With(fields []zapcore.Field) zapcore.Core {
 
 func (c *core) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.CheckedEntry {
     if ent.LoggerName == "" {
-        ent.LoggerName = "application-" + c.config.Application
+        ent.LoggerName = c.config.Application
+    } else {
+        ent.LoggerName = ent.LoggerName + "-" + c.config.Application
     }
 
     if c.Enabled(ent.Level) {

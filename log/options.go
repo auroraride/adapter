@@ -16,9 +16,3 @@ type optionFunc func(*zap.Logger)
 func (f optionFunc) apply(logger *zap.Logger) {
     f(logger)
 }
-
-func WithNamed(named string) Option {
-    return optionFunc(func(logger *zap.Logger) {
-        *logger = *logger.Named(named)
-    })
-}

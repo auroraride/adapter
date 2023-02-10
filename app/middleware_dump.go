@@ -247,11 +247,10 @@ func (mw *DumpFileMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFunc {
 }
 
 type DumpZapLoggerMiddleware struct {
-    application string
 }
 
-func NewDumpLoggerMiddleware(application string) *DumpZapLoggerMiddleware {
-    return &DumpZapLoggerMiddleware{application: application}
+func NewDumpLoggerMiddleware() *DumpZapLoggerMiddleware {
+    return &DumpZapLoggerMiddleware{}
 }
 
 func getHeaders(headers http.Header, skipper HeaderSkipper) (strs []string) {
@@ -303,7 +302,7 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
         }
 
         // x := adapter.GetCaller(0)
-        go zap.L().Named("dump-"+mw.application).WithOptions(zap.WithCaller(false)).Info(
+        go zap.L().Named("dump").WithOptions(zap.WithCaller(false)).Info(
             "收到api请求",
             fields...,
         )
