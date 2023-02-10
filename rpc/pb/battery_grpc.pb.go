@@ -27,6 +27,7 @@ type BatteryClient interface {
 	FaultList(ctx context.Context, in *BatteryFaultListRequest, opts ...grpc.CallOption) (*BatteryFaultListResponse, error)
 	FaultOverview(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryFaultOverviewResponse, error)
 	Statistics(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryStatisticsResponse, error)
+	Position(ctx context.Context, in *BatteryPositionRequest, opts ...grpc.CallOption) (*BatteryPositionResponse, error)
 }
 
 type batteryClient struct {
@@ -82,6 +83,15 @@ func (c *batteryClient) Statistics(ctx context.Context, in *BatterySnRequest, op
 	return out, nil
 }
 
+func (c *batteryClient) Position(ctx context.Context, in *BatteryPositionRequest, opts ...grpc.CallOption) (*BatteryPositionResponse, error) {
+	out := new(BatteryPositionResponse)
+	err := c.cc.Invoke(ctx, "/pb.Battery/Position", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BatteryServer is the server API for Battery service.
 // All implementations must embed UnimplementedBatteryServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type BatteryServer interface {
 	FaultList(context.Context, *BatteryFaultListRequest) (*BatteryFaultListResponse, error)
 	FaultOverview(context.Context, *BatterySnRequest) (*BatteryFaultOverviewResponse, error)
 	Statistics(context.Context, *BatterySnRequest) (*BatteryStatisticsResponse, error)
+	Position(context.Context, *BatteryPositionRequest) (*BatteryPositionResponse, error)
 	mustEmbedUnimplementedBatteryServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedBatteryServer) FaultOverview(context.Context, *BatterySnReque
 }
 func (UnimplementedBatteryServer) Statistics(context.Context, *BatterySnRequest) (*BatteryStatisticsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Statistics not implemented")
+}
+func (UnimplementedBatteryServer) Position(context.Context, *BatteryPositionRequest) (*BatteryPositionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Position not implemented")
 }
 func (UnimplementedBatteryServer) mustEmbedUnimplementedBatteryServer() {}
 
@@ -216,6 +230,24 @@ func _Battery_Statistics_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Battery_Position_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatteryPositionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatteryServer).Position(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.Battery/Position",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatteryServer).Position(ctx, req.(*BatteryPositionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Battery_ServiceDesc is the grpc.ServiceDesc for Battery service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var Battery_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Statistics",
 			Handler:    _Battery_Statistics_Handler,
+		},
+		{
+			MethodName: "Position",
+			Handler:    _Battery_Position_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

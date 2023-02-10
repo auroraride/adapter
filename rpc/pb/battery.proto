@@ -14,6 +14,7 @@ service Battery {
   rpc FaultList (BatteryFaultListRequest) returns (BatteryFaultListResponse);
   rpc FaultOverview (BatterySnRequest) returns (BatteryFaultOverviewResponse);
   rpc Statistics (BatterySnRequest) returns (BatteryStatisticsResponse);
+  rpc Position (BatteryPositionRequest) returns (BatteryPositionResponse);
 }
 
 message BatterySnRequest {
@@ -90,4 +91,35 @@ message BatteryStatisticsResponse {
   repeated double strength = 7;
   repeated double charging = 8;
   repeated double dis_charging = 9;
+}
+
+message BatteryPositionRequest {
+  string sn = 1;
+  google.protobuf.Timestamp start = 2;
+  google.protobuf.Timestamp end = 3;
+}
+
+message BatteryPosition {
+  bool in_cabinet = 1;
+  bool standstill = 2;
+  uint32 soc = 3;
+  double lng = 4;
+  double lat = 5;
+  double voltage = 6;
+  double gsm = 7;
+  google.protobuf.Timestamp at = 8;
+}
+
+message BatteryStand {
+  int64 duration = 1;
+  google.protobuf.Timestamp start_at = 2;
+  google.protobuf.Timestamp end_at = 3;
+  uint32 start_soc = 4;
+  uint32 end_soc = 5;
+  string address = 6;
+}
+
+message BatteryPositionResponse {
+
+  repeated BatteryPosition positions = 5;
 }
