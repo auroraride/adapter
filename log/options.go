@@ -17,8 +17,8 @@ func (f optionFunc) apply(logger *zap.Logger) {
     f(logger)
 }
 
-func WithReplacer(f optionFunc) Option {
+func WithNamed(named string) Option {
     return optionFunc(func(logger *zap.Logger) {
-        f(logger)
+        *logger = *logger.Named(named)
     })
 }

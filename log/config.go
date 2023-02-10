@@ -15,9 +15,9 @@ import (
 
 type Config struct {
     FormatJson bool
-    Stdout     bool
-    LoggerName string
-    Writers    []io.Writer
+    Stdout      bool
+    Application string
+    Writers     []io.Writer
 }
 
 func (cfg *Config) ToZapCoreEncoderConfig() zapcore.EncoderConfig {
