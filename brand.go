@@ -17,8 +17,12 @@ const (
     CabinetBrandKaixin  CabinetBrand = "KAIXIN"
 )
 
-func (b CabinetBrand) LoggerName() string {
-    return "cabinet-" + strings.ToLower(b.String())
+func (b CabinetBrand) LoggerName(env Environment) string {
+    var prefix string
+    if env != Production {
+        prefix = strings.ToLower(env.String()) + "-"
+    }
+    return prefix + "cabinet-" + strings.ToLower(b.String())
 }
 
 func (b CabinetBrand) String() string {
@@ -46,8 +50,12 @@ const (
     BatteryBrandXC      BatteryBrand = "XC"
 )
 
-func (b BatteryBrand) LoggerName() string {
-    return "battery-" + strings.ToLower(b.String())
+func (b BatteryBrand) LoggerName(env Environment) string {
+    var prefix string
+    if env != Production {
+        prefix = strings.ToLower(env.String()) + "-"
+    }
+    return prefix + "battery-" + strings.ToLower(b.String())
 }
 
 func (b BatteryBrand) String() string {

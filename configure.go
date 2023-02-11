@@ -30,6 +30,10 @@ func (e Environment) UpperString() string {
     return strings.ToUpper(string(e))
 }
 
+func (e Environment) IsDevelopment() bool {
+    return e == Development
+}
+
 type Configurable interface {
     GetApplication() string
     GetEnvironment() Environment
