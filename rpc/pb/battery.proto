@@ -116,7 +116,9 @@ message BatteryStationary {
   optional google.protobuf.Timestamp end_at = 3;
   uint32 start_soc = 4;
   optional uint32 end_soc = 5;
-  string address = 6;
+  double lng = 6;
+  double lat = 7;
+  string address = 8;
 }
 
 message BatteryPositionResponse {
