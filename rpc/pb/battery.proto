@@ -97,6 +97,7 @@ message BatteryPositionRequest {
   string sn = 1;
   google.protobuf.Timestamp start = 2;
   google.protobuf.Timestamp end = 3;
+  int64 stationary_duration = 4;
 }
 
 message BatteryPosition {
@@ -119,6 +120,7 @@ message BatteryStationary {
   double lng = 6;
   double lat = 7;
   string address = 8;
+  bool in_cabinet = 9;
 }
 
 message BatteryPositionResponse {
