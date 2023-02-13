@@ -44,6 +44,8 @@ type DumpConfig struct {
     ResponseHeaderSkipper HeaderSkipper
 
     ResponseBodySkipper ew.Skipper
+
+    Extra func(echo.Context) []byte
 }
 
 type DumpResponseWriter struct {
@@ -299,6 +301,13 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
         // log response body
         if len(resBody) > 0 && !cfg.ResponseBodySkipper(c) {
             fields = append(fields, zap.ByteString("response_body", resBody))
+        }
+
+        if cfg.Extra != nil {
+            extraData := cfg.Extra(c)
+            if extraData != nil {
+                fields = append(fields, zap.ByteString("extra", extraData))
+            }
         }
 
         // x := adapter.GetCaller(0)
