@@ -25,9 +25,15 @@ type Battery struct {
 }
 
 // ParseBatterySN 解析电池编号
-func ParseBatterySN(sn string) (bat *Battery) {
+func ParseBatterySN(sn string) (bat *Battery, err error) {
     if len(sn) < 16 {
-        return &Battery{}
+        return &Battery{}, ErrorData
+    }
+
+    for _, x := range []rune(sn) {
+        if x < 48 || (x > 57 && x < 65) || (x > 91 && x < 97) || x > 122 {
+            return &Battery{}, ErrorData
+        }
     }
 
     bat = &Battery{
