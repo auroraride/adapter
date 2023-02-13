@@ -106,7 +106,7 @@ func (s *Server) OnMessagePublish(ctx context.Context, in *MessagePublishRequest
         "EXHOOK: 收到消息",
         zap.String("peerhost", in.Message.Headers["peerhost"]),
         zap.String("topic", in.Message.Topic),
-        log.Binary(in.Message.Payload),
+        log.Hex(in.Message.Payload),
     )
 
     var msg *Message
@@ -126,7 +126,7 @@ func (s *Server) OnMessageDelivered(ctx context.Context, in *MessageDeliveredReq
         "EXHOOK: 发送消息",
         zap.String("clientid", in.Clientinfo.Clientid),
         zap.String("topic", in.Message.Topic),
-        log.Binary(in.Message.Payload),
+        log.Hex(in.Message.Payload),
     )
     return &EmptySuccess{}, nil
 }

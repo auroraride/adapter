@@ -37,7 +37,7 @@ func (h *Hub) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
     zap.L().WithOptions(zap.WithCaller(false)).Info(
         "MQTT: 收到消息",
         zap.String("topic", msg.Topic()),
-        log.Binary(msg.Payload()),
+        log.Hex(msg.Payload()),
         zap.String("clientid", options.ClientID()),
     )
 }

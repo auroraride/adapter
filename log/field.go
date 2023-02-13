@@ -6,6 +6,7 @@
 package log
 
 import (
+    "encoding/hex"
     jsoniter "github.com/json-iterator/go"
     "go.uber.org/zap"
 )
@@ -25,4 +26,8 @@ func JsonData(data any) zap.Field {
 
 func ResponseBody(b []byte) zap.Field {
     return zap.ByteString("response", b)
+}
+
+func Hex(b []byte) zap.Field {
+    return zap.String("hex", hex.EncodeToString(b))
 }
