@@ -6,7 +6,6 @@
 package adapter
 
 import (
-    "reflect"
     "unsafe"
 )
 
@@ -15,12 +14,5 @@ func ConvertBytes2String(b []byte) string {
 }
 
 func ConvertString2Bytes(s string) (b []byte) {
-    /* #nosec G103 */
-    bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-    /* #nosec G103 */
-    sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
-    bh.Data = sh.Data
-    bh.Cap = sh.Len
-    bh.Len = sh.Len
-    return
+    return *(*[]byte)(unsafe.Pointer(&s))
 }
