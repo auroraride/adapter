@@ -15,6 +15,7 @@ type CabinetBrand string
 const (
     CabinetBrandUnknown CabinetBrand = "UNKNOWN"
     CabinetBrandKaixin  CabinetBrand = "KAIXIN"
+    CabinetYundong      CabinetBrand = "YUNDONG"
 )
 
 func (b CabinetBrand) LoggerName(env Environment) string {
