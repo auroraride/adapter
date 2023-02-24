@@ -6,6 +6,7 @@
 package pqm
 
 import (
+    "github.com/auroraride/adapter"
     jsoniter "github.com/json-iterator/go"
     "github.com/lib/pq"
     "go.uber.org/zap"
@@ -107,7 +108,7 @@ func (m *Monitor[T]) GetListener(data T) (ch chan T) {
 func (m *Monitor[T]) sendMessage(message *Message[T]) {
     if ch := m.GetListener(message.Data); ch != nil {
         // fmt.Printf("[%s] 发送数据 --> %v\n", m.channel, message.Data)
-        ch <- message.Data
+        adapter.ChSafeSend(ch, message.Data)
     }
 }
 
@@ -143,8 +144,8 @@ func (m *Monitor[T]) Listen() {
 
             // fmt.Println("[EVENTS] 收到数据库变动 channel [", n.Channel, "] :")
             // var prettyJSON bytes.Buffer
-            // _ = jsoniter.Indent(&prettyJSON, []byte(n.Extra), "", "  ")
-            // fmt.Println(string(prettyjsoniter.Bytes()))
+            // _ = json.Indent(&prettyJSON, []byte(n.Extra), "", "  ")
+            // fmt.Println(string(prettyJSON.Bytes()))
             // zap.L().Infof("[MONITOR] [%s] 收到数据库变动: \n%s", m.channel, n.Extra)
             // fmt.Printf("[MONITOR] [%s] 收到数据库变动: %s\n", m.channel, n.Extra)
 
