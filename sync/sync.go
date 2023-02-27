@@ -10,6 +10,7 @@ import (
     "github.com/auroraride/adapter"
     "github.com/go-redis/redis/v9"
     "go.uber.org/zap"
+    "sync"
 )
 
 type Stream string
@@ -46,9 +47,11 @@ func (s *Sync[T]) Run() {
     ctx := context.Background()
     xReadArgs := &redis.XReadArgs{
         Streams: []string{s.stream, "0-0"},
-        Count:   1,
+        Count:   10,
         Block:   0,
     }
+
+    var wg sync.WaitGroup
     for {
         results, err := s.client.XRead(ctx, xReadArgs).Result()
         if err != nil {
@@ -58,10 +61,11 @@ func (s *Sync[T]) Run() {
         if len(results) > 0 {
             for _, result := range results {
                 for _, message := range result.Messages {
+                    wg.Add(1)
                     id := message.ID
-                    go func() {
-                        // zap.L().WithOptions(zap.WithCaller(false)).Info("[SYNC] 收到同步消息", zap.String("values", message.Values[s.key].(string)))
 
+                    go func() {
+                        defer wg.Done()
                         var data *T
                         data, err = Unmarshal[T](s.key, message.Values)
                         if err != nil {
@@ -70,9 +74,11 @@ func (s *Sync[T]) Run() {
                         }
                         s.receiver(data)
                     }()
+
                     s.client.XDel(ctx, s.stream, id)
                 }
             }
+            wg.Wait()
         }
     }
 }
