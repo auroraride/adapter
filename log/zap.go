@@ -35,7 +35,7 @@ func New(cfg *Config, options ...Option) {
 
     logger := zap.New(c, zap.AddCaller())
 
-    if cfg.WithOutCaller {
+    if cfg.NoCaller {
         logger = logger.WithOptions(zap.WithCaller(false))
     }
 

@@ -22,11 +22,11 @@ type BusinuessUsableRequest struct {
 
 type BusinessRequest struct {
     UUID     uuid.UUID        `json:"uuid" validate:"required"`
-    Business adapter.Business `json:"business" validate:"required"`                                                       // 业务类别
-    Serial   string           `json:"serial" validate:"required"`                                                         // 电柜编号
-    Timeout  int64            `json:"timeout" validate:"required"`                                                        // 超时时间(s)
-    Battery  string           `json:"verifyBattery,omitempty" validate:"required_if=Business pause Business unsubscribe"` // 需要校验的电池编号 (可为空, 需要校验放入电池编号的时候必须携带, 例如putin操作)
-    Model    string           `json:"model" validate:"required"`                                                          // 电池型号
+    Business adapter.Business `json:"business" validate:"required"` // 业务类别
+    Serial   string           `json:"serial" validate:"required"`   // 电柜编号
+    Timeout  int64            `json:"timeout" validate:"required"`  // 超时时间(s)
+    Battery  string           `json:"verifyBattery,omitempty"`      // 需要校验的电池编号 (可为空, 如果是智能柜需要校验放入电池编号的时候必须携带, 例如putin操作)
+    Model    string           `json:"model" validate:"required"`    // 电池型号
 }
 
 func (req *BusinessRequest) String() string {
@@ -75,7 +75,7 @@ type ExchangeUsableRequest struct {
 
 type ExchangeRequest struct {
     UUID    uuid.UUID `json:"uuid" validate:"required"`
-    Battery string    `json:"battery" validate:"required"` // 当前电池编号, 若放入电池型号不匹配, 则中断换电流程
+    Battery string    `json:"battery"`                     // 当前电池编号, 若放入电池型号不匹配, 则中断换电流程
     Expires int64     `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
     Timeout int64     `json:"timeout" validate:"required"` // 换电步骤超时(s), 例如: 120s
     Minsoc  float64   `json:"minsoc" validate:"required"`  // 换电最小电量

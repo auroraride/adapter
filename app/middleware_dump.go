@@ -316,9 +316,10 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
     })
 }
 
-func (mw *DumpZapLoggerMiddleware) WithDefaultConfig() echo.MiddlewareFunc {
+func (mw *DumpZapLoggerMiddleware) WithDefaultConfig(skipper ew.Skipper) echo.MiddlewareFunc {
     return mw.WithConfig(&DumpConfig{
         RequestHeader:  true,
         ResponseHeader: false,
+        Skipper:        skipper,
     })
 }

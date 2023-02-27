@@ -17,8 +17,8 @@ type Config struct {
     FormatJson    bool
     Stdout        bool
     Application   string
-    Writers       []io.Writer
-    WithOutCaller bool
+    Writers  []io.Writer
+    NoCaller bool
 }
 
 func (cfg *Config) ToZapCoreEncoderConfig() zapcore.EncoderConfig {

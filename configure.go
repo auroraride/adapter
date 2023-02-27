@@ -121,16 +121,23 @@ func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err 
     }
 
     // 解析配置
-    err = k.UnmarshalWithConf("", cfg, koanf.UnmarshalConf{DecoderConfig: &mapstructure.DecoderConfig{
-        DecodeHook: mapstructure.ComposeDecodeHookFunc(
-            mapstructure.StringToTimeDurationHookFunc(),
-            mapstructure.StringToSliceHookFunc(","),
-            mapstructure.TextUnmarshallerHookFunc()),
-        Metadata:         nil,
-        Result:           cfg,
-        WeaklyTypedInput: true,
-        Squash:           true,
-    }})
+    err = k.UnmarshalWithConf(
+        "",
+        cfg,
+        koanf.UnmarshalConf{
+            Tag: "koanf",
+            DecoderConfig: &mapstructure.DecoderConfig{
+                DecodeHook: mapstructure.ComposeDecodeHookFunc(
+                    mapstructure.StringToTimeDurationHookFunc(),
+                    mapstructure.StringToSliceHookFunc(","),
+                    mapstructure.TextUnmarshallerHookFunc()),
+                Metadata:         nil,
+                Result:           cfg,
+                WeaklyTypedInput: true,
+                Squash:           true,
+            },
+        },
+    )
 
     if err == nil {
         cfg.SetKeyPrefix(ApplicationKey(cfg.GetApplication()))

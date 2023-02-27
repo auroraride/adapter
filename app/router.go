@@ -17,6 +17,7 @@ import (
 type EchoConfig struct {
     AuthSkipper middleware.Skipper
     Maintain    maintain.Config
+    DumpSkipper middleware.Skipper
 }
 
 func NewEcho(cfg *EchoConfig) (e *echo.Echo) {
@@ -64,7 +65,7 @@ func NewEcho(cfg *EchoConfig) (e *echo.Echo) {
         ContextMiddleware(),
         RecoverMiddleware(),
         UserMiddleware(cfg.AuthSkipper),
-        NewDumpLoggerMiddleware().WithDefaultConfig(),
+        NewDumpLoggerMiddleware().WithDefaultConfig(cfg.DumpSkipper),
     )
 
     // 运维接口

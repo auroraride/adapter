@@ -60,7 +60,7 @@ func (s *Sync[T]) Run() {
                 for _, message := range result.Messages {
                     id := message.ID
                     go func() {
-                        zap.L().WithOptions(zap.WithCaller(false)).Info("[SYNC] 收到同步消息", zap.String("values", message.Values[s.key].(string)))
+                        // zap.L().WithOptions(zap.WithCaller(false)).Info("[SYNC] 收到同步消息", zap.String("values", message.Values[s.key].(string)))
 
                         var data *T
                         data, err = Unmarshal[T](s.key, message.Values)
