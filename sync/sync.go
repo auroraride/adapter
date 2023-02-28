@@ -9,6 +9,7 @@ import (
     "context"
     "github.com/auroraride/adapter"
     "github.com/go-redis/redis/v9"
+    "github.com/panjf2000/ants/v2"
     "go.uber.org/zap"
     "sync"
 )
@@ -51,7 +52,22 @@ func (s *Sync[T]) Run() {
         Block:   0,
     }
 
-    var wg sync.WaitGroup
+    wg := new(sync.WaitGroup)
+
+    p, _ := ants.NewPoolWithFunc(10, func(message interface{}) {
+        defer wg.Done()
+
+        data, err := Unmarshal[T](s.key, message.(redis.XMessage).Values)
+        if err != nil {
+            zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息解析失败", zap.Error(err))
+            return
+        }
+
+        s.receiver(data)
+    })
+
+    defer p.Release()
+
     for {
         results, err := s.client.XRead(ctx, xReadArgs).Result()
         if err != nil {
@@ -64,16 +80,7 @@ func (s *Sync[T]) Run() {
                     wg.Add(1)
                     id := message.ID
 
-                    go func() {
-                        defer wg.Done()
-                        var data *T
-                        data, err = Unmarshal[T](s.key, message.Values)
-                        if err != nil {
-                            zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息解析失败", zap.Error(err))
-                            return
-                        }
-                        s.receiver(data)
-                    }()
+                    _ = p.Invoke(message)
 
                     s.client.XDel(ctx, s.stream, id)
                 }
