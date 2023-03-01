@@ -55,10 +55,7 @@ func TestClient(t *testing.T) {
     logger, _ := cfg.Build()
     grpczap.ReplaceGrpcLoggerV2(logger)
 
-    var c pb.EchoClient
-    err := NewClient(testAddress, func(conn *grpc.ClientConn) {
-        c = pb.NewEchoClient(conn)
-    })
+    c, err := NewClient[pb.EchoClient](testAddress, pb.NewEchoClient)
     require.NoError(t, err)
 
     for {

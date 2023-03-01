@@ -41,8 +41,7 @@ func NewServer(address string, register ServerRegister, options ...grpc.ServerOp
 
 type ClientRegister func(conn *grpc.ClientConn)
 
-func NewClient(address string, register ClientRegister, options ...grpc.DialOption) (err error) {
-    var conn *grpc.ClientConn
+func NewClient[T any](address string, register func(grpc.ClientConnInterface) T, options ...grpc.DialOption) (conn T, err error) {
     options = append(options,
         grpc.WithTransportCredentials(insecure.NewCredentials()),
         // grpc.WithBlock(),
@@ -54,15 +53,14 @@ func NewClient(address string, register ClientRegister, options ...grpc.DialOpti
     ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
     defer cancel()
 
-    conn, err = grpc.DialContext(ctx, address, options...)
+    var c *grpc.ClientConn
+    c, err = grpc.DialContext(ctx, address, options...)
 
     if err != nil {
         return
     }
 
-    register(conn)
-
-    return
+    return register(c), nil
 }
 
 func NeedReconnect(err error) bool {
