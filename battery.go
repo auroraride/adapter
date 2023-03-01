@@ -5,8 +5,9 @@
 
 package adapter
 
-import (
-    "strconv"
+const (
+    batteryXcLength = 16 // 星创电池长度
+    batteryTbLength = 24 // 拓邦电池长度
 )
 
 var (
@@ -16,37 +17,43 @@ var (
 )
 
 type Battery struct {
-    SN     string       `json:"sn"`     // 电池编号
-    Brand  BatteryBrand `json:"brand"`  // 电池厂家
-    Model  string       `json:"model"`  // 电池型号
-    Year   int          `json:"year"`   // 生产年份
-    Month  int          `json:"month"`  // 生产月份
-    Serial string       `json:"serial"` // 流水号
+    SN    string       `json:"sn"`    // 电池编号
+    Brand BatteryBrand `json:"brand"` // 电池厂家
+    Model string       `json:"model"` // 电池型号
 }
 
 // ParseBatterySN 解析电池编号
-func ParseBatterySN(sn string) (bat *Battery, err error) {
+func ParseBatterySN(sn string) (bat Battery, err error) {
     if len(sn) < 16 {
-        return &Battery{}, ErrorData
+        return bat, ErrorData
     }
 
-    for _, x := range []rune(sn) {
-        if x < 48 || (x > 57 && x < 65) || (x > 91 && x < 97) || x > 122 {
-            return &Battery{}, ErrorData
+    b := make([]byte, len(sn))
+    for i := range b {
+        c := sn[i]
+        switch {
+        case c >= 'a' && c <= 'z':
+            c -= 'a' - 'A'
+        case c < '0', c > 'z', c > '9' && c < 'A', c > 'Z' && c < 'a':
+            return Battery{}, ErrorData
         }
+        b[i] = c
+    }
+    sn = ConvertBytes2String(b)
+
+    // 按字符串长度简单区分拓邦和星创 >.<
+    switch len(sn) {
+    case batteryXcLength:
+        bat.Brand = BatteryBrandXC
+        bat.Model = BatteryModelXC[sn[3:5]]
+    case batteryTbLength:
+        bat.Brand = BatteryBrandTB
+        bat.Model = sn[4:6] + "V" + sn[7:9] + "AH"
+    default:
+        return Battery{}, ErrorData
     }
 
-    bat = &Battery{
-        Brand:  BatteryBrand(sn[0:2]),
-        Model:  BatteryModelXC[sn[3:5]],
-        Serial: sn[12:],
-        SN:     sn,
-    }
+    bat.SN = sn
 
-    year, _ := strconv.ParseInt(sn[8:10], 10, 64)
-    month, _ := strconv.ParseInt(sn[10:12], 10, 64)
-
-    bat.Year = 2000 + int(year)
-    bat.Month = int(month)
     return
 }

@@ -12,20 +12,26 @@ import (
 )
 
 func TestParseBatterySN(t *testing.T) {
-    sn := "XCB0862022110001"
-    t.Logf("battery sn: %s", sn)
-
-    bat, err := ParseBatterySN(sn)
+    bat, err := ParseBatterySN("XCB0862022110001")
     require.NoError(t, err)
     target := &Battery{
-        Brand:  BatteryBrandXC,
-        Model:  "72V30AH",
-        Year:   2022,
-        Month:  11,
-        Serial: "0001",
-        SN:     sn,
+        Brand: BatteryBrandXC,
+        Model: "72V30AH",
+        SN:    "XCB0862022110001",
+    }
+    t.Logf("bat: %#v", bat)
+
+    if !reflect.DeepEqual(bat, target) {
+        t.Fail()
     }
 
+    bat, err = ParseBatterySN("BT106002512NNTB211118182")
+    require.NoError(t, err)
+    target = &Battery{
+        Brand: BatteryBrandTB,
+        Model: "60V25AH",
+        SN:    "BT106002512NNTB211118182",
+    }
     t.Logf("bat: %#v", bat)
 
     if !reflect.DeepEqual(bat, target) {
@@ -33,7 +39,7 @@ func TestParseBatterySN(t *testing.T) {
     }
 }
 
-func BenchmarkName(b *testing.B) {
+func BenchmarkParseBatterySN(b *testing.B) {
     for i := 0; i < b.N; i++ {
         _, _ = ParseBatterySN("XCB0862022110001")
     }

@@ -47,8 +47,9 @@ func (b CabinetBrand) Value() (driver.Value, error) {
 type BatteryBrand string
 
 const (
-    BatteryBrandUnknown BatteryBrand = "UNKNOWN"
-    BatteryBrandXC      BatteryBrand = "XC"
+    BatteryBrandUnknown BatteryBrand = "UNKNOWN" // 未知
+    BatteryBrandXC      BatteryBrand = "XC"      // 星创电池
+    BatteryBrandTB      BatteryBrand = "TB"      // 拓邦电池
 )
 
 func (b BatteryBrand) LoggerName(env Environment) string {
