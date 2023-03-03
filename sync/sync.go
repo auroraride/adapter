@@ -17,7 +17,7 @@ import (
 type Stream string
 
 const (
-    StreamCabinet  Stream = "SYNC:CABINET"
+    // StreamCabinet  Stream = "SYNC:CABINET"
     StreamExchange Stream = "SYNC:EXCHANGE"
 )
 

@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/auroraride/adapter/rpc/pb";
+
+service Cabinet {
+  rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
+  rpc Sync (CabinetSyncRequest) returns (CabinetSyncResponse);
+}
+
+message CabinetBatchRequest {
+  repeated string serial = 1;
+}
+
+message CabinetBatchResponse {
+  repeated CabinetItem items = 2;
+}
+
+enum CabinetStatus {
+  initializing = 0;
+  normal = 1;
+  abnormal = 2;
+}
+
+message CabinetItem {
+  string serial = 1;
+  bool online = 2;
+  CabinetStatus status = 3;
+  bool enable = 4;
+  optional double lng = 5;
+  optional double lat = 6;
+  optional double gsm = 7;
+  optional double voltage = 8;
+  optional double current = 9;
+  optional double temperature = 10;
+  optional double electricity = 11;
+  repeated CabinetBinItem bins = 12;
+}
+
+message CabinetBinItem {
+  int64 ordinal = 1;
+  bool open = 2;
+  bool enable = 3;
+  bool health = 4;
+  bool battery_exists = 5;
+  string battery_sn = 6;
+  double voltage = 7;
+  double current = 8;
+  double soc = 9;
+  double soh = 10;
+}
+
+message CabinetSyncRequest {
+  repeated string serial = 1;
+  double full_soc = 2;
+}
+
+message CabinetSyncResponse {
+  repeated CabinetSyncItem items = 1;
+}
+
+message CabinetSyncItem {
+  enum CabinetSyncHealth {
+    offline = 0;
+    online = 1;
+    fault = 2;
+  }
+
+  int64 doors = 1;
+  CabinetSyncHealth health = 2;
+  int64 battery_num = 3;
+  int64 battery_full_num = 4;
+  int64 battery_charging_num = 5;
+  int64 empty_bin_num = 6;
+  int64 locked_bin_num = 7;
+  repeated CabinetSyncBin bins = 8;
+}
+
+message CabinetSyncBin {
+  int64 index = 1;
+  string battery_sn = 2;
+  bool full = 3;
+  bool battery = 4;
+  double soc = 5;
+  bool open_status = 6;
+  bool door_health = 7;
+  double current = 8;
+  double voltage = 9;
+  repeated string faults = 10;
+  optional string remark = 11;
+}
