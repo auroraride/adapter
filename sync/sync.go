@@ -46,8 +46,10 @@ func New[T any](client *redis.Client, e adapter.Environment, stream Stream, read
 
 func (s *Sync[T]) Run() {
     ctx := context.Background()
+    id := "0"
+
     xReadArgs := &redis.XReadArgs{
-        Streams: []string{s.stream, "0-0"},
+        Streams: []string{s.stream, id},
         Count:   10,
         Block:   0,
     }
@@ -78,7 +80,7 @@ func (s *Sync[T]) Run() {
             for _, result := range results {
                 for _, message := range result.Messages {
                     wg.Add(1)
-                    id := message.ID
+                    id = message.ID
 
                     _ = p.Invoke(message)
 
