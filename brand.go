@@ -15,8 +15,22 @@ type CabinetBrand string
 const (
     CabinetBrandUnknown CabinetBrand = "UNKNOWN"
     CabinetBrandKaixin  CabinetBrand = "KAIXIN"
-    CabinetYundong      CabinetBrand = "YUNDONG"
+    CabinetBrandYundong CabinetBrand = "YUNDONG"
+    CabinetBrandTuobang CabinetBrand = "TUOBANG"
 )
+
+func (b CabinetBrand) RpcName() string {
+    switch b {
+    default:
+        return ""
+    case CabinetBrandKaixin:
+        return "kxcab"
+    case CabinetBrandYundong:
+        return "ydcab"
+    case CabinetBrandTuobang:
+        return "tbcab"
+    }
+}
 
 func (b CabinetBrand) LoggerName(env Environment) string {
     var prefix string
@@ -51,6 +65,17 @@ const (
     BatteryBrandXC      BatteryBrand = "XC"      // 星创电池
     BatteryBrandTB      BatteryBrand = "TB"      // 拓邦电池
 )
+
+func (b BatteryBrand) RpcName() string {
+    switch b {
+    default:
+        return ""
+    case BatteryBrandXC:
+        return "xcbms"
+    case BatteryBrandTB:
+        return "tbbms"
+    }
+}
 
 func (b BatteryBrand) LoggerName(env Environment) string {
     var prefix string

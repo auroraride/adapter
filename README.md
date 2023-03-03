@@ -22,8 +22,10 @@
 | aurservd |  50  |    主业务    |
 |  kxcab   |  51  |  凯信智能柜  |
 |  xcbms   |  52  | 星创智能电池 |
-| yundong  |  53  |   云动电柜   |
-| tuobang  |  54  |   拓邦电柜   |
+|  ydcab   |  53  |   云动电柜   |
+|  tbcab   |  54  |   拓邦电柜   |
+|  tbbms   |  55  |   拓邦电池   |
+| kxnicab  |  56  | 凯信非智能柜 |
 
 
 
