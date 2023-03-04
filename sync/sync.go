@@ -64,6 +64,7 @@ func (s *Sync[T]) Run() {
             for _, result := range results {
                 for _, message := range result.Messages {
                     id = message.ID
+                    s.client.XDel(ctx, s.stream, id)
 
                     var item *T
                     item, err = Unmarshal[T](s.key, message.Values)
@@ -72,8 +73,6 @@ func (s *Sync[T]) Run() {
                         return
                     }
                     items = append(items, item)
-
-                    s.client.XDel(ctx, s.stream, id)
                 }
             }
 
