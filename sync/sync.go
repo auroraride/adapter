@@ -9,9 +9,7 @@ import (
     "context"
     "github.com/auroraride/adapter"
     "github.com/go-redis/redis/v9"
-    "github.com/panjf2000/ants/v2"
     "go.uber.org/zap"
-    "sync"
 )
 
 type Stream string
@@ -25,7 +23,7 @@ func (s Stream) String() string {
     return string(s)
 }
 
-type Receiver[T any] func(*T)
+type Receiver[T any] func([]*T)
 
 type Sync[T any] struct {
     client *redis.Client
@@ -50,25 +48,9 @@ func (s *Sync[T]) Run() {
 
     xReadArgs := &redis.XReadArgs{
         Streams: []string{s.stream, id},
-        Count:   10,
+        Count:   100,
         Block:   0,
     }
-
-    wg := new(sync.WaitGroup)
-
-    p, _ := ants.NewPoolWithFunc(10, func(message interface{}) {
-        defer wg.Done()
-
-        data, err := Unmarshal[T](s.key, message.(redis.XMessage).Values)
-        if err != nil {
-            zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息解析失败", zap.Error(err))
-            return
-        }
-
-        s.receiver(data)
-    })
-
-    defer p.Release()
 
     for {
         results, err := s.client.XRead(ctx, xReadArgs).Result()
@@ -77,17 +59,27 @@ func (s *Sync[T]) Run() {
             continue
         }
         if len(results) > 0 {
+            var items []*T
+
             for _, result := range results {
                 for _, message := range result.Messages {
-                    wg.Add(1)
                     id = message.ID
 
-                    _ = p.Invoke(message)
+                    var item *T
+                    item, err = Unmarshal[T](s.key, message.Values)
+                    if err != nil {
+                        zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息解析失败", zap.Error(err))
+                        return
+                    }
+                    items = append(items, item)
 
                     s.client.XDel(ctx, s.stream, id)
                 }
             }
-            wg.Wait()
+
+            if len(items) > 0 {
+                s.receiver(items)
+            }
         }
     }
 }
