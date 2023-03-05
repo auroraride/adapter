@@ -67,14 +67,15 @@ message CabinetSyncItem {
     fault = 2;
   }
 
-  int64 doors = 1;
-  CabinetSyncHealth health = 2;
-  int64 battery_num = 3;
-  int64 battery_full_num = 4;
-  int64 battery_charging_num = 5;
-  int64 empty_bin_num = 6;
-  int64 locked_bin_num = 7;
-  repeated CabinetSyncBin bins = 8;
+  string serial = 1;
+  int64 doors = 2;
+  CabinetSyncHealth health = 3;
+  int64 battery_num = 4;
+  int64 battery_full_num = 5;
+  int64 battery_charging_num = 6;
+  int64 empty_bin_num = 7;
+  int64 locked_bin_num = 8;
+  repeated CabinetSyncBin bins = 9;
 }
 
 message CabinetSyncBin {
@@ -88,5 +89,5 @@ message CabinetSyncBin {
   double current = 8;
   double voltage = 9;
   repeated string faults = 10;
-  optional string remark = 11;
+  string remark = 11;
 }
