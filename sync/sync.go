@@ -15,8 +15,8 @@ import (
 type Stream string
 
 const (
-    // StreamCabinet  Stream = "SYNC:CABINET"
-    StreamExchange Stream = "SYNC:EXCHANGE"
+    StreamExchange    Stream = "SYNC:EXCHANGE"
+    StreamBatteryFlow Stream = "SYNC:BATTERYFLOW"
 )
 
 func (s Stream) String() string {

@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CabinetClient interface {
-	Batch(ctx context.Context, in *CabinetBatchRequest, opts ...grpc.CallOption) (*CabinetBatchResponse, error)
+	// rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
 	Sync(ctx context.Context, in *CabinetSyncRequest, opts ...grpc.CallOption) (*CabinetSyncResponse, error)
 }
 
@@ -32,15 +32,6 @@ type cabinetClient struct {
 
 func NewCabinetClient(cc grpc.ClientConnInterface) CabinetClient {
 	return &cabinetClient{cc}
-}
-
-func (c *cabinetClient) Batch(ctx context.Context, in *CabinetBatchRequest, opts ...grpc.CallOption) (*CabinetBatchResponse, error) {
-	out := new(CabinetBatchResponse)
-	err := c.cc.Invoke(ctx, "/pb.Cabinet/Batch", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *cabinetClient) Sync(ctx context.Context, in *CabinetSyncRequest, opts ...grpc.CallOption) (*CabinetSyncResponse, error) {
@@ -56,7 +47,7 @@ func (c *cabinetClient) Sync(ctx context.Context, in *CabinetSyncRequest, opts .
 // All implementations must embed UnimplementedCabinetServer
 // for forward compatibility
 type CabinetServer interface {
-	Batch(context.Context, *CabinetBatchRequest) (*CabinetBatchResponse, error)
+	// rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
 	Sync(context.Context, *CabinetSyncRequest) (*CabinetSyncResponse, error)
 	mustEmbedUnimplementedCabinetServer()
 }
@@ -65,9 +56,6 @@ type CabinetServer interface {
 type UnimplementedCabinetServer struct {
 }
 
-func (UnimplementedCabinetServer) Batch(context.Context, *CabinetBatchRequest) (*CabinetBatchResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Batch not implemented")
-}
 func (UnimplementedCabinetServer) Sync(context.Context, *CabinetSyncRequest) (*CabinetSyncResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
@@ -82,24 +70,6 @@ type UnsafeCabinetServer interface {
 
 func RegisterCabinetServer(s grpc.ServiceRegistrar, srv CabinetServer) {
 	s.RegisterService(&Cabinet_ServiceDesc, srv)
-}
-
-func _Cabinet_Batch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CabinetBatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CabinetServer).Batch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pb.Cabinet/Batch",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CabinetServer).Batch(ctx, req.(*CabinetBatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Cabinet_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -127,10 +97,6 @@ var Cabinet_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pb.Cabinet",
 	HandlerType: (*CabinetServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Batch",
-			Handler:    _Cabinet_Batch_Handler,
-		},
 		{
 			MethodName: "Sync",
 			Handler:    _Cabinet_Sync_Handler,

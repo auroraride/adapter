@@ -5,7 +5,7 @@ package pb;
 option go_package = "github.com/auroraride/adapter/rpc/pb";
 
 service Cabinet {
-  rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
+//  rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
   rpc Sync (CabinetSyncRequest) returns (CabinetSyncResponse);
 }
 
@@ -57,7 +57,7 @@ message CabinetSyncRequest {
 }
 
 message CabinetSyncResponse {
-  repeated CabinetSyncItem items = 1;
+  map<string, CabinetSyncItem> items = 1;
 }
 
 message CabinetSyncItem {

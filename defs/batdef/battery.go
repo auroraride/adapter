@@ -4,10 +4,3 @@
 // Based on adapter by liasica, magicrolan@qq.com.
 
 package batdef
-
-type Cabinet struct {
-    ID     uint64 `json:"id"`
-    Serial string `json:"serial"` // 电柜编码
-    Name   string `json:"name"`   // 名称
-    CityID uint64 `json:"cityId"` // 城市ID
-}

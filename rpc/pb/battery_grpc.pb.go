@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type BatteryClient interface {
 	Batch(ctx context.Context, in *BatteryBatchRequest, opts ...grpc.CallOption) (*BatteryBatchResponse, error)
 	Sample(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error)
+	BatchSample(ctx context.Context, in *BatteryBatchRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error)
 	FaultList(ctx context.Context, in *BatteryFaultListRequest, opts ...grpc.CallOption) (*BatteryFaultListResponse, error)
 	FaultOverview(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryFaultOverviewResponse, error)
 	Statistics(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryStatisticsResponse, error)
@@ -50,6 +51,15 @@ func (c *batteryClient) Batch(ctx context.Context, in *BatteryBatchRequest, opts
 func (c *batteryClient) Sample(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error) {
 	out := new(BatterySampleResponse)
 	err := c.cc.Invoke(ctx, "/pb.Battery/Sample", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *batteryClient) BatchSample(ctx context.Context, in *BatteryBatchRequest, opts ...grpc.CallOption) (*BatterySampleResponse, error) {
+	out := new(BatterySampleResponse)
+	err := c.cc.Invoke(ctx, "/pb.Battery/BatchSample", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +108,7 @@ func (c *batteryClient) Position(ctx context.Context, in *BatteryPositionRequest
 type BatteryServer interface {
 	Batch(context.Context, *BatteryBatchRequest) (*BatteryBatchResponse, error)
 	Sample(context.Context, *BatterySnRequest) (*BatterySampleResponse, error)
+	BatchSample(context.Context, *BatteryBatchRequest) (*BatterySampleResponse, error)
 	FaultList(context.Context, *BatteryFaultListRequest) (*BatteryFaultListResponse, error)
 	FaultOverview(context.Context, *BatterySnRequest) (*BatteryFaultOverviewResponse, error)
 	Statistics(context.Context, *BatterySnRequest) (*BatteryStatisticsResponse, error)
@@ -114,6 +125,9 @@ func (UnimplementedBatteryServer) Batch(context.Context, *BatteryBatchRequest) (
 }
 func (UnimplementedBatteryServer) Sample(context.Context, *BatterySnRequest) (*BatterySampleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sample not implemented")
+}
+func (UnimplementedBatteryServer) BatchSample(context.Context, *BatteryBatchRequest) (*BatterySampleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchSample not implemented")
 }
 func (UnimplementedBatteryServer) FaultList(context.Context, *BatteryFaultListRequest) (*BatteryFaultListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FaultList not implemented")
@@ -172,6 +186,24 @@ func _Battery_Sample_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BatteryServer).Sample(ctx, req.(*BatterySnRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Battery_BatchSample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatteryBatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatteryServer).BatchSample(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.Battery/BatchSample",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatteryServer).BatchSample(ctx, req.(*BatteryBatchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -262,6 +294,10 @@ var Battery_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Sample",
 			Handler:    _Battery_Sample_Handler,
+		},
+		{
+			MethodName: "BatchSample",
+			Handler:    _Battery_BatchSample_Handler,
 		},
 		{
 			MethodName: "FaultList",

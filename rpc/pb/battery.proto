@@ -2,19 +2,70 @@ syntax = "proto3";
 
 package pb;
 
-import "xcpb/xcpb.proto";
-import "google/protobuf/timestamp.proto";
+import "timestamppb/timestamp.proto";
 import "pagination.proto";
+import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/auroraride/adapter/rpc/pb";
 
 service Battery {
   rpc Batch (BatteryBatchRequest) returns (BatteryBatchResponse);
   rpc Sample (BatterySnRequest) returns (BatterySampleResponse);
+  rpc BatchSample (BatteryBatchRequest) returns (BatterySampleResponse);
   rpc FaultList (BatteryFaultListRequest) returns (BatteryFaultListResponse);
   rpc FaultOverview (BatterySnRequest) returns (BatteryFaultOverviewResponse);
   rpc Statistics (BatterySnRequest) returns (BatteryStatisticsResponse);
   rpc Position (BatteryPositionRequest) returns (BatteryPositionResponse);
+}
+
+
+message BatteryItem {
+  int64 id = 1;
+  string sn = 2;
+  google.protobuf.UInt32Value soft_version = 3;
+  google.protobuf.UInt32Value hard_version = 4;
+  google.protobuf.UInt32Value soft_4g_version = 5;
+  google.protobuf.UInt32Value hard_4g_version = 6;
+  google.protobuf.UInt64Value sn_4g = 7;
+  google.protobuf.StringValue iccid = 8;
+  google.protobuf.UInt32Value soc = 9;
+  repeated BatteryHeartbeat heartbeats = 10;
+}
+
+message BatteryHeartbeat {
+  int64 id = 1;
+  string sn = 2;
+  int64 battery_id = 3;
+  timestamppb.Timestamp created_at = 4;
+  double voltage = 5;
+  double current = 6;
+  uint32 soc = 7;
+  uint32 soh = 8;
+  bool in_cabinet = 9;
+  double capacity = 10;
+  uint32 mon_max_voltage = 11;
+  uint32 mon_max_voltage_pos = 12;
+  uint32 mon_min_voltage = 13;
+  uint32 mon_min_voltage_pos = 14;
+  uint32 max_temp = 15;
+  uint32 min_temp = 16;
+  bytes faults = 17;
+  bytes mos_status = 18;
+  bytes mon_voltage = 19;
+  bytes temp = 20;
+  uint32 mos_temp = 21;
+  uint32 env_temp = 22;
+  bytes geom = 23;
+  uint32 gps = 24;
+  uint32 strength = 25;
+  uint32 cycles = 26;
+  uint32 charging_time = 27;
+  uint32 dis_charging_time = 28;
+  uint32 using_time = 29;
+  uint32 total_charging_time = 30;
+  uint32 total_dis_charging_time = 31;
+  uint32 total_using_time = 32;
+  BatteryItem battery = 33;
 }
 
 message BatterySnRequest {
@@ -26,7 +77,7 @@ message BatteryBatchRequest {
 }
 
 message BatteryBatchResponse {
-  map<string, xcpb.Battery> items = 1;
+  map<string, BatteryItem> items = 1;
 }
 
 message BatterySampleResponse {
@@ -34,6 +85,10 @@ message BatterySampleResponse {
   double current = 2;
   uint32 soc = 3;
   bytes geom = 4;
+}
+
+message BatteryBatchSampleResponse {
+  map<string, BatterySampleResponse> items = 1;
 }
 
 enum BatteryFaultType {
@@ -64,16 +119,16 @@ message BatteryFaultOverviewResponse {
 message BatteryFaultListRequest {
   optional PaginationRequest pagination = 1;
   optional string sn = 2;
-  optional google.protobuf.Timestamp begin_at = 3;
-  optional google.protobuf.Timestamp end_at = 4;
+  optional timestamppb.Timestamp begin_at = 3;
+  optional timestamppb.Timestamp end_at = 4;
   optional BatteryFaultType fault = 5;
 }
 
 message BatteryFault {
   string sn = 1;
   BatteryFaultType fault = 2;
-  google.protobuf.Timestamp begin_at = 3;
-  google.protobuf.Timestamp end_at = 4;
+  timestamppb.Timestamp begin_at = 3;
+  timestamppb.Timestamp end_at = 4;
 }
 
 message BatteryFaultListResponse {
@@ -95,8 +150,8 @@ message BatteryStatisticsResponse {
 
 message BatteryPositionRequest {
   string sn = 1;
-  google.protobuf.Timestamp start = 2;
-  google.protobuf.Timestamp end = 3;
+  timestamppb.Timestamp start = 2;
+  timestamppb.Timestamp end = 3;
   int64 stationary_duration = 4;
 }
 
@@ -108,13 +163,13 @@ message BatteryPosition {
   double lat = 5;
   double voltage = 6;
   uint32 gsm = 7;
-  google.protobuf.Timestamp at = 8;
+  timestamppb.Timestamp at = 8;
 }
 
 message BatteryStationary {
   int64 duration = 1;
-  google.protobuf.Timestamp start_at = 2;
-  optional google.protobuf.Timestamp end_at = 3;
+  timestamppb.Timestamp start_at = 2;
+  optional timestamppb.Timestamp end_at = 3;
   uint32 start_soc = 4;
   optional uint32 end_soc = 5;
   double lng = 6;
@@ -124,8 +179,8 @@ message BatteryStationary {
 }
 
 message BatteryPositionResponse {
-  google.protobuf.Timestamp start = 1;
-  google.protobuf.Timestamp end = 2;
+  timestamppb.Timestamp start = 1;
+  timestamppb.Timestamp end = 2;
   repeated BatteryStationary stationary = 3;
   repeated BatteryPosition positions = 4;
 }
