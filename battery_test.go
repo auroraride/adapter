@@ -12,12 +12,12 @@ import (
 )
 
 func TestParseBatterySN(t *testing.T) {
-    bat, err := ParseBatterySN("XCB0862022110001")
+    bat, err := ParseBatterySN("XCB0862022110265")
     require.NoError(t, err)
     target := &Battery{
         Brand: BatteryBrandXC,
         Model: "72V30AH",
-        SN:    "XCB0862022110001",
+        SN:    "XCB0862022110265",
     }
     t.Logf("bat: %#v", bat)
 

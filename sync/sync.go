@@ -29,16 +29,18 @@ type Sync[T any] struct {
     client *redis.Client
 
     receiver Receiver[T]
-    stream   string
+    name     string
     key      string
+    stream   Stream
 }
 
 func New[T any](client *redis.Client, e adapter.Environment, stream Stream, reader Receiver[T]) *Sync[T] {
     return &Sync[T]{
         client:   client,
-        stream:   e.UpperString() + ":" + stream.String(),
+        name:     e.UpperString() + ":" + stream.String(),
         receiver: reader,
         key:      "__DATA__",
+        stream:   stream,
     }
 }
 
@@ -47,7 +49,7 @@ func (s *Sync[T]) Run() {
     id := "0"
 
     xReadArgs := &redis.XReadArgs{
-        Streams: []string{s.stream, id},
+        Streams: []string{s.name, id},
         Count:   100,
         Block:   0,
     }
@@ -64,7 +66,7 @@ func (s *Sync[T]) Run() {
             for _, result := range results {
                 for _, message := range result.Messages {
                     id = message.ID
-                    s.client.XDel(ctx, s.stream, id)
+                    s.client.XDel(ctx, s.name, id)
 
                     var item *T
                     item, err = Unmarshal[T](s.key, message.Values)
@@ -90,7 +92,7 @@ func (s *Sync[T]) Push(data any) {
     }
 
     err = s.client.XAdd(context.Background(), &redis.XAddArgs{
-        Stream: s.stream,
+        Stream: s.name,
         ID:     "*",
         Values: m,
     }).Err()

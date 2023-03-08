@@ -22,7 +22,7 @@ func TestRun(t *testing.T) {
         redis.NewClient(&redis.Options{}),
         adapter.Development,
         "TEST",
-        func(data *testdata) {
+        func(data []*testdata) {
             fmt.Printf("%#v\n", data)
         },
     )

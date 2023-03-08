@@ -25,6 +25,7 @@ func Unmarshal[T any](key string, input map[string]any) (output *T, err error) {
         return
     }
     output = new(T)
-    err = jsoniter.Unmarshal(adapter.ConvertString2Bytes(data.(string)), output)
+    b := adapter.ConvertString2Bytes(data.(string))
+    err = jsoniter.Unmarshal(b, output)
     return
 }
