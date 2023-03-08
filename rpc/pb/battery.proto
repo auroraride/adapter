@@ -11,7 +11,6 @@ option go_package = "github.com/auroraride/adapter/rpc/pb";
 service Battery {
   rpc Batch (BatteryBatchRequest) returns (BatteryBatchResponse);
   rpc Sample (BatterySnRequest) returns (BatterySampleResponse);
-  rpc BatchSample (BatteryBatchRequest) returns (BatterySampleResponse);
   rpc FaultList (BatteryFaultListRequest) returns (BatteryFaultListResponse);
   rpc FaultOverview (BatterySnRequest) returns (BatteryFaultOverviewResponse);
   rpc Statistics (BatterySnRequest) returns (BatteryStatisticsResponse);
@@ -85,10 +84,6 @@ message BatterySampleResponse {
   double current = 2;
   uint32 soc = 3;
   bytes geom = 4;
-}
-
-message BatteryBatchSampleResponse {
-  map<string, BatterySampleResponse> items = 1;
 }
 
 enum BatteryFaultType {
