@@ -20,7 +20,7 @@ var (
     ErrorUserRequired        = errors.New("需要用户信息")
     ErrorManagerRequired     = errors.New("需要管理员权限")
     ErrorIncompletePacket    = errors.New("incomplete packet") // 数据包不完整
-    ErrIncorrectPacket       = errors.New("消息错误")
+    ErrorIncorrectPacket     = errors.New("消息错误")
     ErrorParamValidateFailed = errors.New("数据校验失败")
     ErrorMaintain            = errors.New("正在唤醒, 请稍后")
 
