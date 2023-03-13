@@ -109,6 +109,10 @@ func (o Operate) IsCommand() bool {
     }
 }
 
+func (o Operate) IsOpen() bool {
+    return o == OperateDoorOpen
+}
+
 func (o *Operate) Scan(src interface{}) error {
     switch v := src.(type) {
     case nil:
