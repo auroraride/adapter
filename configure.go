@@ -10,6 +10,7 @@ import (
     "github.com/knadh/koanf/parsers/yaml"
     "github.com/knadh/koanf/providers/file"
     "github.com/mitchellh/mapstructure"
+    "log"
     "os"
     "path/filepath"
     "strings"
@@ -36,6 +37,7 @@ func (e Environment) IsDevelopment() bool {
 
 type Configurable interface {
     GetApplication() string
+    GetLoggerName() string
     GetEnvironment() Environment
     SetEnvironment(env Environment)
     GetApiAddress() string
@@ -48,6 +50,7 @@ type Configure struct {
     Application string
     keyPrefix   string
     Environment Environment
+    LoggerName  string
 
     Api struct {
         Bind      string
@@ -65,6 +68,10 @@ type Configure struct {
 
 func (c *Configure) GetApplication() string {
     return c.Application
+}
+
+func (c *Configure) GetLoggerName() string {
+    return c.LoggerName
 }
 
 func (c *Configure) GetEnvironment() Environment {
@@ -145,6 +152,10 @@ func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err 
 
     if cfg.GetEnvironment() == "" {
         cfg.SetEnvironment(Production)
+    }
+
+    if cfg.GetLoggerName() == "" {
+        log.Fatal("[LoggerName] 必须配置")
     }
 
     return

@@ -7,7 +7,6 @@ package adapter
 
 import (
     "database/sql/driver"
-    "strings"
 )
 
 type CabinetBrand string
@@ -30,14 +29,6 @@ func (b CabinetBrand) RpcName() string {
     case CabinetBrandTuobang:
         return "tbcab"
     }
-}
-
-func (b CabinetBrand) LoggerName(env Environment) string {
-    var prefix string
-    if env != Production {
-        prefix = strings.ToLower(env.String()) + "-"
-    }
-    return prefix + "cabinet-" + strings.ToLower(b.String())
 }
 
 func (b CabinetBrand) String() string {
@@ -75,14 +66,6 @@ func (b BatteryBrand) RpcName() string {
     case BatteryBrandTB:
         return "tbbms"
     }
-}
-
-func (b BatteryBrand) LoggerName(env Environment) string {
-    var prefix string
-    if env != Production {
-        prefix = strings.ToLower(env.String()) + "-"
-    }
-    return prefix + "battery-" + strings.ToLower(b.String())
 }
 
 func (b BatteryBrand) String() string {

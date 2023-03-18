@@ -27,9 +27,9 @@ var (
 
 func TestRun(t *testing.T) {
     log.New(&log.Config{
-        FormatJson:  true,
-        Stdout:      true,
-        Application: "exhook",
+        FormatJson: true,
+        Stdout:     true,
+        LoggerName: "exhook",
         Writers: []io.Writer{
             log.NewRedisWriter(redis.NewClient(&redis.Options{})),
         },

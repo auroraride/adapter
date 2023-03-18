@@ -14,11 +14,11 @@ import (
 )
 
 type Config struct {
-    FormatJson    bool
-    Stdout        bool
-    Application   string
-    Writers  []io.Writer
-    NoCaller bool
+    FormatJson bool
+    Stdout     bool
+    LoggerName string
+    Writers    []io.Writer
+    NoCaller   bool
 }
 
 func (cfg *Config) ToZapCoreEncoderConfig() zapcore.EncoderConfig {

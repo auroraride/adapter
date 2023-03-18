@@ -21,7 +21,7 @@ func New(cfg *Config, options ...Option) {
         opts = append(opts, zapcore.AddSync(w))
     }
 
-    if cfg.Application == "" {
+    if cfg.LoggerName == "" {
         panic("application必填")
     }
 
