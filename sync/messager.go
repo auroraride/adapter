@@ -10,8 +10,8 @@ import (
     jsoniter "github.com/json-iterator/go"
 )
 
-func Marshal[T any](key string, input T) (output map[string]any, err error) {
-    b, _ := jsoniter.Marshal(input)
+func Marshal[T any](key string, input T) (output map[string]any, b []byte, err error) {
+    b, _ = jsoniter.Marshal(input)
     output = map[string]any{
         key: b,
     }

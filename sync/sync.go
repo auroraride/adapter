@@ -86,9 +86,11 @@ func (s *Sync[T]) Run() {
 }
 
 func (s *Sync[T]) Push(data any) {
-    m, err := Marshal(s.key, data)
+    m, b, err := Marshal(s.key, data)
+    // zap.L().WithOptions(zap.WithCaller(false)).Info("[SYNC] 发送同步消息", zap.ByteString("data", b))
+
     if err != nil {
-        zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息格式化失败", zap.Error(err))
+        zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息格式化失败", zap.ByteString("data", b), zap.Error(err))
     }
 
     err = s.client.XAdd(context.Background(), &redis.XAddArgs{
@@ -96,7 +98,8 @@ func (s *Sync[T]) Push(data any) {
         ID:     "*",
         Values: m,
     }).Err()
+
     if err != nil {
-        zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息发送失败", zap.Error(err))
+        zap.L().WithOptions(zap.WithCaller(false)).Error("[SYNC] 同步消息发送失败", zap.ByteString("data", b), zap.Error(err))
     }
 }
