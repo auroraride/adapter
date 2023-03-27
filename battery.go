@@ -13,6 +13,7 @@ const (
 var (
     BatteryModelXC = map[string]string{
         "08": "72V30AH",
+        "12": "60V30AH",
     }
 )
 
