@@ -6,9 +6,9 @@
 package app
 
 var (
-    Quit chan bool
+	Quit chan bool
 )
 
 func init() {
-    Quit = make(chan bool)
+	Quit = make(chan bool)
 }

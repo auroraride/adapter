@@ -8,38 +8,38 @@ package maintain
 import "os"
 
 type Config struct {
-    Token string
-    IP    []string
+	Token string
+	IP    []string
 }
 
 var (
-    maintainFile = "runtime/MAINTAIN"
+	maintainFile = "runtime/MAINTAIN"
 )
 
 func SetFile(path string) {
-    maintainFile = path
+	maintainFile = path
 }
 
 func File() string {
-    return maintainFile
+	return maintainFile
 }
 
 func Create() error {
-    f, err := os.OpenFile(maintainFile, os.O_CREATE, 0644)
-    if err != nil {
-        return err
-    }
-    return f.Close()
+	f, err := os.OpenFile(maintainFile, os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	return f.Close()
 }
 
 func Remove() (err error) {
-    if Exists() {
-        err = os.Remove(maintainFile)
-    }
-    return
+	if Exists() {
+		err = os.Remove(maintainFile)
+	}
+	return
 }
 
 func Exists() bool {
-    _, err := os.Stat(maintainFile)
-    return err == nil
+	_, err := os.Stat(maintainFile)
+	return err == nil
 }

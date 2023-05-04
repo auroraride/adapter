@@ -6,14 +6,14 @@
 package adapter
 
 import (
-    "os"
+	"os"
 )
 
 // CreateDirectoryIfNotExist 若目录不存在则创建
 func CreateDirectoryIfNotExist(d string) error {
-    _, err := os.Stat(d)
-    if os.IsNotExist(err) {
-        return os.MkdirAll(d, 0755)
-    }
-    return nil
+	_, err := os.Stat(d)
+	if os.IsNotExist(err) {
+		return os.MkdirAll(d, 0755)
+	}
+	return nil
 }

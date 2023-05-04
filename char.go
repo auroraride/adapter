@@ -6,19 +6,19 @@
 package adapter
 
 var (
-    Newline            = []byte{10}  // \n
-    Space              = []byte{32}  //
-    DoubleQuote        = []byte{34}  // "
-    SingleQuote        = []byte{39}  // '
-    Comma              = []byte{44}  // ,
-    Hyphen             = []byte{45}  // -
-    Period             = []byte{46}  // .
-    Colon              = []byte{58}  // :
-    Equal              = []byte{61}  // =
-    LeftSquareBracket  = []byte{91}  // [
-    RightSquareBracket = []byte{93}  // ]
-    LeftBracket        = []byte{40}  // (
-    RightBracket       = []byte{41}  // )
-    LeftCurlyBracket   = []byte{123} // {
-    RightCurlyBracket  = []byte{125} // }
+	Newline            = []byte{10}  // \n
+	Space              = []byte{32}  //
+	DoubleQuote        = []byte{34}  // "
+	SingleQuote        = []byte{39}  // '
+	Comma              = []byte{44}  // ,
+	Hyphen             = []byte{45}  // -
+	Period             = []byte{46}  // .
+	Colon              = []byte{58}  // :
+	Equal              = []byte{61}  // =
+	LeftSquareBracket  = []byte{91}  // [
+	RightSquareBracket = []byte{93}  // ]
+	LeftBracket        = []byte{40}  // (
+	RightBracket       = []byte{41}  // )
+	LeftCurlyBracket   = []byte{123} // {
+	RightCurlyBracket  = []byte{125} // }
 )

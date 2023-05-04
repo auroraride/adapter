@@ -6,56 +6,58 @@
 package maintain
 
 import (
-    "fmt"
-    "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/async"
-    "github.com/labstack/echo/v4"
-    "golang.org/x/exp/slices"
-    "net/http"
-    "strings"
-    "time"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/labstack/echo/v4"
+	"golang.org/x/exp/slices"
+
+	"github.com/auroraride/adapter"
+	"github.com/auroraride/adapter/async"
 )
 
 type controller struct {
-    cfg  Config
-    quit chan bool
+	cfg  Config
+	quit chan bool
 }
 
 func NewController(cfg Config, quit chan bool) *controller {
-    return &controller{
-        cfg:  cfg,
-        quit: quit,
-    }
+	return &controller{
+		cfg:  cfg,
+		quit: quit,
+	}
 }
 
 func (ctl *controller) UpdateApi(c echo.Context) (err error) {
-    _ = Create()
+	_ = Create()
 
-    addr := c.Request().RemoteAddr
-    n := strings.Index(addr, ":")
-    host := addr[:n]
-    fmt.Println("request update <<<", host)
+	addr := c.Request().RemoteAddr
+	n := strings.Index(addr, ":")
+	host := addr[:n]
+	fmt.Println("request update <<<", host)
 
-    if !slices.Contains(ctl.cfg.IP, host) || c.Param("token") != ctl.cfg.Token {
-        return adapter.ErrorForbidden
-    }
+	if !slices.Contains(ctl.cfg.IP, host) || c.Param("token") != ctl.cfg.Token {
+		return adapter.ErrorForbidden
+	}
 
-    go ctl.doQuit()
+	go ctl.doQuit()
 
-    return c.JSON(http.StatusOK, map[string]any{
-        "remote": c.Request().RemoteAddr,
-    })
+	return c.JSON(http.StatusOK, map[string]any{
+		"remote": c.Request().RemoteAddr,
+	})
 }
 
 func (ctl *controller) doQuit() {
-    ticker := time.NewTicker(time.Second)
-    defer ticker.Stop()
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 
-    for ; true; <-ticker.C {
-        // 是否有进行中的异步业务
-        if async.IsDone() {
-            ctl.quit <- true
-            return
-        }
-    }
+	for ; true; <-ticker.C {
+		// 是否有进行中的异步业务
+		if async.IsDone() {
+			ctl.quit <- true
+			return
+		}
+	}
 }

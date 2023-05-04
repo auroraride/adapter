@@ -8,8 +8,8 @@ package batdef
 import "github.com/auroraride/adapter"
 
 type BatteryFlow struct {
-    Out     *adapter.Battery `json:"out,omitempty"`     // 取出电池信息
-    In      *adapter.Battery `json:"in,omitempty"`      // 放入电池信息
-    Serial  string           `json:"serial,omitempty"`  // 电柜编码
-    Ordinal int              `json:"ordinal,omitempty"` // 仓位序号
+	Out     *adapter.Battery `json:"out,omitempty"`     // 取出电池信息
+	In      *adapter.Battery `json:"in,omitempty"`      // 放入电池信息
+	Serial  string           `json:"serial,omitempty"`  // 电柜编码
+	Ordinal int              `json:"ordinal,omitempty"` // 仓位序号
 }

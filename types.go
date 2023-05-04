@@ -10,20 +10,20 @@ type PointInt *int
 type Bool bool
 
 const (
-    True  Bool = true
-    False Bool = false
+	True  Bool = true
+	False Bool = false
 )
 
 func (b Bool) String() string {
-    switch b {
-    case True:
-        return "是"
-    default:
-        return "否"
-    }
+	switch b {
+	case True:
+		return "是"
+	default:
+		return "否"
+	}
 }
 
 type (
-    VoidFunc      func()
-    BytesCallback func(b []byte)
+	VoidFunc      func()
+	BytesCallback func(b []byte)
 )

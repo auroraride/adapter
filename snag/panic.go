@@ -6,21 +6,22 @@
 package snag
 
 import (
-    "fmt"
-    "go.uber.org/zap"
+	"fmt"
+
+	"go.uber.org/zap"
 )
 
 func WithRecover(cb func()) {
 
-    defer func() {
-        if v := recover(); v != nil {
-            zap.L().Error(
-                "捕获未处理崩溃",
-                zap.Stack("stack"),
-                zap.Error(fmt.Errorf("%v", v)),
-            )
-        }
-    }()
+	defer func() {
+		if v := recover(); v != nil {
+			zap.L().Error(
+				"捕获未处理崩溃",
+				zap.Stack("stack"),
+				zap.Error(fmt.Errorf("%v", v)),
+			)
+		}
+	}()
 
-    cb()
+	cb()
 }

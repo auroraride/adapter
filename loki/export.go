@@ -6,81 +6,81 @@
 package loki
 
 var (
-    std = New()
+	std = New()
 )
 
 func StandardLogger() *Logger {
-    return std
+	return std
 }
 
 func SetUrl(url string) {
-    std.url = url
+	std.url = url
 }
 
 func SetJob(job string) {
-    std.job = job
+	std.job = job
 }
 
 func SetReportCaller(report bool) {
-    std.reportCaller = report
+	std.reportCaller = report
 }
 
 func SetCallerSplitter(splitter func(s string) string) {
-    std.CallerSplitter = splitter
+	std.CallerSplitter = splitter
 }
 
 func SetFormatter(f Formatter) {
-    std.Formatter = f
+	std.Formatter = f
 }
 
 func Wait() {
-    std.WaitGroup.Wait()
+	std.WaitGroup.Wait()
 }
 
 func Trace(args ...any) {
-    std.Trace(args...)
+	std.Trace(args...)
 }
 
 func Debug(args ...any) {
-    std.Debug(args...)
+	std.Debug(args...)
 }
 
 func Info(args ...any) {
-    std.Info(args...)
+	std.Info(args...)
 }
 
 func Warn(args ...any) {
-    std.Warn(args...)
+	std.Warn(args...)
 }
 
 func Error(args ...any) {
-    std.Error(args...)
+	std.Error(args...)
 }
 
 func Fatal(args ...any) {
-    std.Fatal(args...)
+	std.Fatal(args...)
 }
 
 func Tracef(format string, args ...any) {
-    std.Tracef(format, args...)
+	std.Tracef(format, args...)
 }
 
 func Debugf(format string, args ...any) {
-    std.Debugf(format, args...)
+	std.Debugf(format, args...)
 }
 
 func Warnf(format string, args ...any) {
-    std.Warnf(format, args...)
+	std.Warnf(format, args...)
 }
 
 func Infof(format string, args ...any) {
-    std.Infof(format, args...)
+	std.Infof(format, args...)
 }
 
 func Errorf(format string, args ...any) {
-    std.Errorf(format, args...)
+	std.Errorf(format, args...)
 }
 
 func Fatalf(format string, args ...any) {
-    std.Fatalf(format, args...)
+	std.Fatalf(format, args...)
 }

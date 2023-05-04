@@ -6,8 +6,8 @@
 package adapter
 
 func Or[T any](condition bool, yes T, no T) T {
-    if condition {
-        return yes
-    }
-    return no
+	if condition {
+		return yes
+	}
+	return no
 }

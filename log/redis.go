@@ -6,23 +6,24 @@
 package log
 
 import (
-    "context"
-    "github.com/go-redis/redis/v9"
+	"context"
+
+	"github.com/go-redis/redis/v9"
 )
 
 type RedisWriter struct {
-    cli *redis.Client
-    key string
+	cli *redis.Client
+	key string
 }
 
 func NewRedisWriter(cli *redis.Client) *RedisWriter {
-    return &RedisWriter{
-        cli: cli,
-        key: "application-log",
-    }
+	return &RedisWriter{
+		cli: cli,
+		key: "application-log",
+	}
 }
 
 func (w *RedisWriter) Write(p []byte) (int, error) {
-    n, err := w.cli.RPush(context.Background(), w.key, p).Result()
-    return int(n), err
+	n, err := w.cli.RPush(context.Background(), w.key, p).Result()
+	return int(n), err
 }

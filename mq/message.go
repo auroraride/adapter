@@ -6,8 +6,8 @@
 package mq
 
 type Message struct {
-    Topic    string
-    Payload  any
-    Qos      byte
-    Retained bool
+	Topic    string
+	Payload  any
+	Qos      byte
+	Retained bool
 }

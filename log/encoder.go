@@ -6,24 +6,24 @@
 package log
 
 import (
-    "go.uber.org/zap/buffer"
-    "go.uber.org/zap/zapcore"
+	"go.uber.org/zap/buffer"
+	"go.uber.org/zap/zapcore"
 )
 
 type encoder struct {
-    zapcore.Encoder
+	zapcore.Encoder
 
-    config *Config
+	config *Config
 }
 
 func WrapEncoder(cfg *Config, enc zapcore.Encoder) zapcore.Encoder {
-    return &encoder{
-        Encoder: enc,
-        config:  cfg,
-    }
+	return &encoder{
+		Encoder: enc,
+		config:  cfg,
+	}
 }
 
 func (e *encoder) EncodeEntry(ent zapcore.Entry, fields []zapcore.Field) (b *buffer.Buffer, err error) {
-    b, err = e.Encoder.EncodeEntry(ent, fields)
-    return
+	b, err = e.Encoder.EncodeEntry(ent, fields)
+	return
 }

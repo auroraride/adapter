@@ -6,26 +6,27 @@
 package sync
 
 import (
-    "github.com/auroraride/adapter"
-    jsoniter "github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+
+	"github.com/auroraride/adapter"
 )
 
 func Marshal[T any](key string, input T) (output map[string]any, b []byte, err error) {
-    b, _ = jsoniter.Marshal(input)
-    output = map[string]any{
-        key: b,
-    }
-    return
+	b, _ = jsoniter.Marshal(input)
+	output = map[string]any{
+		key: b,
+	}
+	return
 }
 
 func Unmarshal[T any](key string, input map[string]any) (output *T, err error) {
-    data, ok := input[key]
-    if !ok {
-        err = adapter.ErrorData
-        return
-    }
-    output = new(T)
-    b := adapter.ConvertString2Bytes(data.(string))
-    err = jsoniter.Unmarshal(b, output)
-    return
+	data, ok := input[key]
+	if !ok {
+		err = adapter.ErrorData
+		return
+	}
+	output = new(T)
+	b := adapter.ConvertString2Bytes(data.(string))
+	err = jsoniter.Unmarshal(b, output)
+	return
 }

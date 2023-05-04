@@ -6,56 +6,58 @@
 package exhook
 
 import (
-    "bytes"
-    "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/log"
-    "github.com/go-redis/redis/v9"
-    "go.uber.org/zap"
-    "io"
-    "testing"
+	"bytes"
+	"io"
+	"testing"
+
+	"github.com/go-redis/redis/v9"
+	"go.uber.org/zap"
+
+	"github.com/auroraride/adapter"
+	"github.com/auroraride/adapter/log"
 )
 
 var (
-    splitter = []byte("/")
-    A1       = []byte("A1")
-    A2       = []byte("A2")
-    B1       = []byte("B1")
-    B2       = []byte("B2")
-    C1       = []byte("C1")
-    C2       = []byte("C2")
+	splitter = []byte("/")
+	A1       = []byte("A1")
+	A2       = []byte("A2")
+	B1       = []byte("B1")
+	B2       = []byte("B2")
+	C1       = []byte("C1")
+	C2       = []byte("C2")
 )
 
 func TestRun(t *testing.T) {
-    log.New(&log.Config{
-        FormatJson: true,
-        Stdout:     true,
-        LoggerName: "exhook",
-        Writers: []io.Writer{
-            log.NewRedisWriter(redis.NewClient(&redis.Options{})),
-        },
-    })
+	log.New(&log.Config{
+		FormatJson: true,
+		Stdout:     true,
+		LoggerName: "exhook",
+		Writers: []io.Writer{
+			log.NewRedisWriter(redis.NewClient(&redis.Options{})),
+		},
+	})
 
-    s := NewServer(HookMessagePublish, HookMessageDelivered)
-    s.OnMessageReceived = func(in *MessagePublishRequest) (reply *Message) {
-        topic := adapter.ConvertString2Bytes(in.Message.Topic)
-        if len(topic) != 22 {
-            zap.L().Error("topic长度应为22", zap.Error(adapter.ErrorData))
-        }
+	s := NewServer(HookMessagePublish, HookMessageDelivered)
+	s.OnMessageReceived = func(in *MessagePublishRequest) (reply *Message) {
+		topic := adapter.ConvertString2Bytes(in.Message.Topic)
+		if len(topic) != 22 {
+			zap.L().Error("topic长度应为22", zap.Error(adapter.ErrorData))
+		}
 
-        reply = in.Message
-        code := topic[20:]
+		reply = in.Message
+		code := topic[20:]
 
-        switch {
-        case bytes.Equal(code, A1):
-            // 直接发送IMEI
-            reply.Payload = topic[4:19]
-            // 发布A2订阅
-            topic[20], topic[21] = A2[0], A2[1]
-            reply.Topic = adapter.ConvertBytes2String(topic)
-        }
+		switch {
+		case bytes.Equal(code, A1):
+			// 直接发送IMEI
+			reply.Payload = topic[4:19]
+			// 发布A2订阅
+			topic[20], topic[21] = A2[0], A2[1]
+			reply.Topic = adapter.ConvertBytes2String(topic)
+		}
 
-        return
-    }
+		return
+	}
 
-    s.Run(":9801")
+	s.Run(":9801")
 }

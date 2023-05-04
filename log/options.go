@@ -8,11 +8,11 @@ package log
 import "go.uber.org/zap"
 
 type Option interface {
-    apply(*zap.Logger)
+	apply(*zap.Logger)
 }
 
 type optionFunc func(*zap.Logger)
 
 func (f optionFunc) apply(logger *zap.Logger) {
-    f(logger)
+	f(logger)
 }

@@ -6,37 +6,38 @@
 package message
 
 import (
-    "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/defs/cabdef"
-    "reflect"
-    "testing"
+	"reflect"
+	"testing"
+
+	"github.com/auroraride/adapter"
+	"github.com/auroraride/adapter/defs/cabdef"
 )
 
 func TestParser(t *testing.T) {
-    sn := "XCB0862022110001"
+	sn := "XCB0862022110001"
 
-    msg := &cabdef.BatteryMessage{
-        Battery: adapter.ParseBatterySN(sn),
-        Cabinet: "TEST",
-    }
+	msg := &cabdef.BatteryMessage{
+		Battery: adapter.ParseBatterySN(sn),
+		Cabinet: "TEST",
+	}
 
-    b, err := Pack(msg)
-    if err != nil {
-        t.Log(err)
-        t.Fail()
-    }
+	b, err := Pack(msg)
+	if err != nil {
+		t.Log(err)
+		t.Fail()
+	}
 
-    typ, data, err := Unpack(b)
-    if err != nil {
-        t.Log(err)
-        t.Fail()
-    }
+	typ, data, err := Unpack(b)
+	if err != nil {
+		t.Log(err)
+		t.Fail()
+	}
 
-    if typ != TypeCabkitBattery {
-        t.Fail()
-    }
+	if typ != TypeCabkitBattery {
+		t.Fail()
+	}
 
-    if reflect.DeepEqual(data, msg) {
-        t.Fail()
-    }
+	if reflect.DeepEqual(data, msg) {
+		t.Fail()
+	}
 }

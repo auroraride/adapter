@@ -6,18 +6,19 @@
 package adapter
 
 import (
-    "github.com/stretchr/testify/assert"
-    "testing"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuffer(t *testing.T) {
-    buf := NewBuffer()
-    defer ReleaseBuffer(buf)
+	buf := NewBuffer()
+	defer ReleaseBuffer(buf)
 
-    assert.Zero(t, buf.Len())
-    buf.Write([]byte("1"))
-    assert.NotZero(t, buf.Len())
-    ReleaseBuffer(buf)
+	assert.Zero(t, buf.Len())
+	buf.Write([]byte("1"))
+	assert.NotZero(t, buf.Len())
+	ReleaseBuffer(buf)
 
-    assert.Zero(t, NewBuffer().Len())
+	assert.Zero(t, NewBuffer().Len())
 }

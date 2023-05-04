@@ -6,24 +6,25 @@
 package app
 
 import (
-    "github.com/auroraride/adapter"
-    "net/http"
+	"net/http"
+
+	"github.com/auroraride/adapter"
 )
 
 func Panic(params ...any) {
-    r := CreateResponse(params...)
-    if r.Code == http.StatusOK {
-        r.Code = http.StatusInternalServerError
-    }
+	r := CreateResponse(params...)
+	if r.Code == http.StatusOK {
+		r.Code = http.StatusInternalServerError
+	}
 
-    if r.Message == "" {
-        switch r.Code {
-        case http.StatusBadRequest:
-            r.Message = adapter.ErrorBadRequest.Error()
-        default:
-            r.Message = adapter.ErrorInternalServer.Error()
-        }
-    }
+	if r.Message == "" {
+		switch r.Code {
+		case http.StatusBadRequest:
+			r.Message = adapter.ErrorBadRequest.Error()
+		default:
+			r.Message = adapter.ErrorInternalServer.Error()
+		}
+	}
 
-    panic(r)
+	panic(r)
 }

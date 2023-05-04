@@ -6,67 +6,68 @@
 package rpc
 
 import (
-    "context"
-    grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/codes"
-    "google.golang.org/grpc/credentials/insecure"
-    "google.golang.org/grpc/status"
-    "net"
-    "time"
+	"context"
+	"net"
+	"time"
+
+	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 )
 
 type ServerRegister func(s *grpc.Server)
 
 func NewServer(address string, register ServerRegister, options ...grpc.ServerOption) (err error) {
-    var lis net.Listener
-    lis, err = net.Listen("tcp", address)
-    if err != nil {
-        return
-    }
+	var lis net.Listener
+	lis, err = net.Listen("tcp", address)
+	if err != nil {
+		return
+	}
 
-    options = append(
-        options,
-        grpc.KeepaliveEnforcementPolicy(kaep),
-        grpc.KeepaliveParams(kasp),
-    )
+	options = append(
+		options,
+		grpc.KeepaliveEnforcementPolicy(kaep),
+		grpc.KeepaliveParams(kasp),
+	)
 
-    s := grpc.NewServer(options...)
-    register(s)
+	s := grpc.NewServer(options...)
+	register(s)
 
-    defer s.GracefulStop()
+	defer s.GracefulStop()
 
-    return s.Serve(lis)
+	return s.Serve(lis)
 }
 
 type ClientRegister func(conn *grpc.ClientConn)
 
 func NewClient[T any](address string, register func(grpc.ClientConnInterface) T, options ...grpc.DialOption) (conn T, err error) {
-    options = append(options,
-        grpc.WithTransportCredentials(insecure.NewCredentials()),
-        // grpc.WithBlock(),
-        grpc.WithKeepaliveParams(kacp),
-        grpc.WithUnaryInterceptor(grpcretry.UnaryClientInterceptor(rtcp...)),
-        // grpc.WithStreamInterceptor(grpcretry.StreamClientInterceptor(rtcp...)),
-    )
+	options = append(options,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		// grpc.WithBlock(),
+		grpc.WithKeepaliveParams(kacp),
+		grpc.WithUnaryInterceptor(grpcretry.UnaryClientInterceptor(rtcp...)),
+		// grpc.WithStreamInterceptor(grpcretry.StreamClientInterceptor(rtcp...)),
+	)
 
-    ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
-    var c *grpc.ClientConn
-    c, err = grpc.DialContext(ctx, address, options...)
+	var c *grpc.ClientConn
+	c, err = grpc.DialContext(ctx, address, options...)
 
-    if err != nil {
-        return
-    }
+	if err != nil {
+		return
+	}
 
-    return register(c), nil
+	return register(c), nil
 }
 
 func NeedReconnect(err error) bool {
-    s, ok := status.FromError(err)
-    if !ok {
-        return false
-    }
-    return s.Code() == codes.Unavailable
+	s, ok := status.FromError(err)
+	if !ok {
+		return false
+	}
+	return s.Code() == codes.Unavailable
 }

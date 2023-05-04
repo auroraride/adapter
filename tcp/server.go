@@ -6,27 +6,28 @@
 package tcp
 
 import (
-    "github.com/auroraride/adapter"
-    "github.com/auroraride/adapter/codec"
-    "github.com/panjf2000/gnet/v2"
+	"github.com/auroraride/adapter/codec"
+	"github.com/panjf2000/gnet/v2"
+
+	"github.com/auroraride/adapter"
 )
 
 type Server struct {
-    *Tcp
+	*Tcp
 }
 
 func NewServer(addr string, c codec.Codec, r adapter.BytesCallback) *Server {
-    s := &Server{
-        Tcp: NewTcp(addr, c, r),
-    }
-    return s
+	s := &Server{
+		Tcp: NewTcp(addr, c, r),
+	}
+	return s
 }
 
 func (s *Server) Run() error {
-    return gnet.Run(
-        s,
-        s.address,
-        gnet.WithMulticore(true),
-        gnet.WithReuseAddr(true),
-    )
+	return gnet.Run(
+		s,
+		s.address,
+		gnet.WithMulticore(true),
+		gnet.WithReuseAddr(true),
+	)
 }

@@ -6,13 +6,13 @@
 package adapter
 
 import (
-    "unsafe"
+	"unsafe"
 )
 
 func ConvertBytes2String(b []byte) string {
-    return *(*string)(unsafe.Pointer(&b))
+	return *(*string)(unsafe.Pointer(&b))
 }
 
 func ConvertString2Bytes(s string) (b []byte) {
-    return *(*[]byte)(unsafe.Pointer(&s))
+	return *(*[]byte)(unsafe.Pointer(&s))
 }

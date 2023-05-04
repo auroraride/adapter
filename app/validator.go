@@ -6,21 +6,22 @@
 package app
 
 import (
-    "github.com/go-playground/validator/v10"
-    "net/http"
+	"net/http"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Validator struct {
-    validator *validator.Validate
+	validator *validator.Validate
 }
 
 func NewValidator() *Validator {
-    return &Validator{validator: validator.New()}
+	return &Validator{validator: validator.New()}
 }
 
 func (v *Validator) Validate(i interface{}) error {
-    if err := v.validator.Struct(i); err != nil {
-        Panic(http.StatusBadRequest, err)
-    }
-    return nil
+	if err := v.validator.Struct(i); err != nil {
+		Panic(http.StatusBadRequest, err)
+	}
+	return nil
 }

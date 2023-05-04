@@ -8,10 +8,10 @@ package adapter
 import "testing"
 
 func TestOr(t *testing.T) {
-    if 1 != Or(true, 1, 2) {
-        t.Fail()
-    }
-    if "A" != Or(false, "B", "A") {
-        t.Fail()
-    }
+	if 1 != Or(true, 1, 2) {
+		t.Fail()
+	}
+	if "A" != Or(false, "B", "A") {
+		t.Fail()
+	}
 }

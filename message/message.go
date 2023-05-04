@@ -6,6 +6,6 @@
 package message
 
 type Messenger interface {
-    MarshalBinary() ([]byte, error)
-    UnmarshalBinary(data []byte) error
+	MarshalBinary() ([]byte, error)
+	UnmarshalBinary(data []byte) error
 }
