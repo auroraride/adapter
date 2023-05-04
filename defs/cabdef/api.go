@@ -106,3 +106,10 @@ type BinInfoRequest struct {
 type CabinetNameResponse struct {
 	Name string `json:"name"`
 }
+
+type BinDeactivateRequest struct {
+	Serial     string  `json:"serial" validate:"required"`     // 电柜编号
+	Ordinal    int     `json:"ordinal" validate:"required"`    // 仓位序号
+	Deactivate *bool   `json:"deactivate" validate:"required"` // 是否启用
+	Reason     *string `json:"reason"`                         // 原因
+}
