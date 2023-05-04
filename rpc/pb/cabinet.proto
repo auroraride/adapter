@@ -12,7 +12,7 @@ service Cabinet {
 
 message CabinetDeactivateRequest {
   string serial = 1;
-  string message = 2;
+  string reason = 2;
   int64 ordinal = 3;
   bool deactivate = 4;
 }
@@ -102,4 +102,6 @@ message CabinetSyncBin {
   double voltage = 9;
   repeated string faults = 10;
   string remark = 11;
+  bool deactivate = 12;
+  optional string deactivate_reason = 13;
 }
