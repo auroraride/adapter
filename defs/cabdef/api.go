@@ -110,6 +110,6 @@ type CabinetNameResponse struct {
 type BinDeactivateRequest struct {
 	Serial     string  `json:"serial" validate:"required"`     // 电柜编号
 	Ordinal    int     `json:"ordinal" validate:"required"`    // 仓位序号
-	Deactivate *bool   `json:"deactivate" validate:"required"` // 是否启用
+	Deactivate *bool   `json:"deactivate" validate:"required"` // 是否禁用
 	Reason     *string `json:"reason"`                         // 原因
 }
