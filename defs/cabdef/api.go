@@ -77,6 +77,7 @@ type ExchangeUsableRequest struct {
 
 type ExchangeRequest struct {
 	UUID    uuid.UUID `json:"uuid" validate:"required"`
+	Serial  string    `json:"serial" validate:"required"`  // 电柜编码
 	Battery string    `json:"battery"`                     // 当前电池编号, 若放入电池型号不匹配, 则中断换电流程
 	Expires int64     `json:"expires" validate:"required"` // 扫码有效期(s), 例如: 30s
 	Timeout int64     `json:"timeout" validate:"required"` // 换电步骤超时(s), 例如: 120s
