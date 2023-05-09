@@ -16,6 +16,10 @@ import (
 
 type ApiResponse = adapter.Response[any]
 
+type StatusResponse struct {
+	Status bool `json:"status"` // 是否成功
+}
+
 // CreateResponse 创建response结构体
 // int: code
 // error: message
