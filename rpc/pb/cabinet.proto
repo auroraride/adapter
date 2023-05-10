@@ -112,6 +112,7 @@ message CabinetBiz {
   string serial = 1;
   int32  ordinal = 2;
   string desc = 3; // 业务描述
+  string user = 4; // 业务人员
 }
 
 message CabinetBizRequest {
