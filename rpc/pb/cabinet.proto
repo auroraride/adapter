@@ -8,6 +8,8 @@ service Cabinet {
   // rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
   rpc Sync (CabinetSyncRequest) returns (CabinetSyncResponse);
   rpc Deactivate (CabinetDeactivateRequest) returns (CabinetDeactivateResponse);
+  rpc Biz (CabinetBizRequest) returns (CabinetBizResponse);
+  rpc Interrupt(CabinetInterruptRequest) returns (CabinetBizResponse);
 }
 
 message CabinetDeactivateRequest {
@@ -104,4 +106,23 @@ message CabinetSyncBin {
   string remark = 11;
   bool deactivate = 12;
   optional string deactivate_reason = 13;
+}
+
+message CabinetBiz {
+  string serial = 1;
+  int32  ordinal = 2;
+  string desc = 3; // 业务描述
+}
+
+message CabinetBizRequest {
+  string serial = 1;
+}
+
+message CabinetBizResponse {
+  repeated CabinetBiz items = 1;
+}
+
+message CabinetInterruptRequest {
+  string serial = 1;
+  string message = 2;
 }

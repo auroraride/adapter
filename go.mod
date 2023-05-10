@@ -16,7 +16,6 @@ require (
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/lib/pq v1.10.7
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/panjf2000/gnet/v2 v2.2.5
 	github.com/qichengzx/coordtransform v0.0.0-20220708113031-010878418826
 	github.com/stretchr/testify v1.8.1
 	github.com/valyala/fasthttp v1.44.0
@@ -54,7 +53,6 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/panjf2000/ants/v2 v2.7.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -70,6 +68,5 @@ require (
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
 	google.golang.org/genproto v0.0.0-20230202175211-008b39050e57 // indirect
-	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

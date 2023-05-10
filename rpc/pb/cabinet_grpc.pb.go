@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Cabinet_Sync_FullMethodName       = "/pb.Cabinet/Sync"
 	Cabinet_Deactivate_FullMethodName = "/pb.Cabinet/Deactivate"
+	Cabinet_Biz_FullMethodName        = "/pb.Cabinet/Biz"
+	Cabinet_Interrupt_FullMethodName  = "/pb.Cabinet/Interrupt"
 )
 
 // CabinetClient is the client API for Cabinet service.
@@ -30,6 +32,8 @@ type CabinetClient interface {
 	// rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
 	Sync(ctx context.Context, in *CabinetSyncRequest, opts ...grpc.CallOption) (*CabinetSyncResponse, error)
 	Deactivate(ctx context.Context, in *CabinetDeactivateRequest, opts ...grpc.CallOption) (*CabinetDeactivateResponse, error)
+	Biz(ctx context.Context, in *CabinetBizRequest, opts ...grpc.CallOption) (*CabinetBizResponse, error)
+	Interrupt(ctx context.Context, in *CabinetInterruptRequest, opts ...grpc.CallOption) (*CabinetBizResponse, error)
 }
 
 type cabinetClient struct {
@@ -58,6 +62,24 @@ func (c *cabinetClient) Deactivate(ctx context.Context, in *CabinetDeactivateReq
 	return out, nil
 }
 
+func (c *cabinetClient) Biz(ctx context.Context, in *CabinetBizRequest, opts ...grpc.CallOption) (*CabinetBizResponse, error) {
+	out := new(CabinetBizResponse)
+	err := c.cc.Invoke(ctx, Cabinet_Biz_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cabinetClient) Interrupt(ctx context.Context, in *CabinetInterruptRequest, opts ...grpc.CallOption) (*CabinetBizResponse, error) {
+	out := new(CabinetBizResponse)
+	err := c.cc.Invoke(ctx, Cabinet_Interrupt_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CabinetServer is the server API for Cabinet service.
 // All implementations must embed UnimplementedCabinetServer
 // for forward compatibility
@@ -65,6 +87,8 @@ type CabinetServer interface {
 	// rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
 	Sync(context.Context, *CabinetSyncRequest) (*CabinetSyncResponse, error)
 	Deactivate(context.Context, *CabinetDeactivateRequest) (*CabinetDeactivateResponse, error)
+	Biz(context.Context, *CabinetBizRequest) (*CabinetBizResponse, error)
+	Interrupt(context.Context, *CabinetInterruptRequest) (*CabinetBizResponse, error)
 	mustEmbedUnimplementedCabinetServer()
 }
 
@@ -77,6 +101,12 @@ func (UnimplementedCabinetServer) Sync(context.Context, *CabinetSyncRequest) (*C
 }
 func (UnimplementedCabinetServer) Deactivate(context.Context, *CabinetDeactivateRequest) (*CabinetDeactivateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Deactivate not implemented")
+}
+func (UnimplementedCabinetServer) Biz(context.Context, *CabinetBizRequest) (*CabinetBizResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Biz not implemented")
+}
+func (UnimplementedCabinetServer) Interrupt(context.Context, *CabinetInterruptRequest) (*CabinetBizResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Interrupt not implemented")
 }
 func (UnimplementedCabinetServer) mustEmbedUnimplementedCabinetServer() {}
 
@@ -127,6 +157,42 @@ func _Cabinet_Deactivate_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Cabinet_Biz_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CabinetBizRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CabinetServer).Biz(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cabinet_Biz_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CabinetServer).Biz(ctx, req.(*CabinetBizRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Cabinet_Interrupt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CabinetInterruptRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CabinetServer).Interrupt(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cabinet_Interrupt_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CabinetServer).Interrupt(ctx, req.(*CabinetInterruptRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Cabinet_ServiceDesc is the grpc.ServiceDesc for Cabinet service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -141,6 +207,14 @@ var Cabinet_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Deactivate",
 			Handler:    _Cabinet_Deactivate_Handler,
+		},
+		{
+			MethodName: "Biz",
+			Handler:    _Cabinet_Biz_Handler,
+		},
+		{
+			MethodName: "Interrupt",
+			Handler:    _Cabinet_Interrupt_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

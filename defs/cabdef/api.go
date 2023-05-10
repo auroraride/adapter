@@ -114,7 +114,3 @@ type BinDeactivateRequest struct {
 	Deactivate *bool   `json:"deactivate" validate:"required"` // 是否禁用
 	Reason     *string `json:"reason"`                         // 原因
 }
-
-type DeviceInterruptRequest struct {
-	Serial string `json:"serial" validate:"required"` // 电柜编码
-}
