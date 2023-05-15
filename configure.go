@@ -99,6 +99,12 @@ func (c *Configure) GetCacheKey(key string) string {
 	return c.keyPrefix + key
 }
 
+var k = koanf.New(".")
+
+func GetKoanf() *koanf.Koanf {
+	return k
+}
+
 func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err error) {
 	// 判定文件是否存在
 	dir := filepath.Dir(cf)
@@ -119,7 +125,6 @@ func LoadConfigure[T Configurable](cfg T, cf string, defaultConfig []byte) (err 
 		return
 	}
 
-	k := koanf.New(".")
 	f := file.Provider(cf)
 	p := yaml.Parser()
 
