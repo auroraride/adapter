@@ -12,10 +12,11 @@ import (
 type CabinetBrand string
 
 const (
-	CabinetBrandUnknown CabinetBrand = "UNKNOWN"
-	CabinetBrandKaixin  CabinetBrand = "KAIXIN"
-	CabinetBrandYundong CabinetBrand = "YUNDONG"
-	CabinetBrandTuobang CabinetBrand = "TUOBANG"
+	CabinetBrandUnknown        CabinetBrand = "UNKNOWN"
+	CabinetBrandKaixin         CabinetBrand = "KAIXIN"
+	CabinetBrandYundong        CabinetBrand = "YUNDONG"
+	CabinetBrandTuobang        CabinetBrand = "TUOBANG"
+	CabinetBrandXiliulouServer CabinetBrand = "XILIULOUSERV" // 西六楼服务器版
 )
 
 func (b CabinetBrand) RpcName() string {
@@ -28,6 +29,8 @@ func (b CabinetBrand) RpcName() string {
 		return "ydcab"
 	case CabinetBrandTuobang:
 		return "tbcab"
+	case CabinetBrandXiliulouServer:
+		return "xllscab"
 	}
 }
 
