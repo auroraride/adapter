@@ -25,7 +25,7 @@ var (
 	ErrorMaintain            = errors.New("正在唤醒, 请稍后")
 
 	ErrorCabinetBrand          = errors.New("电柜品牌错误")
-	ErrorCabinetSerialRequired = errors.New("电柜序号不存在")
+	ErrorCabinetSerialRequired = errors.New("电柜编码不存在")
 	ErrorCabinetBrandRequired  = errors.New("电柜型号不存在")
 	ErrorCabinetNotFound       = errors.New("电柜未找到")
 	ErrorCabinetOffline        = errors.New("电柜离线")
