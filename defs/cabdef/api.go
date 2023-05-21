@@ -27,7 +27,7 @@ type BusinessRequest struct {
 	Business adapter.Business `json:"business" validate:"required"` // 业务类别
 	Serial   string           `json:"serial" validate:"required"`   // 电柜编号
 	Timeout  int64            `json:"timeout" validate:"required"`  // 超时时间(s)
-	Battery  string           `json:"verifyBattery,omitempty"`      // 需要校验的电池编号 (可为空, 如果是智能柜需要校验放入电池编号的时候必须携带, 例如putin操作)
+	Battery  string           `json:"battery,omitempty"`            // 需要校验的电池编号 (可为空, 如果是智能柜需要校验放入电池编号的时候必须携带, 例如putin操作)
 	Model    string           `json:"model" validate:"required"`    // 电池型号
 }
 
@@ -46,16 +46,16 @@ type BusinessResponse struct {
 }
 
 type BinOperateResult struct {
-	UUID      string           `json:"uuid"`
-	Step      int              `json:"step"`                // 操作步骤
-	Business  adapter.Business `json:"business"`            // 业务类型
-	StartAt   *time.Time       `json:"startAt"`             // 开始时间
-	StopAt    *time.Time       `json:"stopAt"`              // 结束时间
-	Success   bool             `json:"success"`             // 是否成功
-	Before    *BinInfo         `json:"before"`              // 操作前仓位信息
-	After     *BinInfo         `json:"after"`               // 操作后仓位信息
-	Duration  float64          `json:"duration,omitempty"`  // 耗时
-	Message   string           `json:"message,omitempty"`   // 消息
+	UUID     string           `json:"uuid"`
+	Step     int              `json:"step"`               // 操作步骤
+	Business adapter.Business `json:"business"`           // 业务类型
+	StartAt  *time.Time       `json:"startAt"`            // 开始时间
+	StopAt   *time.Time       `json:"stopAt"`             // 结束时间
+	Success  bool             `json:"success"`            // 是否成功
+	Before   *BinInfo         `json:"before"`             // 操作前仓位信息
+	After    *BinInfo         `json:"after"`              // 操作后仓位信息
+	Duration float64          `json:"duration,omitempty"` // 耗时
+	Message  string           `json:"message,omitempty"`  // 消息
 }
 
 type CabinetBinUsableResponse struct {
