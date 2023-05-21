@@ -47,7 +47,6 @@ type BusinessResponse struct {
 
 type BinOperateResult struct {
 	UUID      string           `json:"uuid"`
-	Operate   Operate          `json:"operate"`
 	Step      int              `json:"step"`                // 操作步骤
 	Business  adapter.Business `json:"business"`            // 业务类型
 	StartAt   *time.Time       `json:"startAt"`             // 开始时间
@@ -57,7 +56,6 @@ type BinOperateResult struct {
 	After     *BinInfo         `json:"after"`               // 操作后仓位信息
 	Duration  float64          `json:"duration,omitempty"`  // 耗时
 	Message   string           `json:"message,omitempty"`   // 消息
-	BatterySN string           `json:"batterySn,omitempty"` // 在位电池编号
 }
 
 type CabinetBinUsableResponse struct {
