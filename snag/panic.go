@@ -25,3 +25,19 @@ func WithRecover(cb func()) {
 
 	cb()
 }
+
+func WithRecoverError(cb func() error) (err error) {
+	defer func() {
+		if v := recover(); v != nil {
+			err = fmt.Errorf("%v", v)
+			zap.L().Error(
+				"捕获未处理崩溃",
+				zap.Stack("stack"),
+				zap.Error(fmt.Errorf("%v", v)),
+			)
+		}
+	}()
+
+	err = cb()
+	return
+}
