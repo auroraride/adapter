@@ -69,16 +69,24 @@ func UserMiddleware(skipper middleware.Skipper) echo.MiddlewareFunc {
 	}
 }
 
-func UserTypeManagerMiddleware() echo.MiddlewareFunc {
+func UserTypeMiddleware(typ adapter.UserType) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			ctx := Context(c)
 
-			if ctx.User == nil || ctx.User.Type != adapter.UserTypeManager {
+			if ctx.User == nil || ctx.User.Type != typ {
 				Panic(http.StatusForbidden, adapter.ErrorManagerRequired)
 			}
 
 			return next(ctx)
 		}
 	}
+}
+
+func UserTypeManagerMiddleware() echo.MiddlewareFunc {
+	return UserTypeMiddleware(adapter.UserTypeManager)
+}
+
+func UserTypeAgentMiddleware() echo.MiddlewareFunc {
+	return UserTypeMiddleware(adapter.UserTypeAgent)
 }
