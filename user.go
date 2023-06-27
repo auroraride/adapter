@@ -20,6 +20,7 @@ const (
 	UserTypeManager  UserType = "manager"  // 后台
 	UserTypeEmployee UserType = "employee" // 员工
 	UserTypeRider    UserType = "rider"    // 骑手
+	UserTypeAgent    UserType = "agent"    // 代理
 )
 
 type User struct {
