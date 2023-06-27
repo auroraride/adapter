@@ -76,7 +76,7 @@ func UserTypeMiddleware(typs ...adapter.UserType) echo.MiddlewareFunc {
 			ctx := Context(c)
 
 			if ctx.User == nil || slices.Contains(typs, ctx.User.Type) {
-				Panic(http.StatusForbidden, adapter.ErrorManagerRequired)
+				Panic(http.StatusForbidden, adapter.ErrorPermission)
 			}
 
 			return next(ctx)

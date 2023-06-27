@@ -18,7 +18,7 @@ var (
 	ErrorBadRequest          = errors.New("请求参数错误")
 	ErrorInternalServer      = errors.New("未知错误")
 	ErrorUserRequired        = errors.New("需要用户信息")
-	ErrorManagerRequired     = errors.New("需要管理员权限")
+	ErrorPermission          = errors.New("非法请求")
 	ErrorIncompletePacket    = errors.New("incomplete packet") // 数据包不完整
 	ErrorIncorrectPacket     = errors.New("消息错误")
 	ErrorParamValidateFailed = errors.New("数据校验失败")
