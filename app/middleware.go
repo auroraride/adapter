@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 
 	"github.com/auroraride/adapter"
 )
@@ -69,12 +70,12 @@ func UserMiddleware(skipper middleware.Skipper) echo.MiddlewareFunc {
 	}
 }
 
-func UserTypeMiddleware(typ adapter.UserType) echo.MiddlewareFunc {
+func UserTypeMiddleware(typs ...adapter.UserType) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			ctx := Context(c)
 
-			if ctx.User == nil || ctx.User.Type != typ {
+			if ctx.User == nil || slices.Contains(typs, ctx.User.Type) {
 				Panic(http.StatusForbidden, adapter.ErrorManagerRequired)
 			}
 
