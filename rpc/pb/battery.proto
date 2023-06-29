@@ -28,7 +28,8 @@ message BatteryItem {
   google.protobuf.UInt64Value sn_4g = 7;
   google.protobuf.StringValue iccid = 8;
   google.protobuf.UInt32Value soc = 9;
-  repeated BatteryHeartbeat heartbeats = 10;
+  optional string imei = 10;
+  repeated BatteryHeartbeat heartbeats = 11;
 }
 
 message BatteryHeartbeat {
