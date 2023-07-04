@@ -67,7 +67,7 @@ func (b BatteryBrand) RpcName() string {
 	case BatteryBrandXC:
 		return "xcbms"
 	case BatteryBrandTB:
-		return "tbbms"
+		return "xcbms"
 	}
 }
 
