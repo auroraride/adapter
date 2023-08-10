@@ -19,6 +19,20 @@ const (
 	CabinetBrandXiliulouServer CabinetBrand = "XILIULOUSERV" // 西六楼服务器版
 )
 
+func (b CabinetBrand) Name() string {
+	switch b {
+	case CabinetBrandKaixin:
+		return "凯信"
+	case CabinetBrandYundong:
+		return "运动"
+	case CabinetBrandTuobang:
+		return "拓邦"
+	case CabinetBrandXiliulouServer:
+		return "西六楼"
+	}
+	return "-"
+}
+
 func (b CabinetBrand) RpcName() string {
 	switch b {
 	default:
