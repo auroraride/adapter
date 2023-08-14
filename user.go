@@ -15,12 +15,13 @@ const (
 type UserType string
 
 const (
-	UserTypeUnknown  UserType = "unknown"  // 未知
-	UserTypeCabinet  UserType = "cabinet"  // 电柜
-	UserTypeManager  UserType = "manager"  // 后台
-	UserTypeEmployee UserType = "employee" // 员工
-	UserTypeRider    UserType = "rider"    // 骑手
-	UserTypeAgent    UserType = "agent"    // 代理
+	UserTypeUnknown    UserType = "unknown"    // 未知
+	UserTypeCabinet    UserType = "cabinet"    // 电柜
+	UserTypeManager    UserType = "manager"    // 后台
+	UserTypeEmployee   UserType = "employee"   // 员工
+	UserTypeRider      UserType = "rider"      // 骑手
+	UserTypeAgent      UserType = "agent"      // 代理
+	UserTypeMaintainer UserType = "maintainer" // 运维
 )
 
 type User struct {
