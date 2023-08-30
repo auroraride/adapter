@@ -88,6 +88,10 @@ func UserTypeManagerMiddleware() echo.MiddlewareFunc {
 	return UserTypeMiddleware(adapter.UserTypeManager)
 }
 
+func UserTypeManagerOrMaintainerMiddleware() echo.MiddlewareFunc {
+	return UserTypeMiddleware(adapter.UserTypeManager, adapter.UserTypeMaintainer)
+}
+
 func UserTypeAgentMiddleware() echo.MiddlewareFunc {
 	return UserTypeMiddleware(adapter.UserTypeAgent)
 }
