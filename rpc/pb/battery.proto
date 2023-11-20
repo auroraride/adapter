@@ -59,12 +59,12 @@ message BatteryHeartbeat {
   uint32 gps = 24;
   uint32 strength = 25;
   uint32 cycles = 26;
-  uint32 charging_time = 27;
-  uint32 dis_charging_time = 28;
-  uint32 using_time = 29;
-  uint32 total_charging_time = 30;
-  uint32 total_dis_charging_time = 31;
-  uint32 total_using_time = 32;
+  uint64 charging_time = 27;
+  uint64 dis_charging_time = 28;
+  uint64 using_time = 29;
+  uint64 total_charging_time = 30;
+  uint64 total_dis_charging_time = 31;
+  uint64 total_using_time = 32;
   BatteryItem battery = 33;
 }
 
