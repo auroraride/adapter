@@ -33,7 +33,7 @@ message BatteryItem {
 }
 
 message BatteryHeartbeat {
-  int64 id = 1;
+  uint64 id = 1;
   string sn = 2;
   int64 battery_id = 3;
   timestamppb.Timestamp created_at = 4;
