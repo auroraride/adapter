@@ -5,7 +5,12 @@
 
 package adapter
 
-import "database/sql/driver"
+import (
+	"database/sql/driver"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
 
 const (
 	HeaderUserID   = "X-User-ID"
@@ -29,6 +34,12 @@ type User struct {
 	ID   string   `json:"id" validate:"required"`   // 用户ID(通常是电话), 电柜的时候使用电柜ID
 }
 
+func (u *User) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("type", u.Type.String())
+	encoder.AddString("id", u.ID)
+	return nil
+}
+
 func (t UserType) String() string {
 	return string(t)
 }
@@ -49,4 +60,8 @@ func (t UserType) Value() (driver.Value, error) {
 
 func (u *User) String() string {
 	return u.Type.String() + " - " + u.ID
+}
+
+func (u *User) ZapField() zap.Field {
+	return zap.Object("user", u)
 }
