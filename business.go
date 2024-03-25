@@ -81,7 +81,7 @@ func (b *Business) Scan(src interface{}) error {
 }
 
 func (b Business) Value() (driver.Value, error) {
-	return b, nil
+	return b.String(), nil
 }
 
 func BusinessValidator(t Business) error {

@@ -23,6 +23,7 @@ const (
 	Cabinet_Deactivate_FullMethodName = "/pb.Cabinet/Deactivate"
 	Cabinet_Biz_FullMethodName        = "/pb.Cabinet/Biz"
 	Cabinet_Interrupt_FullMethodName  = "/pb.Cabinet/Interrupt"
+	Cabinet_Exchange_FullMethodName   = "/pb.Cabinet/Exchange"
 )
 
 // CabinetClient is the client API for Cabinet service.
@@ -34,6 +35,7 @@ type CabinetClient interface {
 	Deactivate(ctx context.Context, in *CabinetDeactivateRequest, opts ...grpc.CallOption) (*CabinetDeactivateResponse, error)
 	Biz(ctx context.Context, in *CabinetBizRequest, opts ...grpc.CallOption) (*CabinetBizResponse, error)
 	Interrupt(ctx context.Context, in *CabinetInterruptRequest, opts ...grpc.CallOption) (*CabinetBizResponse, error)
+	Exchange(ctx context.Context, in *CabinetExchangeRequest, opts ...grpc.CallOption) (Cabinet_ExchangeClient, error)
 }
 
 type cabinetClient struct {
@@ -80,6 +82,38 @@ func (c *cabinetClient) Interrupt(ctx context.Context, in *CabinetInterruptReque
 	return out, nil
 }
 
+func (c *cabinetClient) Exchange(ctx context.Context, in *CabinetExchangeRequest, opts ...grpc.CallOption) (Cabinet_ExchangeClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Cabinet_ServiceDesc.Streams[0], Cabinet_Exchange_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &cabinetExchangeClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Cabinet_ExchangeClient interface {
+	Recv() (*CabinetExchangeResponse, error)
+	grpc.ClientStream
+}
+
+type cabinetExchangeClient struct {
+	grpc.ClientStream
+}
+
+func (x *cabinetExchangeClient) Recv() (*CabinetExchangeResponse, error) {
+	m := new(CabinetExchangeResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CabinetServer is the server API for Cabinet service.
 // All implementations must embed UnimplementedCabinetServer
 // for forward compatibility
@@ -89,6 +123,7 @@ type CabinetServer interface {
 	Deactivate(context.Context, *CabinetDeactivateRequest) (*CabinetDeactivateResponse, error)
 	Biz(context.Context, *CabinetBizRequest) (*CabinetBizResponse, error)
 	Interrupt(context.Context, *CabinetInterruptRequest) (*CabinetBizResponse, error)
+	Exchange(*CabinetExchangeRequest, Cabinet_ExchangeServer) error
 	mustEmbedUnimplementedCabinetServer()
 }
 
@@ -107,6 +142,9 @@ func (UnimplementedCabinetServer) Biz(context.Context, *CabinetBizRequest) (*Cab
 }
 func (UnimplementedCabinetServer) Interrupt(context.Context, *CabinetInterruptRequest) (*CabinetBizResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Interrupt not implemented")
+}
+func (UnimplementedCabinetServer) Exchange(*CabinetExchangeRequest, Cabinet_ExchangeServer) error {
+	return status.Errorf(codes.Unimplemented, "method Exchange not implemented")
 }
 func (UnimplementedCabinetServer) mustEmbedUnimplementedCabinetServer() {}
 
@@ -193,6 +231,27 @@ func _Cabinet_Interrupt_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Cabinet_Exchange_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(CabinetExchangeRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(CabinetServer).Exchange(m, &cabinetExchangeServer{stream})
+}
+
+type Cabinet_ExchangeServer interface {
+	Send(*CabinetExchangeResponse) error
+	grpc.ServerStream
+}
+
+type cabinetExchangeServer struct {
+	grpc.ServerStream
+}
+
+func (x *cabinetExchangeServer) Send(m *CabinetExchangeResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // Cabinet_ServiceDesc is the grpc.ServiceDesc for Cabinet service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -217,6 +276,12 @@ var Cabinet_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Cabinet_Interrupt_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Exchange",
+			Handler:       _Cabinet_Exchange_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "cabinet.proto",
 }

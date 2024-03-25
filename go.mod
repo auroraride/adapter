@@ -9,7 +9,7 @@ require (
 	entgo.io/ent v0.13.1
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/go-playground/validator/v10 v10.19.0
-	github.com/go-resty/resty/v2 v2.11.0
+	github.com/go-resty/resty/v2 v2.12.0
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12
@@ -28,7 +28,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.19.2 // indirect
+	ariga.io/atlas v0.20.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect

@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package pb;
 
+import "timestamppb/timestamp.proto";
+
 option go_package = "github.com/auroraride/adapter/rpc/pb";
 
 service Cabinet {
@@ -10,6 +12,7 @@ service Cabinet {
   rpc Deactivate (CabinetDeactivateRequest) returns (CabinetDeactivateResponse);
   rpc Biz (CabinetBizRequest) returns (CabinetBizResponse);
   rpc Interrupt(CabinetInterruptRequest) returns (CabinetBizResponse);
+  rpc Exchange (CabinetExchangeRequest) returns (stream CabinetExchangeResponse);
 }
 
 message CabinetDeactivateRequest {
@@ -126,4 +129,39 @@ message CabinetBizResponse {
 message CabinetInterruptRequest {
   string serial = 1;
   string message = 2;
+}
+
+message CabinetExchangeRequest {
+  string uuid = 1;
+  string serial = 2;
+  string battery = 3;
+  int64 expires = 4;
+  int64 timeout = 5;
+  double minsoc = 6;
+}
+
+message CabinetBinInfo {
+  double soc = 1;
+  double soh = 2;
+  bool open = 3;
+  bool enable = 4;
+  bool health = 5;
+  double current = 6;
+  uint32 ordinal = 7;
+  double voltage = 8;
+  string battery_sn = 9;
+  bool battery_exists = 10;
+}
+
+message CabinetExchangeResponse {
+  string uuid = 1;
+  uint32 step = 2;
+  string business = 3;
+  timestamppb.Timestamp start_at = 4;
+  timestamppb.Timestamp stop_at = 5;
+  bool success = 6;
+  CabinetBinInfo before = 7;
+  CabinetBinInfo after = 8;
+  double duration = 9;
+  string message = 10;
 }

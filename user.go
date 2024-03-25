@@ -44,7 +44,7 @@ func (t *UserType) Scan(src interface{}) error {
 }
 
 func (t UserType) Value() (driver.Value, error) {
-	return t, nil
+	return t.String(), nil
 }
 
 func (u *User) String() string {
