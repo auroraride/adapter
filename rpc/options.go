@@ -22,11 +22,11 @@ var (
 
 	// keepalive 服务端默认参数
 	kasp = keepalive.ServerParameters{
-		MaxConnectionIdle:     30 * time.Second, // 最大空闲连接时间，默认为无限制。超出这段时间后，serve 发送 GoWay，强制 client stream 断开
-		MaxConnectionAge:      30 * time.Second, // 最大连接时间，默认为无限制。stream 连接超出这个值是发送一个 GoWay
-		MaxConnectionAgeGrace: 30 * time.Second, // 超出 MaxConnectionAge 之后的宽限时长，默认无限制 (最小为 1s)
-		Time:                  5 * time.Second,  // 如果一段时间客户端存活但没有 ping 请求，服务端发送一次 ping 请求，默认是 2hour
-		Timeout:               5 * time.Second,  // 服务端发送 ping 请求超时的时间，默认20s，在发送ping包之后，Timeout 时间内没有收到 ack 则视为超时
+		MaxConnectionIdle: 30 * time.Second, // 最大空闲连接时间，默认为无限制。超出这段时间后，serve 发送 GoWay，强制 client stream 断开
+		// MaxConnectionAge:      30 * time.Second, // 最大连接时间，默认为无限制。stream 连接超出这个值是发送一个 GoWay
+		// MaxConnectionAgeGrace: 30 * time.Second, // 超出 MaxConnectionAge 之后的宽限时长，默认无限制 (最小为 1s)
+		Time:    5 * time.Second, // 如果一段时间客户端存活但没有 ping 请求，服务端发送一次 ping 请求，默认是 2hour
+		Timeout: 5 * time.Second, // 服务端发送 ping 请求超时的时间，默认20s，在发送ping包之后，Timeout 时间内没有收到 ack 则视为超时
 	}
 
 	// keepalive 客户端默认参数
