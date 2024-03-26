@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/auroraride/adapter/rpc/pb";
+
+
+service Business {
+  // 电柜换电
+  rpc Exchange(BusinessExchangeRequest) returns (stream BusinessExchangeResponse) {}
+}
+
+message BusinessExchangeRequest {
+  string uuid = 1;
+  string serial = 2;
+  string battery = 3;
+//  bool alternative = 4; // 是否使用备用方案
+}
+
+
+// 换电状态
+enum BusinessExchangeStatus {
+  // 处理中
+  Processing = 0;
+  // 成功
+  Success = 1;
+  // 失败
+  Failed = 2;
+}
+
+message BusinessExchangeResponse {
+  // 操作步骤 1:开空电仓 2:放旧电池 3:开满电仓 4:取新电池
+  uint32 step = 1;
+  // 状态 1:处理中 2:成功 3:失败
+  BusinessExchangeStatus status = 2;
+  // 消息
+  string message = 3;
+  // 步骤是否终止
+  bool stop = 4;
+}

@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/auroraride/adapter/rpc/pb";
+
+message PersonIdentity {
+  string idCardNumber = 1;
+  string name = 2;
+  optional PersonIdentityOcrResult ocrResult = 3;
+}
+
+message PersonIdentityOcrResult {
+  string name = 1;
+  string sex = 2;
+  string nation = 3;
+  string birth = 4;
+  string address = 5;
+  string idCardNumber = 6;
+  string validStartDate = 7;
+  string validExpireDate = 8;
+  string authority = 9;
+  string portraitCrop = 10;
+  string nationalCrop = 11;
+  double portraitClarity = 12;
+  double nationalClarity = 13;
+}
