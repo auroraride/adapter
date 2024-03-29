@@ -124,5 +124,5 @@ func (o *Operate) Scan(src interface{}) error {
 }
 
 func (o Operate) Value() (driver.Value, error) {
-	return o, nil
+	return string(o), nil
 }
