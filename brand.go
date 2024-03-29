@@ -63,7 +63,7 @@ func (b *CabinetBrand) Scan(src interface{}) error {
 }
 
 func (b CabinetBrand) Value() (driver.Value, error) {
-	return b, nil
+	return string(b), nil
 }
 
 type BatteryBrand string
@@ -100,5 +100,5 @@ func (b *BatteryBrand) Scan(src interface{}) error {
 }
 
 func (b BatteryBrand) Value() (driver.Value, error) {
-	return b, nil
+	return string(b), nil
 }
