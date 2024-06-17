@@ -53,6 +53,7 @@ message CabinetItem {
   optional double temperature = 10;
   optional double electricity = 11;
   repeated CabinetBinItem bins = 12;
+  timestamppb.Timestamp updated_at = 13;
 }
 
 message CabinetBinItem {
