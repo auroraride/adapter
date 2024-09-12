@@ -7,13 +7,14 @@ package rpc
 
 import (
 	"context"
+	"crypto/tls"
 	"net"
 	"time"
 
 	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 )
 
@@ -44,7 +45,7 @@ type ClientRegister func(conn *grpc.ClientConn)
 
 func NewClient[T any](address string, register func(grpc.ClientConnInterface) T, options ...grpc.DialOption) (conn T, err error) {
 	options = append(options,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})),
 		// grpc.WithBlock(),
 		grpc.WithKeepaliveParams(kacp),
 		grpc.WithUnaryInterceptor(grpcretry.UnaryClientInterceptor(rtcp...)),
