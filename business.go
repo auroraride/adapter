@@ -16,16 +16,17 @@ import (
 type Business string
 
 const (
-	BusinessOperate     Business = "operate"     // 运维操作
-	BusinessExchange    Business = "exchange"    // 换电
-	BusinessActive      Business = "active"      // 激活
-	BusinessPause       Business = "pause"       // 寄存
-	BusinessContinue    Business = "continue"    // 取消寄存
-	BusinessUnsubscribe Business = "unsubscribe" // 退订
+	BusinessOperate        Business = "operate"     // 运维操作
+	BusinessExchange       Business = "exchange"    // 换电
+	BusinessActive         Business = "active"      // 激活
+	BusinessPause          Business = "pause"       // 寄存
+	BusinessContinue       Business = "continue"    // 取消寄存
+	BusinessUnsubscribe    Business = "unsubscribe" // 退订
+	BusinessExchangeReopen Business = "reopen"      // 换电重复开仓
 )
 
 var (
-	RiderBusiness = []Business{BusinessActive, BusinessPause, BusinessContinue, BusinessUnsubscribe}
+	RiderBusiness = []Business{BusinessActive, BusinessPause, BusinessContinue, BusinessUnsubscribe, BusinessExchangeReopen}
 )
 
 func (b Business) Text() string {
@@ -42,6 +43,8 @@ func (b Business) Text() string {
 		return "取消寄存"
 	case BusinessUnsubscribe:
 		return "退订"
+	case BusinessExchangeReopen:
+		return "换电重复开仓"
 	}
 	return " - "
 }
@@ -67,6 +70,7 @@ func (Business) Values() []string {
 		BusinessPause.String(),
 		BusinessContinue.String(),
 		BusinessUnsubscribe.String(),
+		BusinessExchangeReopen.String(),
 	}
 }
 
@@ -86,7 +90,7 @@ func (b Business) Value() (driver.Value, error) {
 
 func BusinessValidator(t Business) error {
 	switch t {
-	case BusinessExchange, BusinessOperate, BusinessActive, BusinessPause, BusinessContinue, BusinessUnsubscribe:
+	case BusinessExchange, BusinessOperate, BusinessActive, BusinessPause, BusinessContinue, BusinessUnsubscribe, BusinessExchangeReopen:
 		return nil
 	default:
 		return fmt.Errorf("未知的业务类别: %q", t)
