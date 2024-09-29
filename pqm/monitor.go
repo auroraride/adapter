@@ -74,10 +74,6 @@ func NewMonitor[T Channelizer](dsn string, t T, receiver Callback[T]) *Monitor[T
 	}
 }
 
-func (m *Monitor[T]) GetListeners() *sync.Map {
-	return m.listeners
-}
-
 func (m *Monitor[T]) GetListenerCount() (n int) {
 	m.listeners.Range(func(_, _ any) bool {
 		n += 1
@@ -95,12 +91,11 @@ func (m *Monitor[T]) SetListener(data T, ch chan T) {
 	m.listeners.Store(ch, data.GetListenerKey())
 }
 
-func (m *Monitor[T]) GetListener(data T) (ch chan T) {
+func (m *Monitor[T]) GetListeners(data T) (chs []chan T) {
 	key := data.GetListenerKey()
 	m.listeners.Range(func(v, k any) bool {
 		if k == key {
-			ch = v.(chan T)
-			return false
+			chs = append(chs, v.(chan T))
 		}
 		return true
 	})
@@ -108,8 +103,8 @@ func (m *Monitor[T]) GetListener(data T) (ch chan T) {
 }
 
 func (m *Monitor[T]) sendMessage(message *Message[T]) {
-	if ch := m.GetListener(message.Data); ch != nil {
-		// fmt.Printf("[%s] 发送数据 --> %v\n", m.channel, message.Data)
+	chs := m.GetListeners(message.Data)
+	for _, ch := range chs {
 		adapter.ChSafeSend(ch, message.Data)
 	}
 }
