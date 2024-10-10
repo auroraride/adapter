@@ -37,10 +37,10 @@ func TestEs(t *testing.T) {
 }
 
 func TestSearch(t *testing.T) {
-	instance, err := Create("b019FdHpJOEI1VEVyeZVjOUs1WUM6MHIxUktUTGpROS1VaGdzZXRMQkVUQQ==", "electric-consumption-cabinet-", []string{"http://172.16.1.108:9200"})
+	es, err := Create("b019FdHpJOEI1VEVyeZVjOUs1WUM6MHIxUktUTGpROS1VaGdzZXRMQkVUQQ==", "electric-consumption-cabinet-", []string{"http://172.16.1.108:9200"})
 	require.NoError(t, err)
 
-	items := NewSearch[Document](instance.GetIndexWizard()).DoRequest(&search.Request{
+	items := NewSearch[Document](es).DoRequest(&search.Request{
 		Query: &types.Query{
 			Match: map[string]types.MatchQuery{
 				"serial": {Query: "x-test"},
