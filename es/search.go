@@ -31,7 +31,7 @@ type searciOption struct {
 	size int
 
 	// 总返回文档数量
-	pick int
+	pick *int
 
 	// 排序规则
 	sort map[string]types.FieldSort
@@ -63,7 +63,7 @@ func SearchWithSize(size int) SearchOption {
 // SearchWithPick 设置总返回的文档数量
 func SearchWithPick(num int) SearchOption {
 	return searchOptionFunc(func(o *searciOption) {
-		o.pick = num
+		o.pick = &num
 	})
 }
 
@@ -143,8 +143,8 @@ func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
 	}
 
 	// 如果需要返回的文档数量小于或等于请求的文档数量，说明已经请求完毕
-	if s.options.pick <= len(output) {
-		output = output[:s.options.pick]
+	if s.options.pick != nil && *s.options.pick <= len(output) {
+		output = output[:*s.options.pick]
 		return
 	}
 
