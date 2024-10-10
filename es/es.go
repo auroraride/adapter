@@ -16,30 +16,25 @@ type Elastic struct {
 	datastream string
 }
 
-var instance *Elastic
-
 func logTag() zap.Field {
 	return zap.String("tag", "ELASTIC")
 }
 
 // Create 创建ES实例
-func Create(apiKey, datastream string, addresses []string) error {
-	c, err := elasticsearch.NewTypedClient(elasticsearch.Config{
+func Create(apiKey, datastream string, addresses []string) (instance *Elastic, err error) {
+	var c *elasticsearch.TypedClient
+	c, err = elasticsearch.NewTypedClient(elasticsearch.Config{
 		APIKey:    apiKey,
 		Addresses: addresses,
 	})
 	if err != nil {
-		return err
+		return
 	}
 	instance = &Elastic{
 		client:     c,
 		datastream: datastream,
 	}
-	return nil
-}
-
-func GetInstance() *Elastic {
-	return instance
+	return
 }
 
 func (e *Elastic) GetClient() *elasticsearch.TypedClient {
