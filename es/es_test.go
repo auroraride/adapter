@@ -23,13 +23,13 @@ type Document struct {
 func TestEs(t *testing.T) {
 	err := Create("b19FdHpJOEI1VEVyeZVjOUs1WUM6MHIxUktUTGpROS1VaGdzZXRMQkVUQQ==", "development-electric-consumption-cabinet-", []string{"http://172.16.1.108:9200"})
 	require.NoError(t, err)
-	New().CreateDocument(&Document{
+	GetInstance().CreateDocument(&Document{
 		Serial:    "x-test",
 		Value:     198.00,
 		Timestamp: time.Now(),
 	})
 	require.NoError(t, err)
-	New().CreateDocument(&Document{
+	GetInstance().CreateDocument(&Document{
 		Serial:    "x-test",
 		Value:     98.00,
 		Timestamp: time.Now().AddDate(0, 0, -1),
@@ -40,7 +40,7 @@ func TestSearch(t *testing.T) {
 	err := Create("b019FdHpJOEI1VEVyeZVjOUs1WUM6MHIxUktUTGpROS1VaGdzZXRMQkVUQQ==", "electric-consumption-cabinet-", []string{"http://172.16.1.108:9200"})
 	require.NoError(t, err)
 
-	items := NewSearch[Document](New().GetIndexWizard()).DoRequest(&search.Request{
+	items := NewSearch[Document](GetInstance().GetIndexWizard()).DoRequest(&search.Request{
 		Query: &types.Query{
 			Match: map[string]types.MatchQuery{
 				"serial": {Query: "x-test"},

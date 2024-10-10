@@ -62,7 +62,7 @@ func SearchWithSort(field string, sort types.FieldSort) SearchOption {
 // NewSearch 创建搜索
 func NewSearch[T any](index string) *ElasticSearch[T] {
 	return &ElasticSearch[T]{
-		Search: New().client.Search().Index(index),
+		Search: GetInstance().client.Search().Index(index),
 		Options: &SearchOptions{
 			Size: 999,
 		},

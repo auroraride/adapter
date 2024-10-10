@@ -38,7 +38,7 @@ func Create(apiKey, datastream string, addresses []string) error {
 	return nil
 }
 
-func New() *Elastic {
+func GetInstance() *Elastic {
 	return instance
 }
 
