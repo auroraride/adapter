@@ -18,6 +18,11 @@ const (
 	StatusAbnormal     CabinetStatus = "abnormal"
 )
 
+type GeoPoint struct {
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
+}
+
 // Cabinet is the model entity for the Cabinet schema.
 type Cabinet struct {
 	ID uint64 `json:"id"`
@@ -45,4 +50,6 @@ type Cabinet struct {
 	Temperature *float64 `json:"temperature,omitempty"`
 	// 总用电量
 	Electricity *float64 `json:"electricity,omitempty"`
+	// 电柜位置
+	Location *GeoPoint `json:"location,omitempty"`
 }
