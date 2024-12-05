@@ -25,31 +25,31 @@ type GeoPoint struct {
 
 // Cabinet is the model entity for the Cabinet schema.
 type Cabinet struct {
-	ID uint64 `json:"id"`
+	ID uint64 `json:"id,omitempty"`
 	// 是否在线
-	Online bool `json:"online"`
+	Online bool `json:"online,omitempty"`
 	// 品牌
-	Brand adapter.CabinetBrand `json:"brand"`
+	Brand adapter.CabinetBrand `json:"brand,omitempty"`
 	// 电柜编号
-	Serial string `json:"serial"`
+	Serial string `json:"serial,omitempty"`
 	// 状态
-	Status CabinetStatus `json:"status"`
+	Status CabinetStatus `json:"status,omitempty"`
 	// 电柜是否启用
-	Enable bool `json:"enable"`
+	Enable bool `json:"enable,omitempty"`
 	// 经度
-	Lng *float64 `json:"lng,omitempty"`
+	Lng *float64 `json:"lng,omitempty,omitempty"`
 	// 纬度
-	Lat *float64 `json:"lat,omitempty"`
+	Lat *float64 `json:"lat,omitempty,omitempty"`
 	// GSM信号强度
-	Gsm *float64 `json:"gsm,omitempty"`
+	Gsm *float64 `json:"gsm,omitempty,omitempty"`
 	// 换电柜总电压 (V)
-	Voltage *float64 `json:"voltage,omitempty"`
+	Voltage *float64 `json:"voltage,omitempty,omitempty"`
 	// 换电柜总电流 (A)
-	Current *float64 `json:"current,omitempty"`
+	Current *float64 `json:"current,omitempty,omitempty"`
 	// 柜体温度值 (换电柜温度)
-	Temperature *float64 `json:"temperature,omitempty"`
+	Temperature *float64 `json:"temperature,omitempty,omitempty"`
 	// 总用电量
-	Electricity *float64 `json:"electricity,omitempty"`
+	Electricity *float64 `json:"electricity,omitempty,omitempty"`
 	// 电柜位置
-	Location *GeoPoint `json:"location,omitempty"`
+	Location *GeoPoint `json:"location,omitempty,omitempty"`
 }
