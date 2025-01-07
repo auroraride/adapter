@@ -8,11 +8,12 @@ option go_package = "github.com/auroraride/adapter/rpc/pb";
 
 service Cabinet {
   // rpc Batch (CabinetBatchRequest) returns (CabinetBatchResponse);
-  rpc Sync (CabinetSyncRequest) returns (CabinetSyncResponse);
-  rpc Deactivate (CabinetDeactivateRequest) returns (CabinetDeactivateResponse);
-  rpc Biz (CabinetBizRequest) returns (CabinetBizResponse);
+  rpc Sync(CabinetSyncRequest) returns (CabinetSyncResponse);
+  rpc Deactivate(CabinetDeactivateRequest) returns (CabinetDeactivateResponse);
+  rpc Biz(CabinetBizRequest) returns (CabinetBizResponse);
   rpc Interrupt(CabinetInterruptRequest) returns (CabinetBizResponse);
-  rpc Exchange (CabinetExchangeRequest) returns (stream CabinetExchangeResponse);
+  rpc Exchange(CabinetExchangeRequest) returns (stream CabinetExchangeResponse);
+  rpc Statistic(CabinetStatisticRequest) returns (CabinetStatisticResponse);
 }
 
 message CabinetDeactivateRequest {
@@ -113,7 +114,7 @@ message CabinetSyncBin {
 
 message CabinetBiz {
   string serial = 1;
-  int32  ordinal = 2;
+  int32 ordinal = 2;
   string desc = 3; // 业务描述
   string user = 4; // 业务人员
 }
@@ -165,3 +166,7 @@ message CabinetExchangeResponse {
   double duration = 9;
   string message = 10;
 }
+
+message CabinetStatisticRequest {}
+
+message CabinetStatisticResponse {}
