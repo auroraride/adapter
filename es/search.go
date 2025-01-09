@@ -18,12 +18,12 @@ import (
 type ElasticSearch[T any] struct {
 	*search.Search
 
-	options *searciOption
+	options *searchOption
 }
 
-// searciOption 搜索选项
+// searchOption 搜索选项
 // 参考文档 https://www.elastic.co/guide/en/elasticsearch/reference/8.11/search-search.html#search-search-api-query-params
-type searciOption struct {
+type searchOption struct {
 	// 索引
 	index string
 
@@ -38,38 +38,38 @@ type searciOption struct {
 }
 
 type SearchOption interface {
-	apply(*searciOption)
+	apply(*searchOption)
 }
 
-type searchOptionFunc func(*searciOption)
+type searchOptionFunc func(*searchOption)
 
-func (f searchOptionFunc) apply(option *searciOption) {
+func (f searchOptionFunc) apply(option *searchOption) {
 	f(option)
 }
 
 func SearchWithIndex(index string) SearchOption {
-	return searchOptionFunc(func(o *searciOption) {
+	return searchOptionFunc(func(o *searchOption) {
 		o.index = index
 	})
 }
 
 // SearchWithSize 设置每页返回的文档数量
 func SearchWithSize(size int) SearchOption {
-	return searchOptionFunc(func(o *searciOption) {
+	return searchOptionFunc(func(o *searchOption) {
 		o.size = size
 	})
 }
 
 // SearchWithPick 设置总返回的文档数量
 func SearchWithPick(num int) SearchOption {
-	return searchOptionFunc(func(o *searciOption) {
+	return searchOptionFunc(func(o *searchOption) {
 		o.pick = &num
 	})
 }
 
 // SearchWithSort 设置排序规则
 func SearchWithSort(field string, sort types.FieldSort) SearchOption {
-	return searchOptionFunc(func(o *searciOption) {
+	return searchOptionFunc(func(o *searchOption) {
 		if o.sort == nil {
 			o.sort = make(map[string]types.FieldSort)
 		}
@@ -79,7 +79,7 @@ func SearchWithSort(field string, sort types.FieldSort) SearchOption {
 
 // NewSearch 创建搜索
 func NewSearch[T any](es *Elastic, options ...SearchOption) *ElasticSearch[T] {
-	o := &searciOption{}
+	o := &searchOption{}
 
 	index := es.GetIndexWizard()
 
