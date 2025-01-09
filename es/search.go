@@ -15,6 +15,11 @@ import (
 	"github.com/auroraride/adapter/log"
 )
 
+type Pagination struct {
+	Total       int64  `json:"total"`
+	SearchAfter string `json:"searchAfter"`
+}
+
 type ElasticSearch[T any] struct {
 	*search.Search
 
@@ -107,7 +112,11 @@ func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
 	}
 
 	if *req.Size == 0 {
-		*req.Size = 999
+		*req.Size = 500
+	}
+
+	if *req.Size > 500 {
+		*req.Size = 500
 	}
 
 	if s.options.sort != nil {
