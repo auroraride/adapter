@@ -103,10 +103,8 @@ func NewSearch[T any](es *Elastic, options ...SearchOption) *ElasticSearch[T] {
 	}
 }
 
-// DoRequest 请求搜索
-// https://www.elastic.co/guide/en/elasticsearch/reference/8.11/paginate-search-results.html#search-after
-// https://ost.51cto.com/posts/11773
-func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
+// doRequest 请求搜索
+func (s *ElasticSearch[T]) doRequest(req *search.Request) *search.Response {
 	if req.Size == nil {
 		req.Size = &s.options.size
 	}
@@ -126,10 +124,18 @@ func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
 	}
 
 	res, err := s.Request(req).Do(context.Background())
-
 	if err != nil {
 		zap.L().Error("搜索失败", logTag(), log.Payload(req), zap.Error(err))
 		return nil
+	}
+
+	return res
+}
+
+// parseResponse 解析搜索结果
+func (s *ElasticSearch[T]) parseResponse(res *search.Response) (output []*T) {
+	if res == nil {
+		return
 	}
 
 	hits := res.Hits.Hits
@@ -141,15 +147,29 @@ func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
 
 	// 解析命中的文档
 	for _, hit := range hits {
-		req.SearchAfter = hit.Sort
 		item := new(T)
-		err = jsoniter.Unmarshal(hit.Source_, item)
+		err := jsoniter.Unmarshal(hit.Source_, item)
 		if err != nil {
 			zap.L().Error("搜索结果解析失败", logTag(), zap.Error(err), zap.String("source", string(hit.Source_)))
 			continue
 		}
 		output = append(output, item)
 	}
+
+	return
+}
+
+// DoRequest 请求搜索 <递归不分页>
+// https://www.elastic.co/guide/en/elasticsearch/reference/8.11/paginate-search-results.html#search-after
+// https://ost.51cto.com/posts/11773
+func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
+	res := s.doRequest(req)
+
+	// 解析结果
+	output = s.parseResponse(res)
+
+	// 修改下次请求的游标
+	req.SearchAfter = res.Hits.Hits[len(res.Hits.Hits)-1].Sort
 
 	// 如果需要返回的文档数量小于或等于请求的文档数量，说明已经请求完毕
 	if s.options.pick != nil && *s.options.pick <= len(output) {
@@ -158,7 +178,7 @@ func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
 	}
 
 	// 如果返回的文档数量小于请求的文档数量，则是所有数据
-	if len(hits) < s.options.size {
+	if len(res.Hits.Hits) < s.options.size {
 		return
 	}
 
@@ -170,5 +190,12 @@ func (s *ElasticSearch[T]) DoRequest(req *search.Request) (output []*T) {
 	// 递归请求
 	output = append(output, s.DoRequest(req)...)
 
+	return
+}
+
+// DoRequestWithResponse 请求搜索，不递归搜索全部文档，返回原始结果
+func (s *ElasticSearch[T]) DoRequestWithResponse(req *search.Request) (output []*T, res *search.Response) {
+	res = s.doRequest(req)
+	output = s.parseResponse(res)
 	return
 }
