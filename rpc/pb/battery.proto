@@ -2,20 +2,24 @@ syntax = "proto3";
 
 package pb;
 
-import "timestamppb/timestamp.proto";
-import "pagination.proto";
 import "google/protobuf/wrappers.proto";
+import "pagination.proto";
+import "timestamppb/timestamp.proto";
 
 option go_package = "github.com/auroraride/adapter/rpc/pb";
 
 service Battery {
-  rpc Batch (BatteryBatchRequest) returns (BatteryBatchResponse);
-  rpc Sample (BatterySnRequest) returns (BatterySampleResponse);
-  rpc FaultList (BatteryFaultListRequest) returns (BatteryFaultListResponse);
-  rpc FaultOverview (BatterySnRequest) returns (BatteryFaultOverviewResponse);
-  rpc Statistics (BatterySnRequest) returns (BatteryStatisticsResponse);
-  rpc Position (BatteryPositionRequest) returns (BatteryPositionResponse);
-  rpc BatchQuery (BatteryBatchQueryRequest) returns (BatteryBatchResponse);
+  rpc Batch(BatteryBatchRequest) returns (BatteryBatchResponse);
+  rpc Sample(BatterySnRequest) returns (BatterySampleResponse);
+  rpc FaultList(BatteryFaultListRequest) returns (BatteryFaultListResponse);
+  rpc FaultOverview(BatterySnRequest) returns (BatteryFaultOverviewResponse);
+  rpc Statistics(BatterySnRequest) returns (BatteryStatisticsResponse);
+  rpc Position(BatteryPositionRequest) returns (BatteryPositionResponse);
+}
+
+message BatteryCycles {
+  int64 minimum = 1; // 最小值
+  int64 maximum = 2; // 最大值
 }
 
 message BatteryItem {
@@ -73,7 +77,8 @@ message BatterySnRequest {
 }
 
 message BatteryBatchRequest {
-  repeated string sn = 1;
+  repeated string sn = 1; // 电池编号筛选
+  optional BatteryCycles cycles = 2; // 电池循环次数筛选
 }
 
 message BatteryBatchResponse {
@@ -179,9 +184,4 @@ message BatteryPositionResponse {
   timestamppb.Timestamp end = 2;
   repeated BatteryStationary stationary = 3;
   repeated BatteryPosition positions = 4;
-}
-
-message BatteryBatchQueryRequest {
-  optional int64 min_cycles = 1;
-  optional int64 max_cycles = 2;
 }
