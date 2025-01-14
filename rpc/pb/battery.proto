@@ -15,8 +15,8 @@ service Battery {
   rpc FaultOverview (BatterySnRequest) returns (BatteryFaultOverviewResponse);
   rpc Statistics (BatterySnRequest) returns (BatteryStatisticsResponse);
   rpc Position (BatteryPositionRequest) returns (BatteryPositionResponse);
+  rpc BatchQuery (BatteryBatchQueryRequest) returns (BatteryBatchResponse);
 }
-
 
 message BatteryItem {
   int64 id = 1;
@@ -179,4 +179,9 @@ message BatteryPositionResponse {
   timestamppb.Timestamp end = 2;
   repeated BatteryStationary stationary = 3;
   repeated BatteryPosition positions = 4;
+}
+
+message BatteryBatchQueryRequest {
+  optional int64 min_cycles = 1;
+  optional int64 max_cycles = 2;
 }
