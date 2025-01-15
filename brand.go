@@ -24,7 +24,7 @@ func (b CabinetBrand) Name() string {
 	case CabinetBrandKaixin:
 		return "凯信"
 	case CabinetBrandYundong:
-		return "运动"
+		return "云动"
 	case CabinetBrandTuobang:
 		return "拓邦"
 	case CabinetBrandXiliulouServer:
