@@ -25,6 +25,7 @@ const (
 	Battery_FaultOverview_FullMethodName = "/pb.Battery/FaultOverview"
 	Battery_Statistics_FullMethodName    = "/pb.Battery/Statistics"
 	Battery_Position_FullMethodName      = "/pb.Battery/Position"
+	Battery_List_FullMethodName          = "/pb.Battery/List"
 )
 
 // BatteryClient is the client API for Battery service.
@@ -37,6 +38,7 @@ type BatteryClient interface {
 	FaultOverview(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryFaultOverviewResponse, error)
 	Statistics(ctx context.Context, in *BatterySnRequest, opts ...grpc.CallOption) (*BatteryStatisticsResponse, error)
 	Position(ctx context.Context, in *BatteryPositionRequest, opts ...grpc.CallOption) (*BatteryPositionResponse, error)
+	List(ctx context.Context, in *BatteryListRequest, opts ...grpc.CallOption) (*BatteryListResponse, error)
 }
 
 type batteryClient struct {
@@ -107,6 +109,16 @@ func (c *batteryClient) Position(ctx context.Context, in *BatteryPositionRequest
 	return out, nil
 }
 
+func (c *batteryClient) List(ctx context.Context, in *BatteryListRequest, opts ...grpc.CallOption) (*BatteryListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatteryListResponse)
+	err := c.cc.Invoke(ctx, Battery_List_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BatteryServer is the server API for Battery service.
 // All implementations must embed UnimplementedBatteryServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type BatteryServer interface {
 	FaultOverview(context.Context, *BatterySnRequest) (*BatteryFaultOverviewResponse, error)
 	Statistics(context.Context, *BatterySnRequest) (*BatteryStatisticsResponse, error)
 	Position(context.Context, *BatteryPositionRequest) (*BatteryPositionResponse, error)
+	List(context.Context, *BatteryListRequest) (*BatteryListResponse, error)
 	mustEmbedUnimplementedBatteryServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedBatteryServer) Statistics(context.Context, *BatterySnRequest)
 }
 func (UnimplementedBatteryServer) Position(context.Context, *BatteryPositionRequest) (*BatteryPositionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Position not implemented")
+}
+func (UnimplementedBatteryServer) List(context.Context, *BatteryListRequest) (*BatteryListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedBatteryServer) mustEmbedUnimplementedBatteryServer() {}
 func (UnimplementedBatteryServer) testEmbeddedByValue()                 {}
@@ -274,6 +290,24 @@ func _Battery_Position_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Battery_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatteryListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BatteryServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Battery_List_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BatteryServer).List(ctx, req.(*BatteryListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Battery_ServiceDesc is the grpc.ServiceDesc for Battery service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var Battery_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Position",
 			Handler:    _Battery_Position_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _Battery_List_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

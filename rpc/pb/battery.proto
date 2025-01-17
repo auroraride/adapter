@@ -15,6 +15,7 @@ service Battery {
   rpc FaultOverview(BatterySnRequest) returns (BatteryFaultOverviewResponse);
   rpc Statistics(BatterySnRequest) returns (BatteryStatisticsResponse);
   rpc Position(BatteryPositionRequest) returns (BatteryPositionResponse);
+  rpc List(BatteryListRequest) returns (BatteryListResponse);
 }
 
 message BatteryCycles {
@@ -184,4 +185,18 @@ message BatteryPositionResponse {
   timestamppb.Timestamp end = 2;
   repeated BatteryStationary stationary = 3;
   repeated BatteryPosition positions = 4;
+}
+
+message BatteryListRequest {
+  enum OrderBy {
+    cycles = 0;
+    soc = 1;
+    voltage = 2;
+    created_at = 3;
+  }
+  OrderBy order_by = 1;
+}
+
+message BatteryListResponse {
+  repeated BatteryItem items = 1;
 }
