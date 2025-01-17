@@ -194,7 +194,12 @@ message BatteryListRequest {
     voltage = 2;
     created_at = 3;
   }
+  enum OrderType {
+    asc = 0;
+    desc = 1;
+  }
   OrderBy order_by = 1;
+  OrderType order = 2;
 }
 
 message BatteryListResponse {
