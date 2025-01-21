@@ -146,10 +146,9 @@ func writeHeaders(buffer *bytes.Buffer, header DumpHeader, c echo.Context, logge
 	}
 
 	var headers http.Header
-	switch header {
-	case DumpHeaderResponse:
+	if bytes.Equal(header, DumpHeaderResponse) {
 		headers = c.Response().Header()
-	default:
+	} else {
 		headers = c.Request().Header
 	}
 
