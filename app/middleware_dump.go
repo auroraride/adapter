@@ -36,6 +36,8 @@ type DumpHandler func(echo.Context, []byte, []byte)
 
 type HeaderSkipper func(string) bool
 
+type DumpLogger func(c echo.Context) bool
+
 type DumpConfig struct {
 	Skipper ew.Skipper
 
@@ -77,7 +79,8 @@ func dumpBuffer(cfg *DumpConfig, c echo.Context, reqBody, resBody []byte) []byte
 		return nil
 	}
 
-	var buffer bytes.Buffer
+	buffer := adapter.NewBuffer()
+	defer adapter.ReleaseBuffer(buffer)
 
 	// log time
 	buffer.WriteString(time.Now().Format("2006-01-02 15:04:05.00000"))

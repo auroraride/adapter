@@ -31,7 +31,7 @@ type Battery struct {
 // ParseBatterySN 解析电池编号
 func ParseBatterySN(sn string) (bat Battery, err error) {
 	if len(sn) < 16 {
-		return bat, errors.New("电池编码位数错误")
+		return bat, errors.New("电池编码位数错误 (" + sn + ")")
 	}
 
 	b := make([]byte, len(sn))
@@ -41,7 +41,7 @@ func ParseBatterySN(sn string) (bat Battery, err error) {
 		case c >= 'a' && c <= 'z':
 			c -= 'a' - 'A'
 		case c < '0', c > 'z', c > '9' && c < 'A', c > 'Z' && c < 'a':
-			return Battery{}, errors.New("电池编码错误")
+			return Battery{}, errors.New("电池编码错误 (" + sn + ")")
 		}
 		b[i] = c
 	}
@@ -56,7 +56,7 @@ func ParseBatterySN(sn string) (bat Battery, err error) {
 		bat.Brand = BatteryBrandTB
 		bat.Model = sn[4:6] + "V" + sn[7:9] + "AH"
 	default:
-		return Battery{}, errors.New("电池品牌编码解析失败")
+		return Battery{}, errors.New("电池品牌编码解析失败 (" + sn + ")")
 	}
 
 	bat.SN = sn
