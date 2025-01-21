@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -22,10 +23,15 @@ import (
 	"github.com/auroraride/adapter"
 )
 
+type DumpHeader []byte
+
 var (
-	dumpReqHeader  = []byte("Request Header")
+	DumpHeaderRequest  DumpHeader = []byte("Request Header")
+	DumpHeaderResponse DumpHeader = []byte("Response Header")
+)
+
+var (
 	dumpReqBody    = []byte("Request Body")
-	dumpResHeader  = []byte("Response Header")
 	dumpResBody    = []byte("Response Body")
 	dumpEqual      = append(adapter.Space, append(adapter.Equal, adapter.Space...)...)
 	dumpLeftSplit  = append(bytes.Repeat(adapter.Hyphen, 4), adapter.LeftSquareBracket...)
@@ -34,18 +40,15 @@ var (
 
 type DumpHandler func(echo.Context, []byte, []byte)
 
-type HeaderSkipper func(string) bool
+type DumpHeaderLogger func(c echo.Context) map[string]string
 
 type DumpLogger func(c echo.Context) bool
 
 type DumpConfig struct {
 	Skipper ew.Skipper
 
-	RequestHeader        bool
-	RequestHeaderSkipper HeaderSkipper
-
-	ResponseHeader        bool
-	ResponseHeaderSkipper HeaderSkipper
+	RequestHeader  DumpHeaderLogger
+	ResponseHeader DumpHeaderLogger
 
 	ResponseBodySkipper ew.Skipper
 
@@ -97,19 +100,9 @@ func dumpBuffer(cfg *DumpConfig, c echo.Context, reqBody, resBody []byte) []byte
 	buffer.Write(adapter.Newline)
 
 	// log request header
-	if cfg.RequestHeader {
-		// ----[Request Header]----
-		buffer.Write(dumpLeftSplit)
-		buffer.Write(dumpReqHeader)
-		buffer.Write(dumpRightSplit)
-
-		// TODO c.Request().Header.Write
-		// k = v
-		for _, s := range getHeaders(c.Request().Header, cfg.RequestHeaderSkipper) {
-			buffer.WriteString(s)
-			buffer.Write(adapter.Newline)
-		}
-	}
+	// ----[Request Header]----
+	// k = v
+	writeHeaders(buffer, DumpHeaderRequest, c, cfg.RequestHeader)
 
 	// log request body
 	if len(reqBody) > 0 {
@@ -122,19 +115,9 @@ func dumpBuffer(cfg *DumpConfig, c echo.Context, reqBody, resBody []byte) []byte
 	}
 
 	// log response header
-	if cfg.ResponseHeader {
-		// ----[Response Header]----
-		buffer.Write(dumpLeftSplit)
-		buffer.Write(dumpResHeader)
-		buffer.Write(dumpRightSplit)
-
-		// k = v
-
-		for _, s := range getHeaders(c.Response().Header(), cfg.ResponseHeaderSkipper) {
-			buffer.WriteString(s)
-			buffer.Write(adapter.Newline)
-		}
-	}
+	// ----[Response Header]----
+	// k = v
+	writeHeaders(buffer, DumpHeaderResponse, c, cfg.ResponseHeader)
 
 	// log response body
 	if len(resBody) > 0 {
@@ -149,6 +132,42 @@ func dumpBuffer(cfg *DumpConfig, c echo.Context, reqBody, resBody []byte) []byte
 	buffer.Write(adapter.Newline)
 
 	return buffer.Bytes()
+}
+
+func writeHeaders(buffer *bytes.Buffer, header DumpHeader, c echo.Context, logger DumpHeaderLogger) {
+	if logger == nil {
+		return
+	}
+
+	km := logger(c)
+
+	if km == nil {
+		return
+	}
+
+	var headers http.Header
+	switch header {
+	case DumpHeaderResponse:
+		headers = c.Response().Header()
+	default:
+		headers = c.Request().Header
+	}
+
+	pre := false
+	for k := range headers {
+		if key, ok := km[k]; ok {
+			if !pre {
+				pre = true
+				buffer.Write(dumpLeftSplit)
+				buffer.Write(header)
+				buffer.Write(dumpRightSplit)
+			}
+			buffer.WriteString(key)
+			buffer.WriteString(" = ")
+			buffer.WriteString(strings.Join(headers.Values(k), ","))
+		}
+	}
+	return
 }
 
 func dump(handler DumpHandler) echo.MiddlewareFunc {
@@ -242,8 +261,8 @@ func (mw *DumpFileMiddleware) write(b []byte) {
 
 func (mw *DumpFileMiddleware) WithDefaultConfig() echo.MiddlewareFunc {
 	return mw.WithConfig(&DumpConfig{
-		RequestHeader:  true,
-		ResponseHeader: false,
+		RequestHeader:  nil,
+		ResponseHeader: nil,
 	})
 }
 
@@ -260,12 +279,14 @@ func NewDumpLoggerMiddleware() *DumpZapLoggerMiddleware {
 	return &DumpZapLoggerMiddleware{}
 }
 
-func getHeaders(headers http.Header, skipper HeaderSkipper) (strs []string) {
+func getHeaders(headers http.Header, km map[string]string) (strs []string) {
+	if km == nil {
+		return
+	}
 	for k := range headers {
-		if skipper != nil && skipper(k) {
-			continue
+		if key, ok := km[k]; ok {
+			strs = append(strs, key+" = "+strings.Join(headers.Values(k), ","))
 		}
-		strs = append(strs, k+" = "+headers.Get(k))
 	}
 	return
 }
@@ -281,8 +302,8 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
 		}
 
 		// log request header
-		if cfg.RequestHeader {
-			fields = append(fields, zap.Strings("request_header", getHeaders(c.Request().Header, cfg.RequestHeaderSkipper)))
+		if cfg.RequestHeader != nil {
+			fields = append(fields, zap.Strings("request_header", getHeaders(c.Request().Header, cfg.RequestHeader(c))))
 		}
 
 		// log request body
@@ -291,8 +312,8 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
 		}
 
 		// log response header
-		if cfg.ResponseHeader {
-			fields = append(fields, zap.Strings("response_header", getHeaders(c.Response().Header(), cfg.ResponseHeaderSkipper)))
+		if cfg.ResponseHeader != nil {
+			fields = append(fields, zap.Strings("response_header", getHeaders(c.Request().Header, cfg.ResponseHeader(c))))
 		}
 
 		if cfg.ResponseBodySkipper == nil {
@@ -323,8 +344,8 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
 
 func (mw *DumpZapLoggerMiddleware) WithDefaultConfig(skipper ew.Skipper) echo.MiddlewareFunc {
 	return mw.WithConfig(&DumpConfig{
-		RequestHeader:  true,
-		ResponseHeader: false,
+		RequestHeader:  nil,
+		ResponseHeader: nil,
 		Skipper:        skipper,
 	})
 }
