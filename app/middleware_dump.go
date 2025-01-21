@@ -298,6 +298,8 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
 
 		fields := []zap.Field{
 			zap.String("remote_addr", c.Request().RemoteAddr),
+			zap.String("method", c.Request().Method),
+			zap.String("path", c.Path()),
 		}
 
 		// log request header
@@ -334,7 +336,7 @@ func (mw *DumpZapLoggerMiddleware) WithConfig(cfg *DumpConfig) echo.MiddlewareFu
 		}
 
 		// x := adapter.GetCaller(0)
-		go zap.L().Named("dump").WithOptions(zap.WithCaller(false)).Info(
+		zap.L().Named("dump").WithOptions(zap.WithCaller(false)).Info(
 			"["+c.Request().Method+"] "+c.Request().RequestURI,
 			fields...,
 		)
