@@ -71,3 +71,8 @@ func (m *Memcache) ListCabinetBatteryCache(ctx context.Context, serial string) [
 func (m *Memcache) IsMemberCabinetBatteryCache(ctx context.Context, serial string, batterySn string) bool {
 	return m.db.SIsMember(ctx, m.CabinetBatteryCacheKey(serial), batterySn).Val()
 }
+
+// CountCabinetBatteryCache 电柜电池缓存数量
+func (m *Memcache) CountCabinetBatteryCache(ctx context.Context, serial string) int64 {
+	return m.db.SCard(ctx, m.CabinetBatteryCacheKey(serial)).Val()
+}
