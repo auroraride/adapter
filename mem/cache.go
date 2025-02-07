@@ -6,6 +6,7 @@ package mem
 
 import (
 	"context"
+	"strconv"
 	"sync"
 
 	"github.com/redis/go-redis/v9"
@@ -50,29 +51,34 @@ func (m *Memcache) ClearCabinetBatteryCache(ctx context.Context, serial string) 
 }
 
 // AddCabinetBatteryCache 添加电柜电池缓存
-func (m *Memcache) AddCabinetBatteryCache(ctx context.Context, serial string, batterySn string) {
+func (m *Memcache) AddCabinetBatteryCache(ctx context.Context, serial string, ordinal int, batterySn string) {
 	if batterySn == "" {
 		return
 	}
-	m.db.SAdd(ctx, m.CabinetBatteryCacheKey(serial), batterySn)
+	m.db.HSet(ctx, m.CabinetBatteryCacheKey(serial), batterySn, ordinal)
 }
 
 // RemoveCabinetBatteryCache 移除电柜电池缓存
 func (m *Memcache) RemoveCabinetBatteryCache(ctx context.Context, serial string, batterySn string) {
-	m.db.SRem(ctx, m.CabinetBatteryCacheKey(serial), batterySn)
+	m.db.HDel(ctx, m.CabinetBatteryCacheKey(serial), batterySn)
 }
 
 // ListCabinetBatteryCache 获取电柜电池缓存
-func (m *Memcache) ListCabinetBatteryCache(ctx context.Context, serial string) []string {
-	return m.db.SMembers(ctx, m.CabinetBatteryCacheKey(serial)).Val()
+func (m *Memcache) ListCabinetBatteryCache(ctx context.Context, serial string) (list map[string]int) {
+	list = make(map[string]int)
+	val := m.db.HGetAll(ctx, m.CabinetBatteryCacheKey(serial)).Val()
+	for k, v := range val {
+		list[k], _ = strconv.Atoi(v)
+	}
+	return
 }
 
 // IsMemberCabinetBatteryCache 电池是否在电柜缓存中
 func (m *Memcache) IsMemberCabinetBatteryCache(ctx context.Context, serial string, batterySn string) bool {
-	return m.db.SIsMember(ctx, m.CabinetBatteryCacheKey(serial), batterySn).Val()
+	return m.db.HExists(ctx, m.CabinetBatteryCacheKey(serial), batterySn).Val()
 }
 
 // CountCabinetBatteryCache 电柜电池缓存数量
 func (m *Memcache) CountCabinetBatteryCache(ctx context.Context, serial string) int64 {
-	return m.db.SCard(ctx, m.CabinetBatteryCacheKey(serial)).Val()
+	return m.db.HLen(ctx, m.CabinetBatteryCacheKey(serial)).Val()
 }
