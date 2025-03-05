@@ -35,6 +35,9 @@ type searchOption struct {
 	// 每页返回文档数量
 	size int
 
+	// 每页最大返回文档数量
+	maxSize int
+
 	// 总返回文档数量
 	pick *int
 
@@ -82,9 +85,17 @@ func SearchWithSort(field string, sort types.FieldSort) SearchOption {
 	})
 }
 
+func SearchWithMaxSize(size int) SearchOption {
+	return searchOptionFunc(func(o *searchOption) {
+		o.maxSize = size
+	})
+}
+
 // NewSearch 创建搜索
 func NewSearch[T any](es *Elastic, options ...SearchOption) *ElasticSearch[T] {
-	o := &searchOption{}
+	o := &searchOption{
+		maxSize: 500,
+	}
 
 	index := es.GetIndexWizard()
 
@@ -109,12 +120,8 @@ func (s *ElasticSearch[T]) doRequest(req *search.Request) *search.Response {
 		req.Size = &s.options.size
 	}
 
-	if *req.Size == 0 {
-		*req.Size = 500
-	}
-
-	if *req.Size > 500 {
-		*req.Size = 500
+	if *req.Size == 0 || *req.Size > s.options.maxSize {
+		*req.Size = s.options.maxSize
 	}
 
 	if s.options.sort != nil {
