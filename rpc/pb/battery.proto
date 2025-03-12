@@ -125,8 +125,8 @@ message BatteryFaultListRequest {
   optional timestamppb.Timestamp end_at = 4;
   optional BatteryFaultType fault = 5;
   repeated string sns = 6;
-  optional timestamppb.Timestamp begin_start = 7;
-  optional timestamppb.Timestamp begin_end = 8;
+  optional timestamppb.Timestamp start = 7;
+  optional timestamppb.Timestamp stop = 8;
 }
 
 message BatteryFault {
