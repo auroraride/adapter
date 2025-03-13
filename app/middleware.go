@@ -56,7 +56,9 @@ func UserMiddleware(skipper middleware.Skipper) echo.MiddlewareFunc {
 			id := header.Get(adapter.HeaderUserID)
 			typ := header.Get(adapter.HeaderUserType)
 
-			if !skipper(c) && (id == "" || typ == "") {
+			if c.Request().Method != http.MethodOptions &&
+				(skipper == nil || !skipper(c)) &&
+				(id == "" || typ == "") {
 				Panic(http.StatusUnauthorized, adapter.ErrorUserRequired)
 			}
 
