@@ -5,7 +5,10 @@
 
 package adapter
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestOr(t *testing.T) {
 	if 1 != Or(true, 1, 2) {
@@ -14,4 +17,24 @@ func TestOr(t *testing.T) {
 	if "A" != Or(false, "B", "A") {
 		t.Fail()
 	}
+
+	var a *string
+	if time.Now().Second()%2 == 0 {
+		a = nil
+	} else {
+		x := "hello"
+		a = &x
+	}
+	v := OrFunc(
+		func() bool {
+			return a == nil
+		},
+		func() string {
+			return "world"
+		},
+		func() string {
+			return *a
+		},
+	)
+	t.Logf("v: %s", v)
 }
