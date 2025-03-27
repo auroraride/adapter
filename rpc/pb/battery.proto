@@ -16,6 +16,7 @@ service Battery {
   rpc Statistics(BatterySnRequest) returns (BatteryStatisticsResponse);
   rpc Position(BatteryPositionRequest) returns (BatteryPositionResponse);
   rpc List(BatteryListRequest) returns (BatteryListResponse);
+  rpc Overlapping(OverlappingRequest) returns (OverlappingResponse);
 }
 
 message BatteryCycles {
@@ -207,4 +208,27 @@ message BatteryListRequest {
 
 message BatteryListResponse {
   repeated BatteryItem items = 1;
+}
+
+message OverlappingRequest {
+  string sn = 1; // 电池编码
+  timestamppb.Timestamp start = 2; // 起始时间
+  timestamppb.Timestamp end = 3; // 结束时间
+  uint64 tolerance = 4; // 时间窗口大小（秒）
+  double distance = 5; // 距离阈值（米）
+}
+
+message OverlappingItem {
+  string candidateSn = 1; // 候选电池编码
+  string candidateTs = 2; // 候选电池出现时间
+  double candidateLatitude = 3; // 候选电池纬度
+  double candidateLongitude = 4; // 候选电池经度
+  double distance = 5; // 候选电池与目标电池的距离
+  string ts = 6; // 目标电池出现时间
+  double latitude = 7; // 目标电池纬度
+  double longitude = 8; // 目标电池经度
+}
+
+message OverlappingResponse {
+  repeated OverlappingItem items = 1;
 }
