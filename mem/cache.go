@@ -10,11 +10,11 @@ import (
 	"sync"
 
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 var (
 	cacheInstance *Memcache
-	cacheOnece    sync.Once
 )
 
 type Memcache struct {
@@ -26,13 +26,18 @@ type Memcache struct {
 }
 
 func CacheSetup(db *redis.Client) {
-	cacheOnece.Do(func() {
+	sync.OnceFunc(func() {
 		cacheInstance = &Memcache{
 			db: db,
 
 			cabinetBatteryCacheKeyPrefix: "CACHE:CABINET:BATTERY:",
 		}
-	})
+		ping, err := cacheInstance.db.Ping(context.Background()).Result()
+		if err != nil {
+			panic("memcache ping error: " + err.Error())
+		}
+		zap.L().Info("[CACHE] <UNK>", zap.String("ping", ping))
+	})()
 }
 
 // Cache 获取缓存实例
